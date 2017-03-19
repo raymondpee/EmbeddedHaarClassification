@@ -1,0 +1,15 @@
+D:/_RPEECORE/_MasterWork/PROJECT/verilog_module_devel/ProjectEmbeddedTest/fifo.v {1 {vlog -work work -nocovercells D:/_RPEECORE/_MasterWork/PROJECT/verilog_module_devel/ProjectEmbeddedTest/fifo.v
+Model Technology ModelSim ALTERA vlog 6.5e Compiler 2010.02 Feb 27 2010
+-- Compiling module fifo
+
+Top level modules:
+	fifo
+
+} {} {}} D:/_RPEECORE/_MasterWork/PROJECT/verilog_module_devel/ProjectEmbeddedTest/image_resize.v {1 {vlog -work work -nocovercells D:/_RPEECORE/_MasterWork/PROJECT/verilog_module_devel/ProjectEmbeddedTest/image_resize.v
+Model Technology ModelSim ALTERA vlog 6.5e Compiler 2010.02 Feb 27 2010
+-- Compiling module image_resize
+
+Top level modules:
+	image_resize
+
+} {} {}}

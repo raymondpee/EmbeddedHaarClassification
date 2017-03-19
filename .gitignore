@@ -5,3 +5,13 @@ LED_HEX_hardware/soc_system/synthesis/submodules/
 LED_HEX_hardware/soc_system/
 LED_HEX_hardware/hps_isw_handoff/
 LED_HEX_hardware/incremental_db/
+LED_HEX_hardware/face_detection_system/work/_temp/
+LED_HEX_hardware/face_detection_system/work/image_resize/
+LED_HEX_hardware/face_detection_system/work/bram/
+LED_HEX_hardware/face_detection_system/Memory Project/work/rom_single_port_0/
+LED_HEX_hardware/face_detection_system/Memory Project/work/register/
+LED_HEX_hardware/face_detection_system/Memory Project/work/testregister/
+LED_HEX_hardware/face_detection_system/work/test_ram_memory/
+LED_HEX_hardware/face_detection_system/work/fifo/
+LED_HEX_hardware/face_detection_system/work/ram_memory/
+LED_HEX_hardware/face_detection_system/work/
