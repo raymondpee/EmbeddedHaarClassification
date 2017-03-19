@@ -1,0 +1,176 @@
+# ** Warning: (vsim-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# vsim -L altera_mf_ver test_ram_memory 
+# Start time: 18:04:56 on Mar 19,2017
+# Loading work.test_ram_memory
+# Loading work.ram_memory
+# Loading work.fifo
+# Loading altera_mf_ver.scfifo
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# ** Warning: (vsim-3017) ram_memory.v(39): [TFMPC] - Too few port connections. Expected 8, found 6.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_1 File: fifo.v
+# ** Warning: (vsim-3722) ram_memory.v(39): [TFMPC] - Missing connection for port 'empty'.
+# ** Warning: (vsim-3722) ram_memory.v(39): [TFMPC] - Missing connection for port 'full'.
+# ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_1/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+# ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
+# ** Warning: (vsim-3017) ram_memory.v(54): [TFMPC] - Too few port connections. Expected 8, found 6.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_2 File: fifo.v
+# ** Warning: (vsim-3722) ram_memory.v(54): [TFMPC] - Missing connection for port 'empty'.
+# ** Warning: (vsim-3722) ram_memory.v(54): [TFMPC] - Missing connection for port 'full'.
+# ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_2/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+# ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
+# ** Warning: (vsim-3017) ram_memory.v(69): [TFMPC] - Too few port connections. Expected 8, found 6.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_3 File: fifo.v
+# ** Warning: (vsim-3722) ram_memory.v(69): [TFMPC] - Missing connection for port 'empty'.
+# ** Warning: (vsim-3722) ram_memory.v(69): [TFMPC] - Missing connection for port 'full'.
+# ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_3/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+# ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
+run -next
+# ** Warning: (vish-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# ** Warning: (vish-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+restart -f
+# ** Warning: (vsim-3017) ram_memory.v(39): [TFMPC] - Too few port connections. Expected 8, found 6.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_1 File: fifo.v
+# ** Warning: (vsim-3722) ram_memory.v(39): [TFMPC] - Missing connection for port 'empty'.
+# ** Warning: (vsim-3722) ram_memory.v(39): [TFMPC] - Missing connection for port 'full'.
+# ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_1/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+# ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
+# ** Warning: (vsim-3017) ram_memory.v(54): [TFMPC] - Too few port connections. Expected 8, found 6.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_2 File: fifo.v
+# ** Warning: (vsim-3722) ram_memory.v(54): [TFMPC] - Missing connection for port 'empty'.
+# ** Warning: (vsim-3722) ram_memory.v(54): [TFMPC] - Missing connection for port 'full'.
+# ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_2/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+# ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
+# ** Warning: (vsim-3017) ram_memory.v(69): [TFMPC] - Too few port connections. Expected 8, found 6.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_3 File: fifo.v
+# ** Warning: (vsim-3722) ram_memory.v(69): [TFMPC] - Missing connection for port 'empty'.
+# ** Warning: (vsim-3722) ram_memory.v(69): [TFMPC] - Missing connection for port 'full'.
+# ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
+#    Time: 0 ps  Iteration: 0  Instance: /test_ram_memory/ram_memory/ram_row_last_3/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+# ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
+add wave
+# wrong number of args for "add wave".
+# Usage: add wave [-allowconstants] [-clampanalog {0|1}] [-color <standard_color_name>] [-depth <level>] [-divider <divider_name>...] [-expand <signal_name>] [-filter <f> | -nofilter <f>] [-format <type> | -<format>] [-group <group_name> [<sig_name1>...]] [-height <pixels>] [[-in] [-out] [-inout] | [-ports]] [-internal] [-label <name>] [-max <real_num>] [-min <real_num>] [-noupdate] [-numdynitem <int>] [-position <location>] [-queueends] [-radix <type> | -<radix_type>] [-radixenumnumeric | -radixenumsymbolic] [-recursive] [-startdynitem <int>] [-time] [<object_name>...] [{<object_name> {sig1 sig2 ...}}] 
+add wave clk
+add wave -position end  sim:/test_ram_memory/ram_memory/fifo_data_out
+
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+quit -sim
+# End time: 18:17:24 on Mar 19,2017, Elapsed time: 0:12:28
+# Errors: 1, Warnings: 30
