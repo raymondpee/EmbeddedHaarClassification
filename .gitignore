@@ -1,0 +1,7 @@
+LED_HEX_hardware/incremental_db/compiled_partitions/
+LED_HEX_hardware/db/
+LED_HEX_hardware/soc_system/synthesis/submodules/soc_system_onchip_memory2_0.hex
+LED_HEX_hardware/soc_system/synthesis/submodules/
+LED_HEX_hardware/soc_system/
+LED_HEX_hardware/hps_isw_handoff/
+LED_HEX_hardware/incremental_db/
