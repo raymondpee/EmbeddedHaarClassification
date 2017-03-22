@@ -10,19 +10,7 @@ parameter IHEIGHT = 3
 	clk_os,
 	reset_os,
 	pixel,
-	wen,
-	index_a_1,
-	index_b_2,
-	index_c_3,
-	index_d_4,
-	index_a_1,
-	index_b_2,
-	index_c_3,
-	index_d_4,
-	index_a_1,
-	index_b_2,
-	index_c_3,
-	index_d_4
+	wen
 );
 
 wire [DATA_WIDTH-1:0] fifo_data_out [IHEIGHT-1:0];
@@ -34,7 +22,7 @@ input clk_os;
 input reset_os;
 input pixel;
 input wen;
-
+/*
 input [DATA_WIDTH-1:0] index_a_1;
 input [DATA_WIDTH-1:0] index_b_2;
 input [DATA_WIDTH-1:0] index_c_3;
