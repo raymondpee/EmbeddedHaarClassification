@@ -1,7 +1,7 @@
 # ** Warning: (vsim-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
 # No such file or directory. (errno = ENOENT)
 # vsim -L altera_mf_ver test_module 
-# Start time: 00:13:33 on Mar 23,2017
+# Start time: 00:36:15 on Mar 23,2017
 # Loading work.test_module
 # Loading work.resize
 # Loading work.memory
@@ -9,10 +9,6 @@
 # Loading work.fifo
 # Loading altera_mf_ver.scfifo
 # Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
-# ** Error: (vsim-3063) test_module.v(83): Port 'clk' not found in the connected module (1st connection).
-#    Time: 0 ps  Iteration: 0  Instance: /test_module/resize_half File: resize.v
-# ** Error: (vsim-3063) test_module.v(99): Port 'clk' not found in the connected module (1st connection).
-#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory File: memory.v
 # ** Warning: (vsim-3015) test_module.v(99): [PCDPC] - Port size (1) does not match connection size (8) for port 'pixel'. The port definition is at: memory.v(12).
 #    Time: 0 ps  Iteration: 0  Instance: /test_module/memory File: memory.v
 # ** Warning: (vsim-3017) row.v(32): [TFMPC] - Too few port connections. Expected 8, found 6.
@@ -33,6 +29,79 @@
 # ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
 #    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk1[1]/haar_row/row_fifo/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
 # ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
-# Error loading design
-# End time: 00:13:34 on Mar 23,2017, Elapsed time: 0:00:01
-# Errors: 2, Warnings: 13
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+# ** Warning: (vish-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# ** Warning: (vish-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+# End time: 00:39:40 on Mar 23,2017, Elapsed time: 0:03:25
+# Errors: 0, Warnings: 13

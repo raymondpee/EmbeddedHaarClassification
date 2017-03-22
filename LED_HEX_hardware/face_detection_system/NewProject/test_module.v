@@ -82,7 +82,7 @@ resize
 )
 resize_half
 (
-.clk(clk),
+.clk_os(clk),
 .i_xcoord(xcoord),
 .i_ycoord(ycoord),
 .o_xcoord(scale_xcoord),
@@ -98,7 +98,7 @@ memory
 )
 memory 
 (
-.clk(clk),
+.clk_os(clk),
 .reset_os(reset_os),
 .pixel(pixel),
 .wen(wen)
