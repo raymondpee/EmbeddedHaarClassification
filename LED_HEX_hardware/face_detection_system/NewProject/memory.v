@@ -20,30 +20,47 @@ wire [DATA_WIDTH-1:0] fifo_reduction_sum [IHEIGHT-1:0];
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 input reset_os;
-input pixel;
+input [DATA_WIDTH-1:0] pixel;
 input wen;
-/*
-input [DATA_WIDTH-1:0] index_a_1;
-input [DATA_WIDTH-1:0] index_b_2;
-input [DATA_WIDTH-1:0] index_c_3;
-input [DATA_WIDTH-1:0] index_d_4;
-input [DATA_WIDTH-1:0] index_a_1;
-input [DATA_WIDTH-1:0] index_b_2;
-input [DATA_WIDTH-1:0] index_c_3;
-input [DATA_WIDTH-1:0] index_d_4;
-input [DATA_WIDTH-1:0] index_a_1;
-input [DATA_WIDTH-1:0] index_b_2;
-input [DATA_WIDTH-1:0] index_c_3;
-input [DATA_WIDTH-1:0] index_d_4;
 /*-----------------------------------------------------------------------*/
 
-assign fifo_data_out[0] = pixel;
-assign fifo_reduction_sum[0] = 0;
+
+
+/*----------------Reduction Sum declaration---------------------------------*/
+assign fifo_reduction_sum[IHEIGHT-1] = 0;
+generate
+	genvar index_reduction;	
+	for(index_reduction = 0;index_reduction <IHEIGHT-1;index_reduction= index_reduction +1)
+	begin				
+		assign fifo_reduction_sum[index_reduction] = fifo_reduction_sum[index_reduction+1] +fifo_data_out[IHEIGHT-1];
+	end
+endgenerate
+/*-----------------------------------------------------------------------*/
+
+
+
+/*------------------Row declaration-----------------------------------------*/
+row
+#(
+	.ADDR_WIDTH(ADDR_WIDTH),
+	.DATA_WIDTH(DATA_WIDTH),
+	.FIFO_COMPONENT_COUNT(FIFO_COMPONENT_COUNT),
+	.IWIDTH(IWIDTH)
+)
+haar_row_0
+(
+	.clk_os(clk_os),
+	.reset_os(reset_os),
+	.wen(wen),
+	.fifo_in(pixel),
+	.fifo_reduction_sum(fifo_reduction_sum[0]),
+	.o_fifo_data_out(fifo_data_out[0])
+);
+
 generate
 	genvar index;	
-	for(index = 0;index <IHEIGHT-1;index= index +1)
-	begin		
-		assign fifo_reduction_sum[index+1] = fifo_reduction_sum[index] + fifo_data_out[index];		
+	for(index = 1;index <IHEIGHT;index= index +1)
+	begin				
 		row
 		#(
 			.ADDR_WIDTH(ADDR_WIDTH),
@@ -51,18 +68,18 @@ generate
 			.FIFO_COMPONENT_COUNT(FIFO_COMPONENT_COUNT),
 			.IWIDTH(IWIDTH)
 		)
-		haar_row
+		haar_row_n
 		(
 			.clk_os(clk_os),
 			.reset_os(reset_os),
 			.wen(wen),
-			.fifo_in(fifo_data_out[index]),
+			.fifo_in(fifo_data_out[index-1]),
 			.fifo_reduction_sum(fifo_reduction_sum[index]),
-			.o_fifo_data_out(fifo_data_out[index+1])
+			.o_fifo_data_out(fifo_data_out[index])
 		);	
 	end
 endgenerate
-
+/*-----------------------------------------------------------------------*/
 
 
 endmodule

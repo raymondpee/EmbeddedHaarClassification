@@ -16,7 +16,7 @@ output [DATA_WIDTH-1:0] o_fifo_data_out
 );
 
 wire fifo_rdreq;
-wire [DATA_WIDTH-1:0] fifo_usedw;                    
+wire [ADDR_WIDTH-1:0] fifo_usedw;                    
 wire [DATA_WIDTH-1:0] fifo_data_out;        //[RESOURCE]The value output from FIFO when full
 
 reg[DATA_WIDTH-1:0]row_integral[IWIDTH-1:0];
