@@ -41,7 +41,7 @@ row_fifo
 
 
 //---------------------Integral Image Row Hardware Logic ---------------------------//
-always @(posedge clk_os)
+always @(posedge clk_os or posedge reset_os)
 begin
 	if(wen)
 	begin
@@ -63,7 +63,7 @@ generate
 				if(reset_os)
 					row_integral[index]<=0;
 				else
-					row_integral[index] = row_integral[index-1] - row_integral[IWIDTH-1];
+					row_integral[index] <= row_integral[index-1] - row_integral[IWIDTH-1];
 			end
 		end
 	end

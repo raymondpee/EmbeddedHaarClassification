@@ -1112,7 +1112,7 @@ R9
 !i113 1
 R10
 vfifo
-R1
+Z12 !s110 1490432380
 !i10b 1
 !s100 XST@oBW[3k68]ko2?>zQM2
 IfC_TA9NT@0XH1ji<M1lR01
@@ -1126,9 +1126,9 @@ R6
 r1
 !s85 0
 31
-R7
-R8
-R9
+Z13 !s108 1490432380.000000
+Z14 !s107 test_ram_memory.v|ram_memory.v|image_resize.v|fifo.v|
+Z15 !s90 fifo.v|image_resize.v|ram_memory.v|test_ram_memory.v|
 !i113 1
 R10
 vflexible_lvds_rx
@@ -1172,7 +1172,7 @@ R9
 !i113 1
 R10
 vimage_resize
-R1
+R12
 !i10b 1
 !s100 NMh8GW1l83DIIY9HG5m[R3
 IVj^_ZLUafe0@fIPDW6goU1
@@ -1186,9 +1186,9 @@ R6
 r1
 !s85 0
 31
-R7
-R8
-R9
+R13
+R14
+R15
 !i113 1
 R10
 vjtag_tap_controller
@@ -1461,7 +1461,7 @@ R9
 !i113 1
 R10
 vram_memory
-R1
+R12
 !i10b 1
 !s100 Jl65Khb<a5UEF7l16NC:M1
 IFP@]:]RBVJTIROLVl:WTH3
@@ -1475,9 +1475,9 @@ R6
 r1
 !s85 0
 31
-R7
-R8
-R9
+R13
+R14
+R15
 !i113 1
 R10
 vscfifo
@@ -1821,7 +1821,7 @@ R9
 !i113 1
 R10
 vtest_ram_memory
-R1
+R12
 !i10b 1
 !s100 7@gTV0OLeTnKH_OV5ghK>1
 I`:NZm:2dEVZl?EK[`Gh>F1
@@ -1835,9 +1835,9 @@ R6
 r1
 !s85 0
 31
-R7
-R8
-R9
+R13
+R14
+R15
 !i113 1
 R10
 vttn_m_cntr

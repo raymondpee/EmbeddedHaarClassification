@@ -32,7 +32,7 @@ generate
 	genvar index_reduction;	
 	for(index_reduction = 0;index_reduction <IHEIGHT-1;index_reduction= index_reduction +1)
 	begin				
-		assign fifo_reduction_sum[index_reduction] = fifo_reduction_sum[index_reduction+1] +fifo_data_out[IHEIGHT-1];
+		assign fifo_reduction_sum[index_reduction] = fifo_reduction_sum[index_reduction+1] +fifo_data_out[index_reduction+1];
 	end
 endgenerate
 /*-----------------------------------------------------------------------*/
