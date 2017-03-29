@@ -1,3 +1,5 @@
+// Modelsim-ASE requires a timescale directive
+`timescale 1 ns / 1 ns
 module test_module;
 
 

@@ -12,10 +12,9 @@ parameter IHEIGHT = 3
 	pixel,
 	wen
 );
-
 wire [DATA_WIDTH-1:0] fifo_data_out [IHEIGHT-1:0];
 wire [DATA_WIDTH-1:0] fifo_reduction_sum [IHEIGHT-1:0];
-
+wire [DATA_WIDTH-1:0] row_integral[IWIDTH-1:0][IHEIGHT-1:0];
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
@@ -23,8 +22,6 @@ input reset_os;
 input [DATA_WIDTH-1:0] pixel;
 input wen;
 /*-----------------------------------------------------------------------*/
-
-
 
 /*----------------Reduction Sum declaration---------------------------------*/
 assign fifo_reduction_sum[IHEIGHT-1] = 0;
@@ -54,7 +51,8 @@ haar_row_0
 	.wen(wen),
 	.fifo_in(pixel),
 	.fifo_reduction_sum(fifo_reduction_sum[0]),
-	.o_fifo_data_out(fifo_data_out[0])
+	.o_fifo_data_out(fifo_data_out[0]),
+	.o_row_integral(row_integral[0])
 );
 
 generate
@@ -75,7 +73,8 @@ generate
 			.wen(wen),
 			.fifo_in(fifo_data_out[index-1]),
 			.fifo_reduction_sum(fifo_reduction_sum[index]),
-			.o_fifo_data_out(fifo_data_out[index])
+			.o_fifo_data_out(fifo_data_out[index]),
+			.o_row_integral(row_integral[index])
 		);	
 	end
 endgenerate

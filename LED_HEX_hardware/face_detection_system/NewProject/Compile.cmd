@@ -1,2 +1,2 @@
 vlib work
-vlog *.v 
+vlog *.v -sv

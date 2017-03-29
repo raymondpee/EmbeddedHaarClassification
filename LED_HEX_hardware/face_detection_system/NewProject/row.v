@@ -6,24 +6,45 @@ parameter FIFO_COMPONENT_COUNT = 6,
 parameter IWIDTH =3
 )
 (
-input clk_os,
-input reset_os,
-input wen,
-input [DATA_WIDTH-1:0] fifo_in,
-input [DATA_WIDTH-1:0] fifo_reduction_sum,
-
-output [DATA_WIDTH-1:0] o_fifo_data_out
+	clk_os,
+	reset_os,
+	wen,
+	fifo_in,
+	fifo_reduction_sum,
+	o_fifo_data_out,
+	o_row_integral,
 );
 
 wire fifo_rdreq;
 wire [ADDR_WIDTH-1:0] fifo_usedw;                    
-wire [DATA_WIDTH-1:0] fifo_data_out;        //[RESOURCE]The value output from FIFO when full
-
+wire [DATA_WIDTH-1:0] fifo_data_out;        
 reg[DATA_WIDTH-1:0]row_integral[IWIDTH-1:0];
 
-//--------------------------------FIFO Row Hardware Logic ---------------------------//
+
+/*--------------------IO port declaration---------------------------------*/
+input clk_os;
+input reset_os;
+input wen;
+input [DATA_WIDTH-1:0] fifo_in;
+input [DATA_WIDTH-1:0] fifo_reduction_sum;
+output [DATA_WIDTH-1:0] o_fifo_data_out;
+output [DATA_WIDTH-1:0] o_row_integral[IWIDTH-1:0];
+/*-----------------------------------------------------------------------*/
+
+
+/*--------------------Assignment declaration---------------------------------*/
 assign o_fifo_data_out = fifo_data_out;
 assign fifo_rdreq = (fifo_usedw == FIFO_COMPONENT_COUNT -1) ? 1:0;
+generate
+	genvar index_integral;
+	for(index_integral = 0; index_integral<IWIDTH; index_integral = index_integral +1)
+	begin
+		assign o_row_integral[index_integral] = row_integral[index_integral];
+	end
+endgenerate
+/*-------------------------------------------------------------------------*/
+
+/*---------------------------------FIFO module ----------------------------*/
 fifo 
 #(
 .DATA_WIDTH(DATA_WIDTH),
@@ -38,9 +59,9 @@ row_fifo
 	.q(fifo_data_out),
 	.usedw(fifo_usedw)	
 );
+/*-------------------------------------------------------------------------*/
 
-
-//---------------------Integral Image Row Hardware Logic ---------------------------//
+/*-------------------------Integral Image Single Row ----------------------*/
 always @(posedge clk_os or posedge reset_os)
 begin
 	if(wen)
@@ -68,6 +89,6 @@ generate
 		end
 	end
 endgenerate
-
+/*-------------------------------------------------------------------------*/
 	
 endmodule
