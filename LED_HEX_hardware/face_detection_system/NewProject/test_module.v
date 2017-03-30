@@ -20,6 +20,8 @@ localparam FRAME_DST_HEIGHT = FRAME_HEIGHT/2;
 wire is_coord_reach;
 wire [BYTE_DOUBLE_WIDTH -1:0] scale_xcoord; // Coordinate X of the image
 wire [BYTE_DOUBLE_WIDTH -1:0] scale_ycoord; // Coordinate Y of the image
+wire [DATA_WIDTH-1:0] row_integral[IWIDTH*IHEIGHT-1:0];
+wire is_candidate;
 
 reg clk;
 reg reset_os;
@@ -105,7 +107,25 @@ memory
 .clk_os(clk),
 .reset_os(reset_os),
 .pixel(pixel),
-.wen(wen)
+.wen(wen),
+.o_row_integral(row_integral),
+.o_is_candidate(is_candidate)
+);
+
+
+module stage_classifier
+#(
+parameter ADDR_WIDTH = 10,
+parameter DATA_WIDTH = 8,
+parameter IWIDTH = 3,
+parameter IHEIGHT = 3
+)
+(
+	clk_fpga,
+	reset_fpga,
+	row_integral,
+	i_enable_write,
+	o_is_face
 );
 /*-----------------------------------------------------------------------*/
 

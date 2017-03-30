@@ -1,7 +1,7 @@
 # ** Warning: (vsim-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
 # No such file or directory. (errno = ENOENT)
 # vsim -L altera_mf_ver test_module 
-# Start time: 23:26:27 on Mar 29,2017
+# Start time: 21:17:43 on Mar 30,2017
 # Loading sv_std.std
 # Loading work.test_module
 # Loading work.memory
@@ -9,7 +9,7 @@
 # Loading work.fifo
 # Loading altera_mf_ver.scfifo
 # Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
-# ** Warning: (vsim-3017) memory.v(47): [TFMPC] - Too few port connections. Expected 8, found 7.
+# ** Warning: (vsim-3017) memory.v(61): [TFMPC] - Too few port connections. Expected 8, found 7.
 #    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/haar_row_0 File: row.v
 # ** Warning: (vsim-3017) row.v(53): [TFMPC] - Too few port connections. Expected 8, found 6.
 #    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/haar_row_0/row_fifo File: fifo.v
@@ -18,28 +18,31 @@
 # ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
 #    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/haar_row_0/row_fifo/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
 # ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
-# ** Warning: (vsim-3017) memory.v(69): [TFMPC] - Too few port connections. Expected 8, found 7.
-#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk2[1]/haar_row_n File: row.v
+# ** Warning: (vsim-3017) memory.v(83): [TFMPC] - Too few port connections. Expected 8, found 7.
+#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk3[1]/haar_row_n File: row.v
 # ** Warning: (vsim-3017) row.v(53): [TFMPC] - Too few port connections. Expected 8, found 6.
-#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk2[1]/haar_row_n/row_fifo File: fifo.v
+#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk3[1]/haar_row_n/row_fifo File: fifo.v
 # ** Warning: (vsim-3722) row.v(53): [TFMPC] - Missing connection for port 'empty'.
 # ** Warning: (vsim-3722) row.v(53): [TFMPC] - Missing connection for port 'full'.
 # ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
-#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk2[1]/haar_row_n/row_fifo/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk3[1]/haar_row_n/row_fifo/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
 # ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
-# ** Warning: (vsim-3017) memory.v(69): [TFMPC] - Too few port connections. Expected 8, found 7.
-#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk2[2]/haar_row_n File: row.v
+# ** Warning: (vsim-3017) memory.v(83): [TFMPC] - Too few port connections. Expected 8, found 7.
+#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk3[2]/haar_row_n File: row.v
 # ** Warning: (vsim-3017) row.v(53): [TFMPC] - Too few port connections. Expected 8, found 6.
-#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk2[2]/haar_row_n/row_fifo File: fifo.v
+#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk3[2]/haar_row_n/row_fifo File: fifo.v
 # ** Warning: (vsim-3722) row.v(53): [TFMPC] - Missing connection for port 'empty'.
 # ** Warning: (vsim-3722) row.v(53): [TFMPC] - Missing connection for port 'full'.
 # ** Warning: (vsim-3017) fifo.v(73): [TFMPC] - Too few port connections. Expected 13, found 12.
-#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk2[2]/haar_row_n/row_fifo/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+#    Time: 0 ps  Iteration: 0  Instance: /test_module/memory/genblk3[2]/haar_row_n/row_fifo/scfifo_component File: /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
 # ** Warning: (vsim-3722) fifo.v(73): [TFMPC] - Missing connection for port 'eccstatus'.
-run -next
-run -next
-run -next
-run -next
+add wave -position end  sim:/test_module/memory/row_integral
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: pc  Hostname: RPEE-HP  ProcessID: 15472
+#           Attempting to use alternate WLF file "./wlftmfdrqh".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlftmfdrqh
+add wave -position end  sim:/test_module/memory/o_row_integral
 run -next
 run -next
 run -next
@@ -110,56 +113,8 @@ run -next
 run -next
 run -next
 run -next
-
 run -next
 run -next
 run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-run -next
-# ** Warning: (vish-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
-# No such file or directory. (errno = ENOENT)
-# ** Warning: (vish-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
-# No such file or directory. (errno = ENOENT)
-# End time: 23:28:18 on Mar 29,2017, Elapsed time: 0:01:51
-# Errors: 0, Warnings: 18
+# End time: 21:18:50 on Mar 30,2017, Elapsed time: 0:01:07
+# Errors: 0, Warnings: 20
