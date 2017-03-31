@@ -1,4 +1,4 @@
-module stage_classifier
+module second_stage_classifier
 #(
 parameter ADDR_WIDTH = 10,
 parameter DATA_WIDTH = 8,

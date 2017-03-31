@@ -38,6 +38,7 @@ generate
 endgenerate
 /*-----------------------------------------------------------------------*/
 
+/*---------------Integral Image Wire Declaration--------------------------*/
 generate
 	genvar index_integral_y;	
 	for(index_integral_y = 0;index_integral_y <IHEIGHT;index_integral_y= index_integral_y +1)
@@ -49,6 +50,8 @@ generate
 		end
 	end
 endgenerate
+/*-----------------------------------------------------------------------*/
+
 
 
 
