@@ -1,6 +1,5 @@
 module primary_stage_classifier
 #(
-parameter ADDR_WIDTH = 10,
 parameter DATA_WIDTH = 8,
 parameter NUM_STAGE_THRESHOLD = 1,
 parameter NUM_PARAM_PER_CLASSIFIER = 18,
@@ -37,7 +36,6 @@ assign o_iscandidate = is_first_candidate&& is_second_candidate && is_third_cand
 
 stage_classifier
 #(
-.ADDR_WIDTH(ADDR_WIDTH),
 .DATA_WIDTH(DATA_WIDTH),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
@@ -52,7 +50,6 @@ first_stage_classifier
 
 stage_classifier
 #(
-.ADDR_WIDTH(ADDR_WIDTH),
 .DATA_WIDTH(DATA_WIDTH),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
@@ -67,7 +64,6 @@ second_stage_classifier
 
 stage_classifier
 #(
-.ADDR_WIDTH(ADDR_WIDTH),
 .DATA_WIDTH(DATA_WIDTH),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),

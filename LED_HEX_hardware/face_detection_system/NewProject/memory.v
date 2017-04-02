@@ -1,7 +1,8 @@
 module memory
 #(
-parameter ADDR_WIDTH = 10,
-parameter DATA_WIDTH = 8,
+parameter DATA_WIDTH_8 = 8,   // Max value 255
+parameter DATA_WIDTH_12 = 12, // Max value 4095
+parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter INTEGRAL_WIDTH = 3,
 parameter INTEGRAL_HEIGHT = 3
 )
@@ -14,17 +15,17 @@ parameter INTEGRAL_HEIGHT = 3
 	frame_height,
 	o_integral_image
 );
-wire [DATA_WIDTH-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
-wire [DATA_WIDTH-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
-wire [DATA_WIDTH-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_8-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_8-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_12-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
 
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 input reset_os;
 input wen;
-input [DATA_WIDTH-1:0] pixel;
-output [DATA_WIDTH-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+input [DATA_WIDTH_8-1:0] pixel;
+output [DATA_WIDTH_12-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 /*-----------------------------------------------------------------------*/
 
 /*----------------Reduction Sum declaration---------------------------------*/
@@ -53,13 +54,12 @@ endgenerate
 /*-----------------------------------------------------------------------*/
 
 
-
-
 /*------------------Row declaration-----------------------------------------*/
 row
 #(
-	.ADDR_WIDTH(ADDR_WIDTH),
-	.DATA_WIDTH(DATA_WIDTH),
+	.DATA_WIDTH_8(DATA_WIDTH_8),
+	.DATA_WIDTH_12(DATA_WIDTH_12),
+	.DATA_WIDTH_16(DATA_WIDTH_16),
 	.INTEGRAL_WIDTH(INTEGRAL_WIDTH)
 )
 haar_row_0
@@ -80,8 +80,9 @@ generate
 	begin				
 		row
 		#(
-			.ADDR_WIDTH(ADDR_WIDTH),
-			.DATA_WIDTH(DATA_WIDTH),
+			.DATA_WIDTH_8(DATA_WIDTH_8),
+			.DATA_WIDTH_12(DATA_WIDTH_12),
+			.DATA_WIDTH_16(DATA_WIDTH_16),
 			.INTEGRAL_WIDTH(INTEGRAL_WIDTH)
 		)
 		haar_row_n

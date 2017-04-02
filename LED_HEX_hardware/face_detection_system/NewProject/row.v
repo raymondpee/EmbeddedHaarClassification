@@ -1,7 +1,9 @@
 module row
 #(
 parameter ADDR_WIDTH = 10,
-parameter DATA_WIDTH = 8,
+parameter DATA_WIDTH_8 = 8,   // Max value 255
+parameter DATA_WIDTH_12 = 12, // Max value 4095
+parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter INTEGRAL_WIDTH =3
 )
 (
@@ -15,21 +17,21 @@ parameter INTEGRAL_WIDTH =3
 	o_row_integral,
 );
 
-wire fifo_rdreq;
-wire [ADDR_WIDTH-1:0] fifo_usedw;                    
-wire [DATA_WIDTH-1:0] fifo_data_out;        
-reg[DATA_WIDTH-1:0]row_integral[INTEGRAL_WIDTH-1:0];
-
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 input reset_os;
 input wen;
-input [DATA_WIDTH-1:0] fifo_in;
-input [DATA_WIDTH-1:0] fifo_reduction_sum;
-output [DATA_WIDTH-1:0] o_fifo_data_out;
-output [DATA_WIDTH-1:0] o_row_integral[INTEGRAL_WIDTH-1:0];
+input [DATA_WIDTH_8-1:0] fifo_in;
+input [DATA_WIDTH_12-1:0] fifo_reduction_sum;
+output [DATA_WIDTH_8-1:0] o_fifo_data_out;
+output [DATA_WIDTH_12-1:0] o_row_integral[INTEGRAL_WIDTH-1:0];
 /*-----------------------------------------------------------------------*/
+
+wire fifo_rdreq;
+wire [DATA_WIDTH_8-1:0] fifo_usedw;                    
+wire [DATA_WIDTH_8-1:0] fifo_data_out;        
+reg[DATA_WIDTH_12-1:0]row_integral[INTEGRAL_WIDTH-1:0];
 
 
 /*--------------------Assignment declaration---------------------------------*/
@@ -47,7 +49,7 @@ endgenerate
 /*---------------------------------FIFO module ----------------------------*/
 fifo 
 #(
-.DATA_WIDTH(DATA_WIDTH),
+.DATA_WIDTH(DATA_WIDTH_8),
 .ADDR_WIDTH(ADDR_WIDTH)
 )
 row_fifo

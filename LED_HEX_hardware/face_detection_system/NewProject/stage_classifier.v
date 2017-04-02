@@ -1,7 +1,8 @@
 module stage_classifier
 #(
-parameter ADDR_WIDTH = 10,
-parameter DATA_WIDTH = 8,
+parameter DATA_WIDTH_8 = 8,   // Max value 255
+parameter DATA_WIDTH_12 = 12, // Max value 4095
+parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter NUM_PARAM_PER_CLASSIFIER = 18,
 parameter NUM_STAGE_THRESHOLD = 1,
 parameter NUM_CLASSIFIERS = 10
@@ -14,18 +15,16 @@ parameter NUM_CLASSIFIERS = 10
 
 	/*--------------------IO port declaration---------------------------------*/
 	input clk_fpga;
-	input [DATA_WIDTH-1:0] rom_stage_classifier [NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+	input [DATA_WIDTH_8-1:0] rom_stage_classifier [NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
 	output o_iscandidate;
 	/*-----------------------------------------------------------------------*/
 	
-	wire [DATA_WIDTH-1:0]stage_num;
-	wire [DATA_WIDTH-1:0]reduction_haar_value[NUM_CLASSIFIERS-1:0];
-	wire [DATA_WIDTH-1:0]final_haar_value;
-	wire [DATA_WIDTH-1:0]current_classifier_index;
+	wire [DATA_WIDTH_12-1:0]reduction_haar_value[NUM_CLASSIFIERS-1:0];
+	wire [DATA_WIDTH_12-1:0]final_haar_value;
+	wire [DATA_WIDTH_12-1:0]current_classifier_index;
 	
-	reg  [DATA_WIDTH-1:0] haar_value[NUM_CLASSIFIERS-1:0];
-	
-	
+	reg  [DATA_WIDTH_12-1:0] haar_value[NUM_CLASSIFIERS-1:0];
+		
 	assign final_haar_value = reduction_haar_value[NUM_CLASSIFIERS-1];
 	assign stage_threshold = rom_stage_classifier[NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD];
 	assign o_iscandidate = final_haar_value>stage_threshold;	
@@ -44,25 +43,25 @@ parameter NUM_CLASSIFIERS = 10
 	for(index_classifier = 0; index_classifier<NUM_CLASSIFIERS; index_classifier = index_classifier +1)
 	begin
 	
-		wire [DATA_WIDTH-1:0]stage_thresholds;
-		wire [DATA_WIDTH-1:0]rect_A_1_index;
-		wire [DATA_WIDTH-1:0]rect_B_1_index;
-		wire [DATA_WIDTH-1:0]rect_C_1_index;
-		wire [DATA_WIDTH-1:0]rect_D_1_index;
-		wire [DATA_WIDTH-1:0]weight_1;
-		wire [DATA_WIDTH-1:0]rect_A_2_index;
-		wire [DATA_WIDTH-1:0]rect_B_2_index;
-		wire [DATA_WIDTH-1:0]rect_C_2_index;
-		wire [DATA_WIDTH-1:0]rect_D_2_index;
-		wire [DATA_WIDTH-1:0]weight_2;
-		wire [DATA_WIDTH-1:0]rect_A_3_index;
-		wire [DATA_WIDTH-1:0]rect_B_3_index;
-		wire [DATA_WIDTH-1:0]rect_C_3_index;
-		wire [DATA_WIDTH-1:0]rect_D_3_index;
-		wire [DATA_WIDTH-1:0]weight_3;
-		wire [DATA_WIDTH-1:0]threshold_index;
-		wire [DATA_WIDTH-1:0]left_word_index;
-		wire [DATA_WIDTH-1:0]right_word_index;		
+		wire [DATA_WIDTH_8-1:0]stage_thresholds;
+		wire [DATA_WIDTH_8-1:0]rect_A_1_index;
+		wire [DATA_WIDTH_8-1:0]rect_B_1_index;
+		wire [DATA_WIDTH_8-1:0]rect_C_1_index;
+		wire [DATA_WIDTH_8-1:0]rect_D_1_index;
+		wire [DATA_WIDTH_8-1:0]weight_1;
+		wire [DATA_WIDTH_8-1:0]rect_A_2_index;
+		wire [DATA_WIDTH_8-1:0]rect_B_2_index;
+		wire [DATA_WIDTH_8-1:0]rect_C_2_index;
+		wire [DATA_WIDTH_8-1:0]rect_D_2_index;
+		wire [DATA_WIDTH_8-1:0]weight_2;
+		wire [DATA_WIDTH_8-1:0]rect_A_3_index;
+		wire [DATA_WIDTH_8-1:0]rect_B_3_index;
+		wire [DATA_WIDTH_8-1:0]rect_C_3_index;
+		wire [DATA_WIDTH_8-1:0]rect_D_3_index;
+		wire [DATA_WIDTH_8-1:0]weight_3;
+		wire [DATA_WIDTH_8-1:0]threshold_index;
+		wire [DATA_WIDTH_8-1:0]left_word_index;
+		wire [DATA_WIDTH_8-1:0]right_word_index;		
 		
 		
 		
@@ -90,7 +89,9 @@ parameter NUM_CLASSIFIERS = 10
 			
 		classifier
 		#(
-		.DATA_WIDTH(DATA_WIDTH)
+		.DATA_WIDTH_8(DATA_WIDTH_8),    // Max value 255
+		.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+		.DATA_WIDTH_16(DATA_WIDTH_16) // Max value 177777
 		)
 		classifier
 		(

@@ -1,7 +1,8 @@
 module resize
 #(
-parameter DATA_WIDTH  = 8,
-parameter DOUBLE_DATA_WIDTH = 16
+parameter DATA_WIDTH_8  = 8,
+parameter DATA_WIDTH_12  = 12,
+parameter DATA_WIDTH_16 = 16
 )
 (
 	clk_os,    //clock based on the trigger from linux
@@ -23,11 +24,11 @@ assign y_ratio = (src_height<<16)/dst_height +1;
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 /*---[input] X and Y coordinate from origin ----*/
-input  [DOUBLE_DATA_WIDTH-1:0] i_xcoord;
-input  [DOUBLE_DATA_WIDTH-1:0] i_ycoord;
+input  [DATA_WIDTH_12-1:0] i_xcoord;
+input  [DATA_WIDTH_12-1:0] i_ycoord;
 
-output [DOUBLE_DATA_WIDTH-1:0] o_xcoord;
-output [DOUBLE_DATA_WIDTH-1:0] o_ycoord;
+output [DATA_WIDTH_12-1:0] o_xcoord;
+output [DATA_WIDTH_12-1:0] o_ycoord;
 output o_isreach; 
 /*-----------------------------------------------------------------------*/
 
@@ -37,10 +38,10 @@ output o_isreach;
 /*----- local variables ------*/
 wire xloc;
 wire yloc;
-reg [DOUBLE_DATA_WIDTH-1:0] oxcoord = 0;
-reg [DOUBLE_DATA_WIDTH-1:0] oycoord = 0;
-reg [DOUBLE_DATA_WIDTH-1:0] tempxcoord = 0;
-reg [DOUBLE_DATA_WIDTH-1:0] tempycoord = 0;
+reg [DATA_WIDTH_12-1:0] oxcoord = 0;
+reg [DATA_WIDTH_12-1:0] oycoord = 0;
+reg [DATA_WIDTH_12-1:0] tempxcoord = 0;
+reg [DATA_WIDTH_12-1:0] tempycoord = 0;
  
  
 /*--------------------Assignment declaration---------------------------------*/

@@ -1,12 +1,10 @@
 module I2LBS
 #(
-parameter ADDR_WIDTH = 10,
-parameter DATA_WIDTH = 8,
-parameter DOUBLE_DATA_WIDTH = 16,
-
+parameter DATA_WIDTH_8 = 8,
+parameter DATA_WIDTH_12 = 12,
+parameter DATA_WIDTH_16 = 16,
 parameter INTEGRAL_WIDTH = 3,
 parameter INTEGRAL_HEIGHT = 3,
-
 parameter NUM_STAGE_THRESHOLD = 1,
 parameter NUM_PARAM_PER_CLASSIFIER = 18,
 parameter NUM_CLASSIFIERS_FIRST_STAGE = 10,
@@ -38,8 +36,8 @@ parameter NUM_CLASSIFIERS_THIRD_STAGE = 10
 wire is_candidate;
 wire is_write_enable;
 wire is_coord_reach;
-wire [DOUBLE_DATA_WIDTH-1:0] scale_xcoord;
-wire [DOUBLE_DATA_WIDTH-1:0] scale_ycoord;
+wire [DATA_WIDTH_12-1:0] scale_xcoord;
+wire [DATA_WIDTH_12-1:0] scale_ycoord;
 
 
 /*--------------------IO port declaration---------------------------------*/
@@ -47,17 +45,17 @@ input clk_os;
 input clk_fpga;
 input reset_os;
 input reset_fpga;
-input [DATA_WIDTH-1:0] pixel;
-input [DOUBLE_DATA_WIDTH-1:0] i_xcoord;
-input [DOUBLE_DATA_WIDTH-1:0] i_ycoord;
-input [DATA_WIDTH-1:0] rom_first_stage_classifier [NUM_CLASSIFIERS_FIRST_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
-input [DATA_WIDTH-1:0] rom_second_stage_classifier [NUM_CLASSIFIERS_SECOND_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
-input [DATA_WIDTH-1:0] rom_third_stage_classifier [NUM_CLASSIFIERS_THIRD_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+input [DATA_WIDTH_8-1:0] pixel;
+input [DATA_WIDTH_12-1:0] i_xcoord;
+input [DATA_WIDTH_12-1:0] i_ycoord;
+input [DATA_WIDTH_8-1:0] rom_first_stage_classifier [NUM_CLASSIFIERS_FIRST_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+input [DATA_WIDTH_8-1:0] rom_second_stage_classifier [NUM_CLASSIFIERS_SECOND_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+input [DATA_WIDTH_8-1:0] rom_third_stage_classifier [NUM_CLASSIFIERS_THIRD_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
 
 output o_is_candidate;
-output [DOUBLE_DATA_WIDTH-1:0] o_scale_xcoord;
-output [DOUBLE_DATA_WIDTH-1:0] o_scale_ycoord;
-output [DATA_WIDTH-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+output [DATA_WIDTH_12-1:0] o_scale_xcoord;
+output [DATA_WIDTH_12-1:0] o_scale_ycoord;
+output [DATA_WIDTH_8-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 /*-----------------------------------------------------------------------*/
 
 assign o_scale_xcoord = scale_xcoord;
@@ -67,8 +65,7 @@ assign is_write_enable = is_coord_reach;
 
 memory 
 #(
-.ADDR_WIDTH(ADDR_WIDTH),
-.DATA_WIDTH(DATA_WIDTH),
+.DATA_WIDTH(DATA_WIDTH_8),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
 )
@@ -85,8 +82,7 @@ memory
 
 primary_stage_classifier
 #(
-.ADDR_WIDTH(ADDR_WIDTH),
-.DATA_WIDTH(DATA_WIDTH),
+.DATA_WIDTH(DATA_WIDTH_8),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .NUM_CLASSIFIERS_FIRST_STAGE(NUM_CLASSIFIERS_FIRST_STAGE),
 .NUM_CLASSIFIERS_SECOND_STAGE(NUM_CLASSIFIERS_SECOND_STAGE),
@@ -105,7 +101,7 @@ primary_stage_classifier
 
 resize
 #(
-.DATA_WIDTH(DATA_WIDTH),
+.DATA_WIDTH(DATA_WIDTH_8),
 .DOUBLE_DATA_WIDTH(DOUBLE_DATA_WIDTH)
 )
 resize

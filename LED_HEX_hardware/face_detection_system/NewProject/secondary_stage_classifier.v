@@ -1,7 +1,9 @@
 module second_stage_classifier
 #(
 parameter ADDR_WIDTH = 10,
-parameter DATA_WIDTH = 8,
+parameter DATA_WIDTH_8 = 8,   // Max value 255
+parameter DATA_WIDTH_12 = 12, // Max value 4095
+parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter INTEGRAL_WIDTH = 3,
 parameter INTEGRAL_HEIGHT = 3
 )
@@ -16,7 +18,7 @@ parameter INTEGRAL_HEIGHT = 3
 /*--------------------IO port declaration---------------------------------*/
 input clk_fpga;
 input i_enable_write;
-input [DATA_WIDTH-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_is_face;
 /*-----------------------------------------------------------------------*/
 
@@ -25,9 +27,9 @@ wire [ADDR_WIDTH-1:0] usedw;
 
 reg wrreq;
 reg rdreq;
-reg [DATA_WIDTH-1:0] count_rdreq;
-reg [DATA_WIDTH-1:0] count_wrreq;
-reg [DATA_WIDTH-1:0] integral_image_compute[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+reg [DATA_WIDTH_8-1:0] count_rdreq;
+reg [DATA_WIDTH_8-1:0] count_wrreq;
+reg [DATA_WIDTH_12-1:0] integral_image_compute[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 
 always @(posedge i_enable_write)
