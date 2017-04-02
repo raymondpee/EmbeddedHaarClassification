@@ -2,13 +2,13 @@ module second_stage_classifier
 #(
 parameter ADDR_WIDTH = 10,
 parameter DATA_WIDTH = 8,
-parameter IWIDTH = 3,
-parameter IHEIGHT = 3
+parameter INTEGRAL_WIDTH = 3,
+parameter INTEGRAL_HEIGHT = 3
 )
 (
 	clk_fpga,
 	reset_fpga,
-	row_integral,
+	integral_image,
 	i_enable_write,
 	o_is_face
 );
@@ -16,7 +16,7 @@ parameter IHEIGHT = 3
 /*--------------------IO port declaration---------------------------------*/
 input clk_fpga;
 input i_enable_write;
-input [DATA_WIDTH-1:0] row_integral[IWIDTH*IHEIGHT-1:0];
+input [DATA_WIDTH-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_is_face;
 /*-----------------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ reg wrreq;
 reg rdreq;
 reg [DATA_WIDTH-1:0] count_rdreq;
 reg [DATA_WIDTH-1:0] count_wrreq;
-reg [DATA_WIDTH-1:0] row_integral_compute[IWIDTH*IHEIGHT-1:0];
+reg [DATA_WIDTH-1:0] integral_image_compute[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 
 always @(posedge i_enable_write)
@@ -46,7 +46,7 @@ begin
 	begin
 		if(wrreq)
 		begin
-			if(count_wrreq == IWIDTH*IHEIGHT)
+			if(count_wrreq == INTEGRAL_WIDTH*INTEGRAL_HEIGHT)
 			begin
 				count_wrreq <= 0;
 				wrreq <= 0;
@@ -73,7 +73,7 @@ begin
 	begin
 		if(rdreq)
 		begin
-			if(count_rdreq == IWIDTH*IHEIGHT||usedw<IWIDTH*IHEIGHT)
+			if(count_rdreq == INTEGRAL_WIDTH*INTEGRAL_HEIGHT||usedw<INTEGRAL_WIDTH*INTEGRAL_HEIGHT)
 			begin
 				count_rdreq <= 0;
 				rdreq <= 0;
@@ -97,10 +97,10 @@ fifo
 fifo_integral_images
 (
 	.clock(clk_fpga),
-	.data(row_integral[count_rdreq]),
+	.data(integral_image[count_rdreq]),
 	.rdreq(rdreq),
 	.wrreq(wrreq),
-	.q(row_integral_compute[count_wrreq]),
+	.q(integral_image_compute[count_wrreq]),
 	.usedw(usedw)	
 );
 /*-------------------------------------------------------------------------*/

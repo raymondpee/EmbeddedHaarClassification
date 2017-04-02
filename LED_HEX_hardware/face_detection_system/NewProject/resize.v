@@ -1,14 +1,14 @@
 module resize
 #(
-parameter BYTE_WIDTH = 8,
-parameter BYTE_DOUBLE_WIDTH  = 16,
-parameter SRC_WIDTH  = 800,
-parameter SRC_HEIGHT = 600,
-parameter DST_WIDTH  = 800,
-parameter DST_HEIGHT = 600
+parameter DATA_WIDTH  = 8,
+parameter DOUBLE_DATA_WIDTH = 16
 )
 (
 	clk_os,    //clock based on the trigger from linux
+	src_width,
+	src_height,
+	dst_width,
+	dst_height,
 	i_xcoord,  //Origin X coordinate
 	i_ycoord,  //Origin Y coordinate
 	o_xcoord,  //Nex X coordinate
@@ -16,30 +16,31 @@ parameter DST_HEIGHT = 600
 	o_isreach  //Is the current coordinate is reached
 );
 
+/*------Calculate output --------*/
+assign x_ratio = (src_width<<16)/dst_width   +1;
+assign y_ratio = (src_height<<16)/dst_height +1;
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 /*---[input] X and Y coordinate from origin ----*/
-input  [BYTE_DOUBLE_WIDTH-1:0] i_xcoord;
-input  [BYTE_DOUBLE_WIDTH-1:0] i_ycoord;
+input  [DOUBLE_DATA_WIDTH-1:0] i_xcoord;
+input  [DOUBLE_DATA_WIDTH-1:0] i_ycoord;
 
-output [BYTE_DOUBLE_WIDTH-1:0] o_xcoord;
-output [BYTE_DOUBLE_WIDTH-1:0] o_ycoord;
+output [DOUBLE_DATA_WIDTH-1:0] o_xcoord;
+output [DOUBLE_DATA_WIDTH-1:0] o_ycoord;
 output o_isreach; 
 /*-----------------------------------------------------------------------*/
 
 
-/*------Calculate output --------*/
-localparam xratio = (SRC_WIDTH<<16)/DST_WIDTH   +1;
-localparam yratio = (SRC_HEIGHT<<16)/DST_HEIGHT +1;
+
 
 /*----- local variables ------*/
 wire xloc;
 wire yloc;
-reg [BYTE_DOUBLE_WIDTH-1:0] oxcoord = 0;
-reg [BYTE_DOUBLE_WIDTH-1:0] oycoord = 0;
-reg [BYTE_DOUBLE_WIDTH-1:0] tempxcoord = 0;
-reg [BYTE_DOUBLE_WIDTH-1:0] tempycoord = 0;
+reg [DOUBLE_DATA_WIDTH-1:0] oxcoord = 0;
+reg [DOUBLE_DATA_WIDTH-1:0] oycoord = 0;
+reg [DOUBLE_DATA_WIDTH-1:0] tempxcoord = 0;
+reg [DOUBLE_DATA_WIDTH-1:0] tempycoord = 0;
  
  
 /*--------------------Assignment declaration---------------------------------*/
@@ -57,12 +58,12 @@ assign o_isreach = xloc && yloc;
 always @(posedge clk_os )
 begin
   
-  if( i_xcoord == SRC_WIDTH -1)
+  if( i_xcoord == src_width -1)
   begin 
     tempxcoord <= 0;
     oxcoord <=0;
     
-    if( i_ycoord == SRC_HEIGHT -1) 
+    if( i_ycoord == src_height -1) 
     begin
       tempycoord <= 0; 
       oycoord <= 0; 
@@ -72,7 +73,7 @@ begin
       if(i_ycoord > oycoord)
       begin
         tempycoord <= tempycoord + 1;
-        oycoord <= ((tempycoord + 1) * yratio)>>16;
+        oycoord <= ((tempycoord + 1) * y_ratio)>>16;
       end  
       else
         tempycoord <= tempycoord;
@@ -85,7 +86,7 @@ begin
     if(i_xcoord > oxcoord)
     begin    
       tempxcoord <= tempxcoord +1;
-      oxcoord <= ((tempxcoord + 1) * xratio)>>16;
+      oxcoord <= ((tempxcoord + 1) * x_ratio)>>16;
     end
     else                      
       tempxcoord <= tempxcoord;

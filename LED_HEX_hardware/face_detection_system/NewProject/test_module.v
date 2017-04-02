@@ -24,7 +24,7 @@ wire is_coord_reach;
 wire is_candidate;
 wire [BYTE_DOUBLE_WIDTH -1:0] scale_xcoord; // Coordinate X of the image
 wire [BYTE_DOUBLE_WIDTH -1:0] scale_ycoord; // Coordinate Y of the image
-wire [DATA_WIDTH-1:0] row_integral[IWIDTH*IHEIGHT-1:0];
+wire [DATA_WIDTH-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 reg clk_os;
 reg reset_os;
@@ -35,6 +35,7 @@ reg [BYTE_WIDTH -1:0] pixel = 0; // Pixel of the image
 reg [BYTE_DOUBLE_WIDTH -1:0] xcoord = 0; // Coordinate X of the image
 reg [BYTE_DOUBLE_WIDTH -1:0] ycoord = 0; // Coordinate Y of the image
 reg [BYTE_WIDTH -1:0] memory_first_stage_classifier [NUM_FIRST_STAGE_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER -1:0];
+
 
 /*--------------------------- INITIAL STATEMENT ---------------------------*/
 initial
@@ -64,74 +65,12 @@ end
 /*-----------------------------------------------------------------------*/
 
 
-/*------------------------ COORDINATE ITERATION -------------------------*/
-always @(posedge clk_os)
-begin
-  if(xcoord == FRAME_WIDTH -1)
-  begin 
-      xcoord <= 0;
-      if(ycoord == FRAME_HEIGHT -1) ycoord <= 0;   
-      else                          ycoord <= ycoord + 1;
-  end
-  else
-    xcoord <= xcoord + 1;
-end
-/*-----------------------------------------------------------------------*/
+
 
 
 /*------------------------VERILOG MODULES--------------------------------*/
-/*  [We close this for now, we want to debug]
-resize
-#(
-.BYTE_WIDTH(BYTE_WIDTH),
-.BYTE_DOUBLE_WIDTH(BYTE_DOUBLE_WIDTH),
-.SRC_WIDTH(FRAME_WIDTH),
-.SRC_HEIGHT(FRAME_HEIGHT),
-.DST_WIDTH(FRAME_DST_WIDTH),
-.DST_HEIGHT(FRAME_DST_HEIGHT)
-)
-resize_half
-(
-.clk_os(clk_os),
-.i_xcoord(xcoord),
-.i_ycoord(ycoord),
-.o_xcoord(scale_xcoord),
-.o_ycoord(scale_ycoord),
-.o_isreach(is_coord_reach)
-);
-*/
 
-memory 
-#(
-.ADDR_WIDTH(ADDR_WIDTH),
-.DATA_WIDTH(DATA_WIDTH),
-.FIFO_COMPONENT_COUNT(FIFO_COMPONENT_COUNT)
-)
-memory 
-(
-.clk_os(clk_os),
-.reset_os(reset_os),
-.pixel(pixel),
-.wen(wen),
-.o_row_integral(row_integral),
-.o_is_candidate(is_candidate)
-);
 
-second_stage_classifier
-#(
-.ADDR_WIDTH(ADDR_WIDTH),
-.DATA_WIDTH(DATA_WIDTH),
-.IWIDTH(IWIDTH) ,
-.IHEIGHT(IHEIGHT)
-)
-second_stage_classifier
-(
-	.clk_fpga(clk_fpga),
-	.reset_fpga(reset_fpga),
-	.row_integral(row_integral),
-	.i_enable_write(is_candidate),
-	.o_is_face(o_is_face)
-);
 /*-----------------------------------------------------------------------*/
 
 endmodule

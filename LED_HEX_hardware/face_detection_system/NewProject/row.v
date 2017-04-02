@@ -2,8 +2,7 @@ module row
 #(
 parameter ADDR_WIDTH = 10,
 parameter DATA_WIDTH = 8,
-parameter FIFO_COMPONENT_COUNT = 6,
-parameter IWIDTH =3
+parameter INTEGRAL_WIDTH =3
 )
 (
 	clk_os,
@@ -11,6 +10,7 @@ parameter IWIDTH =3
 	wen,
 	fifo_in,
 	fifo_reduction_sum,
+	fifo_width,
 	o_fifo_data_out,
 	o_row_integral,
 );
@@ -18,7 +18,7 @@ parameter IWIDTH =3
 wire fifo_rdreq;
 wire [ADDR_WIDTH-1:0] fifo_usedw;                    
 wire [DATA_WIDTH-1:0] fifo_data_out;        
-reg[DATA_WIDTH-1:0]row_integral[IWIDTH-1:0];
+reg[DATA_WIDTH-1:0]row_integral[INTEGRAL_WIDTH-1:0];
 
 
 /*--------------------IO port declaration---------------------------------*/
@@ -28,16 +28,16 @@ input wen;
 input [DATA_WIDTH-1:0] fifo_in;
 input [DATA_WIDTH-1:0] fifo_reduction_sum;
 output [DATA_WIDTH-1:0] o_fifo_data_out;
-output [DATA_WIDTH-1:0] o_row_integral[IWIDTH-1:0];
+output [DATA_WIDTH-1:0] o_row_integral[INTEGRAL_WIDTH-1:0];
 /*-----------------------------------------------------------------------*/
 
 
 /*--------------------Assignment declaration---------------------------------*/
 assign o_fifo_data_out = fifo_data_out;
-assign fifo_rdreq = (fifo_usedw == FIFO_COMPONENT_COUNT -1) ? 1:0;
+assign fifo_rdreq = (fifo_usedw == fifo_width -1) ? 1:0;
 generate
 	genvar index_integral;
-	for(index_integral = 0; index_integral<IWIDTH; index_integral = index_integral +1)
+	for(index_integral = 0; index_integral<INTEGRAL_WIDTH; index_integral = index_integral +1)
 	begin
 		assign o_row_integral[index_integral] = row_integral[index_integral];
 	end
@@ -69,13 +69,13 @@ begin
 		if(reset_os)
 			row_integral[0]<=0;
 		else
-			row_integral[0] <= fifo_data_out + fifo_reduction_sum + (row_integral[0] - row_integral[IWIDTH-1]);
+			row_integral[0] <= fifo_data_out + fifo_reduction_sum + (row_integral[0] - row_integral[INTEGRAL_WIDTH-1]);
 	end
 end
 
 generate
 	genvar index;
-	for(index = 1; index<IWIDTH; index = index +1)
+	for(index = 1; index<INTEGRAL_WIDTH; index = index +1)
 	begin
 		always @(posedge clk_os)
 		begin
@@ -84,7 +84,7 @@ generate
 				if(reset_os)
 					row_integral[index]<=0;
 				else
-					row_integral[index] <= row_integral[index-1] - row_integral[IWIDTH-1];
+					row_integral[index] <= row_integral[index-1] - row_integral[INTEGRAL_WIDTH-1];
 			end
 		end
 	end
