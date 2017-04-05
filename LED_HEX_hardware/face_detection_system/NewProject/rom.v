@@ -40,12 +40,14 @@
 module rom 
 #(
 parameter ADDR_WIDTH = 12, 
-parameter DATA_WIDTH = 8
+parameter DATA_WIDTH = 8,
+parameter MEMORY_FILE =  "memory.mif"
 )
 (
 	address,
 	clock,
-	q);
+	q
+);
 
 	input	[ADDR_WIDTH-1:0]  address;
 	input	  clock;
@@ -89,7 +91,7 @@ parameter DATA_WIDTH = 8
 		altsyncram_component.address_aclr_a = "NONE",
 		altsyncram_component.clock_enable_input_a = "BYPASS",
 		altsyncram_component.clock_enable_output_a = "BYPASS",
-		altsyncram_component.init_file = "memory.mif",
+		altsyncram_component.init_file = MEMORY_FILE,
 		altsyncram_component.intended_device_family = "Cyclone V",
 		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
 		altsyncram_component.lpm_type = "altsyncram",
