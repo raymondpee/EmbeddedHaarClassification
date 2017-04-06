@@ -7,15 +7,15 @@ parameter MEMORY_FILE =  "memory.mif"
 (
 	clk,
 	reset,
-	o_is_end_reached,
-	address,
+	req_compare,
 	classifier_size,
+	o_is_end_reached,
 	q
 );
 
 input clk;
 input reset;
-input [ADDR_WIDTH-1:0]address;
+input req_compare;
 input [DATA_WIDTH-1:0]classifier_size;
 output o_is_end_reached;
 output [DATA_WIDTH-1:0]q;
@@ -25,50 +25,21 @@ localparam COMPARE = 1;
 localparam STATE_SIZE = 2;
 
 
-reg req_compare;
-reg is_end_reached;
-reg [ADDR_WIDTH-1:0] count;
+wire is_end_reached;
+reg start_compare;
+reg [ADDR_WIDTH-1:0] address;
 reg[STATE_SIZE-1:0] state;
 reg[STATE_SIZE-1:0] next_state;
 
+assign is_end_reached = address == classifier_size;
 assign o_is_end_reached = is_end_reached;
 
 
-always@(posedge clk)
+
+always@(posedge req_compare)
 begin
-	if(reset)
-	begin
-		req_compare<=0;
-		is_end_reached<=0;
-		count<=0;
-		state<=0;
-		next_state<=0;
-	end
-	else
-	begin
-		case()
-	end
+	start_compare<=1;
 end
-
-always@(state or req_compare)
-begin
-	next_state = 0;
-	case(state)
-		IDLE:
-			if(req_compare)
-				next_state = COMPARE;
-			else 
-				next_state = IDLE;
-		COMPARE:
-			if(req_compare)
-				next_state = COMPARE;
-			else 
-				next_state = IDLE;
-		default: next_state = IDLE;
-end
-
-
-
 
 
 /*------ This will need use State Machine to solve ------*/
@@ -77,18 +48,37 @@ always@(posedge clk)
 begin
 	if(reset)
 	begin
-		count <= 0;
-		is_end_reached<=0;
-	end
-	else if(count == classifier_size)
-	begin
-		count <= 0;
-		is_end_reached<=1;
+		start_compare<=0;
+		address<=0;
+		state <=0;
+		next_state<=0;
 	end
 	else
 	begin
-		count<= count +1;
-		is_end_reached<=0;
+		case(state)
+		IDLE:
+			if(start_compare)	next_state <= COMPARE;
+			else 			next_state <= IDLE;
+		COMPARE:
+			if(start_compare)
+			begin
+				if(is_end_reached)
+				begin
+					address <=0;
+					start_compare<=0;
+					next_state <= IDLE;
+				end
+				else
+				begin
+					address <= address +1;
+					next_state <= COMPARE;
+				end
+			end
+			else 
+			begin
+				next_state <= IDLE;
+			end
+		default: next_state <= IDLE;
 	end
 end
 
