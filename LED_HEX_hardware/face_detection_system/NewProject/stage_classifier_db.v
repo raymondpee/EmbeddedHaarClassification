@@ -42,8 +42,7 @@ begin
 end
 
 
-/*------ This will need use State Machine to solve ------*/
-//http://www.asic-world.com/tidbits/verilog_fsm.html
+/*---------------------STATE MACHINE-------------------*/
 always@(posedge clk)
 begin
 	if(reset)
@@ -55,6 +54,7 @@ begin
 	end
 	else
 	begin
+		state <= next_state;
 		case(state)
 		IDLE:
 			if(start_compare)	next_state <= COMPARE;
@@ -81,6 +81,7 @@ begin
 		default: next_state <= IDLE;
 	end
 end
+/*--------------------------------------------------------*/
 
 rom 
 #(

@@ -9,6 +9,7 @@ parameter NUM_CLASSIFIERS = 10
 )
 (
 	clk_fpga,
+	integral_image,
 	rom_stage_classifier,
 	o_iscandidate
 );
@@ -16,6 +17,7 @@ parameter NUM_CLASSIFIERS = 10
 	/*--------------------IO port declaration---------------------------------*/
 	input clk_fpga;
 	input [DATA_WIDTH_8-1:0] rom_stage_classifier [NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+	input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 	output o_iscandidate;
 	/*-----------------------------------------------------------------------*/
 	

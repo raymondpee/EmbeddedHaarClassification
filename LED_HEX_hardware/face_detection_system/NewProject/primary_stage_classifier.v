@@ -45,6 +45,7 @@ first_stage_classifier
 (
 .clk_fpga(clk_fpga),
 .rom_stage_classifier(rom_first_stage_classifier),
+.integral_image(integral_image),
 .o_iscandidate(is_first_candidate)
 )
 
@@ -59,6 +60,7 @@ second_stage_classifier
 (
 .clk_fpga(clk_fpga),
 .rom_stage_classifier(rom_second_stage_classifier),
+.integral_image(integral_image),
 .o_iscandidate(is_second_candidate)
 )
 
@@ -73,6 +75,7 @@ third_stage_classifier
 (
 .clk_fpga(clk_fpga),
 .rom_stage_classifier(rom_third_stage_classifier),
+.integral_image(integral_image),
 .o_iscandidate(is_third_candidate)
 )
 endmodule
