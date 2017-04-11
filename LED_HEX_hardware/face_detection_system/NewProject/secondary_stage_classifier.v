@@ -12,70 +12,37 @@ parameter INTEGRAL_HEIGHT = 3
 	clk_fpga,
 	reset_fpga,
 	integral_image,
-	i_enable_write,
-	o_is_face
+	req_compare,
+	o_is_candidate
 );
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_fpga;
-input i_enable_write;
+input req_compare;
 input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0][NUM_RESIZE];
-output o_is_face;
+output o_is_candidate;
 /*-----------------------------------------------------------------------*/
 
-wire w_rdreq;
-wire [ADDR_WIDTH-1:0] usedw;  
-
-reg wrreq;
-reg rdreq;
-reg [DATA_WIDTH_8-1:0] count_rdreq;
-reg [DATA_WIDTH_8-1:0] count_wrreq;
-reg [DATA_WIDTH_12-1:0] integral_image_compute[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 
-module stage_classifier_db
+
+fifo_stage_classifier
 #(
-.ADDR_WIDTH(ADDR_WIDTH), 
-parameter DATA_WIDTH = 8,
-parameter MEMORY_FILE =  "memory.mif"
+ADDR_WIDTH(ADDR_WIDTH),
+DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+MEMORY_FILE(MEMORY_FILE)
 )
+fifo_stage_classifier
 (
-	clk,
-	reset,
-	req_compare,
-	classifier_size,
-	o_is_end_reached,
-	q
-);
-
-module stage_classifier_db
-#(
-parameter ADDR_WIDTH = 12, 
-parameter DATA_WIDTH = 8,
-parameter MEMORY_FILE =  "memory.mif"
-)
-(
-	clk,
-	reset,
-	req_compare,
-	classifier_size,
-	o_is_end_reached,
-	q
-);
-
-module stage_classifier_db
-#(
-parameter ADDR_WIDTH = 12, 
-parameter DATA_WIDTH = 8,
-parameter MEMORY_FILE =  "memory.mif"
-)
-(
-	clk,
-	reset,
-	req_compare,
-	classifier_size,
-	o_is_end_reached,
-	q
+.clk_fpga(clk),
+.reset_fpga(reset),
+.trigger_compare(req_compare),
+.classifier_size(classifier_size),
+.integral_image(integral_image),
+.o_is_end_reached(o_is_end_reached)
 );
 
 endmodule

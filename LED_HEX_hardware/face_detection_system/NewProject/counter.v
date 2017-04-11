@@ -1,53 +1,51 @@
-module stage_classifier_db
+module counter
 #(
-parameter ADDR_WIDTH = 12, 
 parameter DATA_WIDTH = 8,
-parameter MEMORY_FILE =  "memory.mif"
+parameter ADDR_WIDTH = 12
 )
 (
 	clk,
 	reset,
-	req_compare,
-	classifier_size,
-	o_is_end_reached,
-	q
+	trigger_compare,
+	max_size,
+	o_address,
+	o_is_end_reached
 );
 
 input clk;
 input reset;
-input req_compare;
-input [DATA_WIDTH-1:0]classifier_size;
+input trigger_compare;
+input[DATA_WIDTH-1:0] max_size;
+output o_address;
 output o_is_end_reached;
-output [DATA_WIDTH-1:0]q;
+
 
 localparam IDLE = 0;
 localparam COMPARE = 1;
 localparam STATE_SIZE = 2;
 
-
 wire is_end_reached;
-reg start_compare;
+reg compare;
 reg [ADDR_WIDTH-1:0] address;
 reg[STATE_SIZE-1:0] state;
 reg[STATE_SIZE-1:0] next_state;
 
-assign is_end_reached = address == classifier_size;
+
+assign is_end_reached = address == max_size;
 assign o_is_end_reached = is_end_reached;
+assign o_address = address;
 
-
-
-always@(posedge req_compare)
+always@(posedge trigger_compare)
 begin
-	start_compare<=1;
+	compare<=1;
 end
-
 
 /*---------------------STATE MACHINE-------------------*/
 always@(posedge clk)
 begin
 	if(reset)
 	begin
-		start_compare<=0;
+		compare<=0;
 		address<=0;
 		state <=0;
 		next_state<=0;
@@ -57,15 +55,15 @@ begin
 		state <= next_state;
 		case(state)
 		IDLE:
-			if(start_compare)	next_state <= COMPARE;
+			if(compare)	next_state <= COMPARE;
 			else 			next_state <= IDLE;
 		COMPARE:
-			if(start_compare)
+			if(compare)
 			begin
 				if(is_end_reached)
 				begin
 					address <=0;
-					start_compare<=0;
+					compare<=0;
 					next_state <= IDLE;
 				end
 				else
@@ -82,18 +80,3 @@ begin
 	end
 end
 /*--------------------------------------------------------*/
-
-rom 
-#(
-.ADDR_WIDTH(ADDR_WIDTH), 
-.DATA_WIDTH(DATA_WIDTH),
-.MEMORY_FILE(MEMORY_FILE)
-)
-rom
-(
-	.address(address),
-	.clock(clock),
-	.q(q)
-);
-
-endmodule
