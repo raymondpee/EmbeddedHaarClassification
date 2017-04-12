@@ -32,6 +32,30 @@ Z7 !s90 classifier.v|fifo.v|memory.v|resize.v|row.v|test_module.v|-sv|
 !i113 1
 o-sv
 Z8 tCvgOpt 0
+vcounter
+R1
+Z9 !s110 1492009636
+!i10b 1
+!s100 i@EIF]S:dQ82bBRaBJ8oP1
+I:`<M]mX9gCj;fUCJj0fk<2
+R3
+!s105 counter_v_unit
+S1
+R0
+w1492009610
+8counter.v
+Fcounter.v
+L0 1
+R4
+r1
+!s85 0
+31
+Z10 !s108 1492009636.000000
+Z11 !s107 counter.v|test_counter.v|
+Z12 !s90 test_counter.v|counter.v|-sv|
+!i113 1
+o-sv
+R8
 vfifo
 R1
 R2
@@ -104,6 +128,26 @@ R7
 !i113 1
 o-sv
 R8
+vrom
+Z13 !s110 1491406708
+!i10b 1
+!s100 jCdK:P<e^Z5nB>3@2PZ582
+ImGECzGFRRbQOcZU=U<aF[3
+R3
+R0
+Z14 w1491406189
+8rom.v
+From.v
+L0 40
+R4
+r1
+!s85 0
+31
+Z15 !s108 1491406708.000000
+Z16 !s107 rom.v|test_rom.v|
+Z17 !s90 test_rom.v|rom.v|
+!i113 1
+R8
 vrow
 R1
 R2
@@ -128,6 +172,50 @@ R7
 !i113 1
 o-sv
 R8
+vstage_classifier_db
+!s110 1491406271
+!i10b 1
+!s100 PQ^n2X`KM<M3L6=AkikW]3
+I^cYJA7@KYI1m87ziF3[XK1
+R3
+R0
+R14
+8stage_classifier_db.v
+Fstage_classifier_db.v
+L0 1
+R4
+r1
+!s85 0
+31
+!s108 1491406270.000000
+!s107 stage_classifier_db.v|test_rom.v|
+!s90 test_rom.v|stage_classifier_db.v|
+!i113 1
+R8
+vtest_counter
+R1
+R9
+!i10b 1
+!s100 9K:kl`o8bT]7T]6L3ZNJL1
+IHMhQLbF?`fiCWn<FgMl^U2
+R3
+!s105 test_counter_v_unit
+S1
+R0
+w1492009626
+8test_counter.v
+Ftest_counter.v
+L0 2
+R4
+r1
+!s85 0
+31
+R10
+R11
+R12
+!i113 1
+o-sv
+R8
 vtest_module
 R1
 R2
@@ -139,8 +227,8 @@ R3
 S1
 R0
 w1490801177
-Z9 8test_module.v
-Z10 Ftest_module.v
+Z18 8test_module.v
+Z19 Ftest_module.v
 L0 3
 R4
 r1
@@ -160,8 +248,8 @@ I3cU6VBJ:[JznbRi]CN7HM3
 R3
 R0
 w1490198818
-R9
-R10
+R18
+R19
 L0 1
 R4
 r1
@@ -170,5 +258,25 @@ r1
 !s108 1490198824.000000
 R6
 !s90 classifier.v|fifo.v|memory.v|resize.v|row.v|test_module.v|
+!i113 1
+R8
+vtest_rom
+R13
+!i10b 1
+!s100 VM>UG[nPA28S7APPoIO<j3
+I`kBWbP1G>nCIm:kQgGR0@0
+R3
+R0
+w1491406647
+8test_rom.v
+Ftest_rom.v
+L0 2
+R4
+r1
+!s85 0
+31
+R15
+R16
+R17
 !i113 1
 R8

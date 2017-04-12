@@ -25,6 +25,7 @@ input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_is_candidate;
 /*-----------------------------------------------------------------------*/
 
+wire trigger_compare_classifier;
 wire is_end_of_classifier;
 wire is_end_of_stage;
 wire [DATA_WIDTH_12-1:0] address_stage;
@@ -49,6 +50,7 @@ wire [DATA_WIDTH_8-1:0]threshold_index;
 wire [DATA_WIDTH_8-1:0]left_word_index;
 wire [DATA_WIDTH_8-1:0]right_word_index;
 wire [DATA_WIDTH_8-1:0]q;
+wire [DATA_WIDTH_12-1:0] w_haar_value; 
 
 reg [DATA_WIDTH_12-1:0] haar_value[classifier_size-1:0];
 reg	[DATA_WIDTH_8-1:0] stage_index;
@@ -73,6 +75,7 @@ assign threshold = classifier_property[15];
 assign left_word = classifier_property[16];
 assign right_word = classifier_property[17];
 assign o_is_end_of_stage = is_end_of_stage;
+assign trigger_compare_classifier = trigger_compare_stage;
 
 always@(posedge clk_fpga)
 begin
@@ -86,6 +89,7 @@ begin
 	else
 		if(is_end_of_classifier)
 			stage_index<= stage_index +1;
+			haar_value[stage_index]<= w_haar_value;
 		else
 			stage_index<= stage_index;
 end
@@ -114,7 +118,7 @@ counter_each_classifier
 (
 .clk(clk_fpga),
 .reset(reset_fpga),
-.trigger_compare(trigger_compare),
+.trigger_compare(trigger_compare_classifier),
 .o_address(address_classifier),
 .max_size(NUM_PARAM_PER_CLASSIFIER),
 .o_is_end_reached(is_end_of_classifier)
@@ -161,7 +165,7 @@ classifier
 .threshold(threshold),
 .left_word(left_word),
 .right_word(right_word),
-.o_haarvalue(haar_value)
+.o_haarvalue(w_haar_value)
 );
 
 

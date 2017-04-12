@@ -16,7 +16,7 @@ input clk;
 input reset;
 input trigger_compare;
 input[DATA_WIDTH-1:0] max_size;
-output o_address;
+output [ADDR_WIDTH-1:0]o_address;
 output o_is_end_reached;
 
 
@@ -76,7 +76,8 @@ begin
 			begin
 				next_state <= IDLE;
 			end
-		default: next_state <= IDLE;
+		endcase
 	end
 end
 /*--------------------------------------------------------*/
+endmodule
