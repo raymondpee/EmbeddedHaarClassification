@@ -49,8 +49,9 @@ wire [DATA_WIDTH_8-1:0]threshold_index;
 wire [DATA_WIDTH_8-1:0]left_word_index;
 wire [DATA_WIDTH_8-1:0]right_word_index;
 wire [DATA_WIDTH_8-1:0]q;
-wire [DATA_WIDTH_12-1:0]haar_value;
 
+reg [DATA_WIDTH_12-1:0] haar_value[classifier_size-1:0];
+reg	[DATA_WIDTH_8-1:0] stage_index;
 reg [DATA_WIDTH_8-1:0] classifier_property[NUM_PARAM_PER_CLASSIFIER-1:0];
 
 assign rect_A_1_index = classifier_property[0];
@@ -78,26 +79,23 @@ begin
 	classifier_property[address_classifier] <= q;
 end
 
-rom 
-#(
-.ADDR_WIDTH(ADDR_WIDTH), 
-.DATA_WIDTH(DATA_WIDTH_8),
-.MEMORY_FILE(MEMORY_FILE)
-)
-rom
-(
-.clock(clk_fpga),
-.address(address_stage),
-.q(q)
-);
-
+always@(posedge clk_fpga)
+begin
+	if(is_end_of_stage)
+		stage_index<=0;		
+	else
+		if(is_end_of_classifier)
+			stage_index<= stage_index +1;
+		else
+			stage_index<= stage_index;
+end
 
 counter
 #(
 .DATA_WIDTH(DATA_WIDTH_12)
 .ADDR_WIDTH(ADDR_WIDTH)
 )
-counter_each_stage
+counter_overall_in_stage
 (
 .clk(clk_fpga),
 .reset(reset_fpga),
@@ -120,6 +118,20 @@ counter_each_classifier
 .o_address(address_classifier),
 .max_size(NUM_PARAM_PER_CLASSIFIER),
 .o_is_end_reached(is_end_of_classifier)
+);
+
+
+rom 
+#(
+.ADDR_WIDTH(ADDR_WIDTH), 
+.DATA_WIDTH(DATA_WIDTH_8),
+.MEMORY_FILE(MEMORY_FILE)
+)
+rom_stage
+(
+.clock(clk_fpga),
+.address(address_stage),
+.q(q)
 );
 
 classifier
@@ -151,5 +163,7 @@ classifier
 .right_word(right_word),
 .o_haarvalue(haar_value)
 );
+
+
 
 endmodule
