@@ -34,25 +34,25 @@ o-sv
 Z8 tCvgOpt 0
 vcounter
 R1
-Z9 !s110 1492009636
+Z9 !s110 1492088917
 !i10b 1
-!s100 i@EIF]S:dQ82bBRaBJ8oP1
-I:`<M]mX9gCj;fUCJj0fk<2
+!s100 Ii9C6Ec;_?WN3dNnSi>>_0
+IGZ`9_Q3lmL`^7L]QM;Tfn1
 R3
 !s105 counter_v_unit
 S1
 R0
-w1492009610
-8counter.v
-Fcounter.v
+w1492088708
+Z10 8counter.v
+Z11 Fcounter.v
 L0 1
 R4
 r1
 !s85 0
 31
-Z10 !s108 1492009636.000000
-Z11 !s107 counter.v|test_counter.v|
-Z12 !s90 test_counter.v|counter.v|-sv|
+Z12 !s108 1492088917.000000
+Z13 !s107 counter.v|test_counter.v|
+Z14 !s90 test_counter.v|counter.v|-sv|
 !i113 1
 o-sv
 R8
@@ -104,6 +104,30 @@ R7
 !i113 1
 o-sv
 R8
+voverflow_counter
+R1
+!s110 1492088678
+!i10b 1
+!s100 Bb2A7CBMelPz5^:?9J9]l0
+IY:iX]Y6MeMa8`@Qd]1`6>0
+R3
+Z15 !s105 test_counter_v_unit
+S1
+R0
+w1492088528
+R10
+R11
+L0 1
+R4
+r1
+!s85 0
+31
+!s108 1492088677.000000
+R13
+R14
+!i113 1
+o-sv
+R8
 vresize
 R1
 R2
@@ -129,13 +153,13 @@ R7
 o-sv
 R8
 vrom
-Z13 !s110 1491406708
+Z16 !s110 1491406708
 !i10b 1
 !s100 jCdK:P<e^Z5nB>3@2PZ582
 ImGECzGFRRbQOcZU=U<aF[3
 R3
 R0
-Z14 w1491406189
+Z17 w1491406189
 8rom.v
 From.v
 L0 40
@@ -143,9 +167,9 @@ R4
 r1
 !s85 0
 31
-Z15 !s108 1491406708.000000
-Z16 !s107 rom.v|test_rom.v|
-Z17 !s90 test_rom.v|rom.v|
+Z18 !s108 1491406708.000000
+Z19 !s107 rom.v|test_rom.v|
+Z20 !s90 test_rom.v|rom.v|
 !i113 1
 R8
 vrow
@@ -179,7 +203,7 @@ vstage_classifier_db
 I^cYJA7@KYI1m87ziF3[XK1
 R3
 R0
-R14
+R17
 8stage_classifier_db.v
 Fstage_classifier_db.v
 L0 1
@@ -196,13 +220,13 @@ vtest_counter
 R1
 R9
 !i10b 1
-!s100 9K:kl`o8bT]7T]6L3ZNJL1
-IHMhQLbF?`fiCWn<FgMl^U2
+!s100 o>?XahTa8EZKbcZbTAUdm2
+IhIM`C8T>3^KQafDV8V1M53
 R3
-!s105 test_counter_v_unit
+R15
 S1
 R0
-w1492009626
+w1492088790
 8test_counter.v
 Ftest_counter.v
 L0 2
@@ -210,9 +234,9 @@ R4
 r1
 !s85 0
 31
-R10
-R11
 R12
+R13
+R14
 !i113 1
 o-sv
 R8
@@ -227,8 +251,8 @@ R3
 S1
 R0
 w1490801177
-Z18 8test_module.v
-Z19 Ftest_module.v
+Z21 8test_module.v
+Z22 Ftest_module.v
 L0 3
 R4
 r1
@@ -248,8 +272,8 @@ I3cU6VBJ:[JznbRi]CN7HM3
 R3
 R0
 w1490198818
-R18
-R19
+R21
+R22
 L0 1
 R4
 r1
@@ -261,7 +285,7 @@ R6
 !i113 1
 R8
 vtest_rom
-R13
+R16
 !i10b 1
 !s100 VM>UG[nPA28S7APPoIO<j3
 I`kBWbP1G>nCIm:kQgGR0@0
@@ -275,8 +299,8 @@ R4
 r1
 !s85 0
 31
-R15
-R16
-R17
+R18
+R19
+R20
 !i113 1
 R8
