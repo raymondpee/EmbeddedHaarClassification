@@ -23,13 +23,13 @@ parameter NUM_CLASSIFIERS_THIRD_STAGE = 10
 	frame_src_height,
 	frame_dst_width,
 	frame_dst_height,
-	rom_first_stage_classifier,
-	rom_second_stage_classifier,
-	rom_third_stage_classifier,
+	rom_stage1,
+	rom_stage2,
+	rom_stage3,
 	o_scale_xcoord,
 	o_scale_ycoord,
-	o_is_candidate,
-	o_integral_image
+	candidate,
+	integral_image
 );
 
 
@@ -52,10 +52,10 @@ input [DATA_WIDTH_8-1:0] rom_first_stage_classifier [NUM_CLASSIFIERS_FIRST_STAGE
 input [DATA_WIDTH_8-1:0] rom_second_stage_classifier [NUM_CLASSIFIERS_SECOND_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
 input [DATA_WIDTH_8-1:0] rom_third_stage_classifier [NUM_CLASSIFIERS_THIRD_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
 
-output o_is_candidate;
+output candidate;
 output [DATA_WIDTH_12-1:0] o_scale_xcoord;
 output [DATA_WIDTH_12-1:0] o_scale_ycoord;
-output [DATA_WIDTH_8-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+output [DATA_WIDTH_8-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 /*-----------------------------------------------------------------------*/
 
 assign o_scale_xcoord = scale_xcoord;
@@ -77,10 +77,10 @@ memory
 .wen(is_write_enable),
 .frame_width(frame_dst_width),
 .frame_height(frame_dst_height),
-.o_integral_image(o_integral_image)
+.integral_image(integral_image)
 );
 
-primary_stage_classifier
+I2LBS_cascade
 #(
 .DATA_WIDTH(DATA_WIDTH_8),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
@@ -88,15 +88,15 @@ primary_stage_classifier
 .NUM_CLASSIFIERS_SECOND_STAGE(NUM_CLASSIFIERS_SECOND_STAGE),
 .NUM_CLASSIFIERS_THIRD_STAGE(NUM_CLASSIFIERS_THIRD_STAGE)
 )
-primary_stage_classifier
+I2LBS_cascade
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
-.rom_first_stage_classifier(rom_first_stage_classifier),
-.rom_second_stage_classifier(rom_second_stage_classifier),
-.rom_third_stage_classifier(rom_third_stage_classifier),
-.integral_image(o_integral_image),
-.o_iscandidate(o_is_candidate)
+.rom_stage1(rom_stage1),
+.rom_stage2(rom_stage2),
+.rom_stage3(rom_stage3),
+.integral_image(integral_image),
+.candidate(candidate)
 );
 
 resize

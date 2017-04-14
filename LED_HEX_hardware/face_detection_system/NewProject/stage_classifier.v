@@ -10,15 +10,15 @@ parameter NUM_CLASSIFIERS = 10
 (
 	clk_fpga,
 	integral_image,
-	rom_stage_classifier,
-	o_iscandidate
+	rom_stage,
+	candidate
 );
 
 	/*--------------------IO port declaration---------------------------------*/
 	input clk_fpga;
-	input [DATA_WIDTH_8-1:0] rom_stage_classifier [NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+	input [DATA_WIDTH_8-1:0] rom_stage [NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
 	input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
-	output o_iscandidate;
+	output candidate;
 	/*-----------------------------------------------------------------------*/
 	
 	wire [DATA_WIDTH_12-1:0]reduction_haar_value[NUM_CLASSIFIERS-1:0];
@@ -28,8 +28,8 @@ parameter NUM_CLASSIFIERS = 10
 	reg  [DATA_WIDTH_12-1:0] haar_value[NUM_CLASSIFIERS-1:0];
 		
 	assign final_haar_value = reduction_haar_value[NUM_CLASSIFIERS-1];
-	assign stage_threshold = rom_stage_classifier[NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD];
-	assign o_iscandidate = final_haar_value>stage_threshold;	
+	assign stage_threshold = rom_stage[NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD];
+	assign candidate = final_haar_value>stage_threshold;	
 		
 		
 	/*--------------------REDUCTION CALCULATION---------------------------------*/
@@ -71,24 +71,24 @@ parameter NUM_CLASSIFIERS = 10
 			
 			/*---------------------------CLASSIFIER PARAM INPUTS ------------------------------*/
 			assign current_classifier_index = index_classifier*NUM_PARAM_PER_CLASSIFIER;
-			assign rect_A_1_index = rom_stage_classifier[current_classifier_index+0];
-			assign rect_B_1_index = rom_stage_classifier[current_classifier_index+1];
-			assign rect_C_1_index = rom_stage_classifier[current_classifier_index+2];
-			assign rect_D_1_index = rom_stage_classifier[current_classifier_index+3];
-			assign weight_1 = rom_stage_classifier[current_classifier_index+4];
-			assign rect_A_2_index = rom_stage_classifier[current_classifier_index+5];
-			assign rect_B_2_index = rom_stage_classifier[current_classifier_index+6];
-			assign rect_C_2_index = rom_stage_classifier[current_classifier_index+7];
-			assign rect_D_2_index = rom_stage_classifier[current_classifier_index+8];
-			assign weight_2 = rom_stage_classifier[current_classifier_index+9];
-			assign rect_A_3_index = rom_stage_classifier[current_classifier_index+10];
-			assign rect_B_3_index = rom_stage_classifier[current_classifier_index+11];
-			assign rect_C_3_index = rom_stage_classifier[current_classifier_index+12];
-			assign rect_D_3_index = rom_stage_classifier[current_classifier_index+13];
-			assign weight_3 = rom_stage_classifier[current_classifier_index+14];
-			assign threshold = rom_stage_classifier[current_classifier_index+15];
-			assign left_word = rom_stage_classifier[current_classifier_index+16];
-			assign right_word = rom_stage_classifier[current_classifier_index+17];	
+			assign rect_A_1_index = rom_stage[current_classifier_index+0];
+			assign rect_B_1_index = rom_stage[current_classifier_index+1];
+			assign rect_C_1_index = rom_stage[current_classifier_index+2];
+			assign rect_D_1_index = rom_stage[current_classifier_index+3];
+			assign weight_1 = rom_stage[current_classifier_index+4];
+			assign rect_A_2_index = rom_stage[current_classifier_index+5];
+			assign rect_B_2_index = rom_stage[current_classifier_index+6];
+			assign rect_C_2_index = rom_stage[current_classifier_index+7];
+			assign rect_D_2_index = rom_stage[current_classifier_index+8];
+			assign weight_2 = rom_stage[current_classifier_index+9];
+			assign rect_A_3_index = rom_stage[current_classifier_index+10];
+			assign rect_B_3_index = rom_stage[current_classifier_index+11];
+			assign rect_C_3_index = rom_stage[current_classifier_index+12];
+			assign rect_D_3_index = rom_stage[current_classifier_index+13];
+			assign weight_3 = rom_stage[current_classifier_index+14];
+			assign threshold = rom_stage[current_classifier_index+15];
+			assign left_word = rom_stage[current_classifier_index+16];
+			assign right_word = rom_stage[current_classifier_index+17];	
 			/*--------------------------------------------------------------------------------*/
 				
 			classifier

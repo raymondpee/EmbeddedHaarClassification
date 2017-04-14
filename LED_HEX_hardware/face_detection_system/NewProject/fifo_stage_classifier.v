@@ -5,20 +5,22 @@ parameter DATA_WIDTH_8 = 8,   // Max value 255
 parameter DATA_WIDTH_12 = 12, // Max value 4095
 parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter NUM_PARAM_PER_CLASSIFIER = 18,
-parameter CLASSIFIER_SIZE,
+parameter CLASSIFIER_SIZE = 10,
 parameter MEMORY_FILE =  "memory.mif"
 )
 (
 	clk_fpga,
 	reset_fpga,
 	enable,
-	integral_image
+	integral_image,
+	end_count
 );
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_fpga;
 input reset_fpga;
 input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+output end_count;
 /*-----------------------------------------------------------------------*/
 
 wire end_count_stage;
@@ -71,6 +73,7 @@ assign weight_3 = classifier_property[14];
 assign threshold = classifier_property[15];
 assign left_word = classifier_property[16];
 assign right_word = classifier_property[17];
+assign end_count = end_count_stage;
 
 
 always@(posedge clk_fpga)
