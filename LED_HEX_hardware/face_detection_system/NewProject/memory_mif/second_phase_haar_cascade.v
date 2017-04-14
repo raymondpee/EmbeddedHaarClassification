@@ -24,10 +24,10 @@ output o_is_candidate;
 /*-----------------------------------------------------------------------*/
  
 localparam NUM_STAGES = 7;
-localparam FILE_STAGE4_MEM = ".//memory_mif//ram4.mif";
+localparam FILE_STAGE4_MEM = "ram4.mif";
 
 reg[NUM_STAGES-1:0] end_count; 
-reg[NUM_STAGES-1:0] enable; 
+reg[NUM_STAGES-1:0] enable_stage; 
 
 //Test here first, if all ok then duplicate all
 fifo_stage_classifier
@@ -44,7 +44,7 @@ stage4
 (
 .clk_fpga(clk),
 .reset_fpga(reset),
-.enable(enable[0]),
+.enable(enable_stage[0]),
 .integral_image(integral_image),
 .end_count(end_count[0])
 );

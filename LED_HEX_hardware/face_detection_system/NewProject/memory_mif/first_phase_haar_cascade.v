@@ -4,12 +4,6 @@ parameter ADDR_WIDTH = 10,
 parameter DATA_WIDTH_8 = 8,   // Max value 255
 parameter DATA_WIDTH_12 = 12, // Max value 4095
 parameter DATA_WIDTH_16 = 16, // Max value 177777
-parameter FILE_STAGE_1_MEM = "memory1.mif",
-parameter FILE_STAGE_2_MEM = "memory2.mif",
-parameter FILE_STAGE_3_MEM = "memory3.mif",
-parameter NUM_CLASSIFIERS_FIRST_STAGE = 10,
-parameter NUM_CLASSIFIERS_SECOND_STAGE = 10,
-parameter NUM_CLASSIFIERS_THIRD_STAGE = 10,
 parameter NUM_PARAM_PER_CLASSIFIER= 19,
 parameter NUM_STAGE_THRESHOLD = 3
 )
@@ -56,6 +50,15 @@ assign rom_stage1 = reg_rom_stage1;
 assign rom_stage2 = reg_rom_stage2;
 assign rom_stage3 = reg_rom_stage3;
 assign ready = stage1_ready&& stage2_ready && stage3_ready;
+
+
+
+localparam FILE_STAGE_1_MEM = "memory1.mif";
+localparam FILE_STAGE_2_MEM = "memory2.mif";
+localparam FILE_STAGE_3_MEM = "memory3.mif";
+localparam NUM_CLASSIFIERS_FIRST_STAGE = 10;
+localparam NUM_CLASSIFIERS_SECOND_STAGE = 10,
+localparam NUM_CLASSIFIERS_THIRD_STAGE = 10,
 
 always @(posedge reset_fpga)
 begin
