@@ -2,8 +2,8 @@
 module test_rom;
 
 localparam ADDR_WIDTH = 12;
-localparam DATA_WIDTH = 8;
-localparam MEMORY_FILE = "memory.mif";
+localparam DATA_WIDTH = 16;
+localparam MEMORY_FILE = "Ram0.mif";
 
 wire [DATA_WIDTH-1:0]data;
 reg clk;
@@ -13,8 +13,9 @@ reg [ADDR_WIDTH-1:0]address;
 /*--------------------------- INITIAL STATEMENT ---------------------------*/
 initial
 begin
-  clk = 0;
-  #1 reset =1;
+  clk = 1;
+  address = 0;
+  reset =1;
   #1 reset = 0;
 end
 /*-----------------------------------------------------------------------*/
@@ -26,10 +27,7 @@ always # 1 clk <= ~clk;
 
 always @(posedge clk)
 begin
-	if(reset)
-		address<=0;
-	else
-		address <= address+1;
+	address <= address+1;
 end
 
 
@@ -51,8 +49,6 @@ stage_classifier_db
 );
 */
 
-
-/*	[THIS FUNCTION IS WORKING]
 rom 
 #(
 .ADDR_WIDTH(ADDR_WIDTH), 
@@ -65,7 +61,7 @@ rom
 .clock(clk),
 .q(data)
 );
-*/
+
 
 
 endmodule
