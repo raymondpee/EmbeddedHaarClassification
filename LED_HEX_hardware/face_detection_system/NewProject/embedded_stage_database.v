@@ -16,6 +16,8 @@ parameter FILE_STAGE_MEM = "memory.mif"
 	o_rom
 );
 
+localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER;
+
 /*-----------------IO Port declaration -----------------*/
 input clk_fpga;
 input reset_fpga;
@@ -26,6 +28,9 @@ output [DATA_WIDTH_16-1:0] o_rom[NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_ST
 wire end_count;
 wire [ADDR_WIDTH-1:0] address;
 wire [DATA_WIDTH_16-1:0] data;
+wire start_load;
+wire [ADDR_WIDTH-1:0] database_index;
+
 
 reg ren;
 reg ready;
@@ -35,13 +40,19 @@ assign o_ready = ready;
 assign o_rom = rom;
 
 
-always@(posedge clk_fpga or posedge reset_fpga)
+always@(posedge reset_fpga)
 begin
 	if(reset_fpga)
-		ren<=1;
-	else
 	begin
-	if(ren)
+		ren<=1;
+	end
+end
+
+
+always@(posedge clk_fpga)
+begin	
+	if(start_load)
+	begin
 		if(end_count)
 		begin
 			ren<=0;
@@ -49,11 +60,26 @@ begin
 		end
 		else
 		begin
-			rom[address] <= data;
+			rom[database_index] <= data;
 			ready<=0;
 		end
 	end
 end
+
+counter
+#(
+.DATA_WIDTH(DATA_WIDTH_8)
+)
+counter_stage
+(
+.clk(clk_fpga),
+.reset(reset_fpga),
+.enable(start_load),
+.ctr_out(database_index),
+.max_size(NUM_DATABASE_INDEX),
+.end_count(end_count)
+);
+
 
 stage_database
 #(
@@ -71,6 +97,7 @@ stage_database
 .reset_fpga(reset_fpga),
 .ren(ren),
 .o_end_count(end_count),
+.o_start_load(start_load),
 .o_data(data),
 .o_address(address)
 );

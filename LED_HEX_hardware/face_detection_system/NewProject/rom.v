@@ -46,16 +46,19 @@ parameter MEMORY_FILE =  "memory.mif"
 (
 	address,
 	clock,
+	ren,
 	q
 );
 
 	input	[ADDR_WIDTH-1:0]  address;
+	input	  ren;
 	input	  clock;
 	output	[DATA_WIDTH-1:0]  q;
 `ifndef ALTERA_RESERVED_QIS
 // synopsys translate_off
 `endif
 	tri1	  clock;
+	tri1	  ren;
 `ifndef ALTERA_RESERVED_QIS
 // synopsys translate_on
 `endif
@@ -83,7 +86,7 @@ parameter MEMORY_FILE =  "memory.mif"
 				.data_b (1'b1),
 				.eccstatus (),
 				.q_b (),
-				.rden_a (1'b1),
+				.rden_a (ren),
 				.rden_b (1'b1),
 				.wren_a (1'b0),
 				.wren_b (1'b0));
