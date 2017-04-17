@@ -16,68 +16,84 @@ parameter FILE_STAGE_MEM = "memory.mif"
 	o_rom
 );
 
-localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER;
+localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
 
 /*-----------------IO Port declaration -----------------*/
 input clk_fpga;
 input reset_fpga;
 output o_ready;
-output [DATA_WIDTH_16-1:0] o_rom[NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];
+output [DATA_WIDTH_16-1:0] o_rom[NUM_DATABASE_INDEX-1:0];
 /*-------------------------------------------------------*/
 
 wire end_count;
+wire end_count_database_index;
 wire [ADDR_WIDTH-1:0] address;
 wire [DATA_WIDTH_16-1:0] data;
 wire start_load;
 wire [ADDR_WIDTH-1:0] database_index;
 
-
+integer k;
 reg ren;
 reg ready;
-reg [DATA_WIDTH_16-1:0] rom [NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+reg ren_database_index;
+reg [DATA_WIDTH_16-1:0] rom [NUM_DATABASE_INDEX-1:0];	
 
 assign o_ready = ready;
 assign o_rom = rom;
 
-
-always@(posedge reset_fpga)
+initial 
 begin
-	if(reset_fpga)
+	for(k = 0; k<NUM_DATABASE_INDEX; k = k+1)
 	begin
-		ren<=1;
+		rom[k] =0;
 	end
 end
 
 
 always@(posedge clk_fpga)
+begin
+	if(reset_fpga)
+		ren<=1;
+	else
+		ren<=0;
+end
+
+always@(posedge start_load)
+begin
+	ren_database_index<=1;
+end
+
+always@(posedge clk_fpga)
 begin	
-	if(start_load)
+	if(ren_database_index)
 	begin
-		if(end_count)
+		if(end_count_database_index)
 		begin
-			ren<=0;
 			ready<=1;
+			ren_database_index<=0;
 		end
 		else
-		begin
+		begin			
 			rom[database_index] <= data;
 			ready<=0;
+			ren_database_index<=1;
 		end
 	end
 end
 
+
 counter
 #(
-.DATA_WIDTH(DATA_WIDTH_8)
+.DATA_WIDTH(DATA_WIDTH_12)
 )
 counter_stage
 (
 .clk(clk_fpga),
 .reset(reset_fpga),
-.enable(start_load),
+.enable(ren_database_index),
 .ctr_out(database_index),
 .max_size(NUM_DATABASE_INDEX),
-.end_count(end_count)
+.end_count(end_count_database_index)
 );
 
 
@@ -88,8 +104,7 @@ stage_database
 .DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
 .DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
 .FILE_STAGE_MEM(FILE_STAGE_MEM),
-.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS),
-.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER)
+.NUM_DATABASE_INDEX(NUM_DATABASE_INDEX)
 )
 stage_database
 (

@@ -5,8 +5,7 @@ parameter DATA_WIDTH_8 = 8,   // Max value 255
 parameter DATA_WIDTH_12 = 12, // Max value 4095
 parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter FILE_STAGE_MEM = "ram1.mif",
-parameter NUM_CLASSIFIERS_STAGE = 10,
-parameter NUM_PARAM_PER_CLASSIFIER = 18
+parameter NUM_DATABASE_INDEX = 10
 )
 (
 	clk_fpga,
@@ -17,8 +16,6 @@ parameter NUM_PARAM_PER_CLASSIFIER = 18
 	o_data,
 	o_address
 );
-
-localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS_STAGE*NUM_PARAM_PER_CLASSIFIER;
 input clk_fpga;
 input reset_fpga;
 input ren;
@@ -26,10 +23,12 @@ output o_end_count;
 output o_start_load;
 output [DATA_WIDTH_16-1:0] o_data;
 output [ADDR_WIDTH-1:0] o_address;
- 
-wire end_count;
+
+
+wire w_end_count; 
 wire [ADDR_WIDTH-1:0] w_address; 
 wire [DATA_WIDTH_12-1:0] w_rom_data;
+
 
 reg r_start_load;
 reg r_ren;
@@ -40,8 +39,7 @@ reg [DATA_WIDTH_12-1:0] r_rom_data;
 assign o_start_load = r_start_load;
 assign o_data = r_rom_data;
 assign o_address = r_address;
-assign o_end_count = end_count;
-
+assign o_end_count = w_end_count;
 
 always@(r_rom_data)
 begin
@@ -59,11 +57,13 @@ begin
 	r_start_load<=0;
 end
 
-always@(ren)
+always@(posedge clk_fpga)
 begin
-	r_ren<=ren;
+	if(ren)
+		r_ren<=1;
+	if(w_end_count)
+		r_ren<=0;
 end
-
 
 counter
 #(
@@ -76,7 +76,7 @@ counter_stage
 .enable(r_ren),
 .ctr_out(r_address),
 .max_size(NUM_DATABASE_INDEX),
-.end_count(end_count)
+.end_count(w_end_count)
 );
 
 rom 
