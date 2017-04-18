@@ -55,18 +55,6 @@ output [ADDR_WIDTH-1:0] o_database_index[NUM_STAGES-1:0];
 output [DATA_WIDTH_12-1:0]o_data_database[NUM_STAGES-1:0];
 /*-----------------------------------------------------------------------*/
  
-reg r_rden;
-
-always@(posedge clk_fpga)
-begin
-	if(r_rden)
-		r_rden<=0;
-	else
-		if(i_rden)
-			r_rden<=1;
-		else
-			r_rden <=0;
-end
 
 fifo_stage_database
 #(
@@ -83,7 +71,7 @@ fifo_stage_database_4
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
-.rden(r_rden),
+.rden(i_rden),
 .o_tree_index(o_tree_index[0]),
 .o_classifier_index(o_classifier_index[0]),
 .o_database_index(o_database_index[0]),

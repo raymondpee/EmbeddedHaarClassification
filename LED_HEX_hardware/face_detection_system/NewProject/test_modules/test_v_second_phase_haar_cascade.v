@@ -25,14 +25,14 @@ localparam FILE_STAGE_1 = "Ram0.mif";
 localparam FILE_STAGE_2 = "Ram1.mif";
 localparam FILE_STAGE_3 = "Ram2.mif";
 
-localparam FILE_STAGE4 = "ram3.mif";
-localparam FILE_STAGE5 = "ram4.mif";
-localparam FILE_STAGE6 = "ram5.mif";
-localparam FILE_STAGE7 = "ram6.mif";
-localparam FILE_STAGE8 = "ram7.mif";
-localparam FILE_STAGE9 = "ram8.mif";
-localparam FILE_STAGE10 = "ram9.mif";
-localparam FILE_STAGE11 = "ram10.mif";
+localparam FILE_STAGE4 = "Ram3.mif";
+localparam FILE_STAGE5 = "Ram4.mif";
+localparam FILE_STAGE6 = "Ram5.mif";
+localparam FILE_STAGE7 = "Ram6.mif";
+localparam FILE_STAGE8 = "Ram7.mif";
+localparam FILE_STAGE9 = "Ram8.mif";
+localparam FILE_STAGE10 = "Ram9.mif";
+localparam FILE_STAGE11 = "Ram10.mif";
 localparam NUM_STAGES = 8;
 
 

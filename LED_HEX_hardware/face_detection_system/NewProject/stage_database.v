@@ -31,7 +31,6 @@ wire [DATA_WIDTH_12-1:0] w_rom_data;
 
 
 reg r_start_load;
-reg r_ren;
 reg [ADDR_WIDTH-1:0] r_address; 
 reg [DATA_WIDTH_12-1:0] r_rom_data;
 
@@ -57,13 +56,6 @@ begin
 	r_start_load<=0;
 end
 
-always@(posedge clk_fpga)
-begin
-	if(ren)
-		r_ren<=1;
-	if(w_end_count)
-		r_ren<=0;
-end
 
 counter
 #(
@@ -73,9 +65,9 @@ counter_stage
 (
 .clk(clk_fpga),
 .reset(reset_fpga),
-.enable(r_ren),
+.enable(ren),
 .ctr_out(r_address),
-.max_size(NUM_DATABASE_INDEX),
+.max_size(NUM_DATABASE_INDEX-1),
 .end_count(w_end_count)
 );
 
@@ -88,7 +80,7 @@ rom
 rom_stage
 (
 .clock(clk_fpga),
-.ren(r_ren),
+.ren(ren),
 .address(r_address),
 .q(r_rom_data)
 );

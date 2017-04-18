@@ -33,7 +33,7 @@ wire start_load;
 wire [ADDR_WIDTH-1:0] database_index;
 
 integer k;
-reg ren;
+reg r_ren;
 reg ready;
 reg ren_database_index;
 reg [DATA_WIDTH_16-1:0] rom [NUM_DATABASE_INDEX-1:0];	
@@ -52,10 +52,10 @@ end
 
 always@(posedge clk_fpga)
 begin
-	if(reset_fpga)
-		ren<=1;
-	else
-		ren<=0;
+	if(ren)
+		r_ren<=1;
+	if(end_count)
+		r_ren<=0;
 end
 
 always@(posedge start_load)
@@ -110,7 +110,7 @@ stage_database
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
-.ren(ren),
+.ren(r_ren),
 .o_end_count(end_count),
 .o_start_load(start_load),
 .o_data(data),
