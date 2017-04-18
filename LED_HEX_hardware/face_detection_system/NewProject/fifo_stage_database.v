@@ -37,10 +37,12 @@ output [DATA_WIDTH_12-1:0]o_data_database;
 /*-------------------------------------------------------*/
 
 wire end_count_tree_index;
+wire end_count_current_classifier_index;
 wire end_count_classifier_index;
 wire end_count_database_index;
 wire [ADDR_WIDTH-1:0] database_index;
 wire [ADDR_WIDTH-1:0] classifier_index;
+wire [ADDR_WIDTH-1:0] current_classifier_index;
 wire [ADDR_WIDTH-1:0] tree_index;
 wire [DATA_WIDTH_12-1:0] data_database;
 
@@ -48,7 +50,9 @@ reg r_rden;
 reg ren_tree_index;
 reg ren_classifier_index;
 reg ren_database_index;
+reg ren_database;
 reg r_end_count_database_index;
+reg ren_current_classifier_index;
 
 assign o_data_database = data_database;
 assign o_tree_index = tree_index;
@@ -77,8 +81,8 @@ always@(posedge r_rden)
 begin
 	ren_classifier_index<=1;
 	ren_database_index <=1;
+	ren_database<=1;
 end
-
 
 always@(posedge clk_fpga)
 begin
@@ -87,34 +91,51 @@ begin
 		ren_tree_index<=0;
 		ren_classifier_index<=0;
 		ren_database_index<=0;
+		ren_database<=0;
+		ren_current_classifier_index<=0;
 		r_end_count_database_index<=0;
+	end
+end
+
+always@(posedge clk_fpga)
+begin
+	if(ren_tree_index)
+		ren_tree_index<=0;
+end
+
+
+always@(end_count_classifier_index,end_count_tree_index,end_count_current_classifier_index)
+begin
+	if(end_count_classifier_index)
+	begin
+		ren_tree_index <= 1;
+		ren_classifier_index<=0;
+		ren_database_index<=0;	
+		if(end_count_current_classifier_index)
+		begin
+			ren_current_classifier_index<=0;
+			ren_database<=0;
+		end
+		else
+		begin
+			ren_current_classifier_index<=1;
+			ren_database<=1;
+		end
+	end
+	else if(end_count_tree_index)
+	begin
+		ren_tree_index<=0;
+		ren_classifier_index<=0;
+		if(end_count_database_index)
+			ren_database_index<=0;
+		else
+			ren_database_index<=1;
 	end
 	else
 	begin
-		if(r_rden)
-		begin
-			if(end_count_classifier_index)
-			begin
-				ren_tree_index <= 1;
-				ren_classifier_index<=0;
-				ren_database_index<=0;		
-			end
-			else if(end_count_tree_index)
-			begin
-				ren_tree_index<=0;
-				ren_classifier_index<=0;
-				if(end_count_database_index)
-					ren_database_index<=0;
-				else
-					ren_database_index<=1;
-			end
-			else
-			begin
-				ren_tree_index <= 0;
-				ren_classifier_index<=1;
-				ren_database_index<=1;
-			end
-		end
+		ren_tree_index <= 0;
+		ren_classifier_index<=1;
+		ren_database_index<=1;
 	end
 end
 
@@ -139,7 +160,22 @@ counter
 #(
 .DATA_WIDTH(DATA_WIDTH_12)
 )
-counter_classifier
+counter_current_classifier_index
+(
+.clk(clk_fpga),
+.reset(reset_fpga),
+.enable(ren_current_classifier_index),
+.ctr_out(current_classifier_index),
+.max_size(NUM_PARAM_PER_CLASSIFIER-1),
+.end_count(end_count_current_classifier_index)
+);
+
+
+counter
+#(
+.DATA_WIDTH(DATA_WIDTH_12)
+)
+counter_classifier_index
 (
 .clk(clk_fpga),
 .reset(reset_fpga),
@@ -163,7 +199,8 @@ stage_database
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
-.ren(ren_database_index),
+.ren_database_index(ren_database_index),
+.ren_database(ren_database),
 .o_end_count(end_count_database_index),
 .o_data(data_database),
 .o_address(database_index)

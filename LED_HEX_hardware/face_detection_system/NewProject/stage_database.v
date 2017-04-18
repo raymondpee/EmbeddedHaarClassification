@@ -10,7 +10,8 @@ parameter NUM_DATABASE_INDEX = 10
 (
 	clk_fpga,
 	reset_fpga,
-	ren,
+	ren_database_index,
+	ren_database,
 	o_end_count,
 	o_start_load,
 	o_data,
@@ -18,7 +19,8 @@ parameter NUM_DATABASE_INDEX = 10
 );
 input clk_fpga;
 input reset_fpga;
-input ren;
+input ren_database_index;
+input ren_database;
 output o_end_count;
 output o_start_load;
 output [DATA_WIDTH_16-1:0] o_data;
@@ -61,11 +63,11 @@ counter
 #(
 .DATA_WIDTH(DATA_WIDTH_16)
 )
-counter_stage
+counter_database_index
 (
 .clk(clk_fpga),
 .reset(reset_fpga),
-.enable(ren),
+.enable(ren_database_index),
 .ctr_out(r_address),
 .max_size(NUM_DATABASE_INDEX-1),
 .end_count(w_end_count)
@@ -77,10 +79,10 @@ rom
 .DATA_WIDTH(DATA_WIDTH_16),
 .MEMORY_FILE(FILE_STAGE_MEM)
 )
-rom_stage
+rom_database
 (
 .clock(clk_fpga),
-.ren(ren),
+.ren(ren_database),
 .address(r_address),
 .q(r_rom_data)
 );
