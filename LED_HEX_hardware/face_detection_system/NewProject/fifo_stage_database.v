@@ -63,20 +63,6 @@ assign o_end_count_tree_index = end_count_tree_index;
 assign o_end_count_database_index = end_count_database_index;
 assign o_end_count_classifier_index = end_count_current_classifier_index;
 
-
-always@(posedge end_count_database_index)
-begin
-	r_end_count_database_index <=1;
-end
-
-
-always@(posedge rden)
-begin
-	ren_classifier_index<=1;
-	ren_database_index <=1;
-	ren_database<=1;
-end
-
 always@(posedge clk_fpga)
 begin
 	if(reset_fpga)
@@ -89,9 +75,27 @@ begin
 		ren_current_classifier_index<=0;
 		r_end_count_database_index<=0;
 	end
+	if(ren_tree_index)
+		ren_tree_index<=0;
+	if(end_count_current_classifier_index)
+	begin
+		data_database<=DEFAULT_VALUE;
+		ren_database<=0;
+		ren_tree_index <= 1;
+	end
 end
 
+always@(posedge rden)
+begin
+	ren_classifier_index<=1;
+	ren_database_index <=1;
+	ren_database<=1;
+end
 
+always@(posedge end_count_database_index)
+begin
+	r_end_count_database_index <=1;
+end
 
 always@(data_database)
 begin
@@ -102,37 +106,12 @@ begin
 end
 
 
-always@(posedge clk_fpga)
-begin
-	if(ren_tree_index)
-		ren_tree_index<=0;
-end
-
-always@(posedge clk_fpga)
-begin
-	if(end_count_current_classifier_index)
-		data_database<=DEFAULT_VALUE;
-end
-
-always@(end_count_classifier_index,end_count_tree_index,end_count_current_classifier_index)
+always@(end_count_classifier_index,end_count_tree_index)
 begin
 	if(end_count_classifier_index)
 	begin
 		ren_classifier_index<=0;
 		ren_database_index<=0;	
-		if(end_count_current_classifier_index)
-		begin
-			
-			ren_tree_index <= 1;
-			ren_current_classifier_index<=0;
-			ren_database<=0;
-		end
-		else
-		begin
-			ren_tree_index <= 0;
-			ren_current_classifier_index<=1;
-			ren_database<=1;
-		end
 	end
 	else if(end_count_tree_index)
 	begin
@@ -142,12 +121,6 @@ begin
 			ren_database_index<=0;
 		else
 			ren_database_index<=1;
-	end
-	else
-	begin
-		ren_tree_index <= 0;
-		ren_classifier_index<=1;
-		ren_database_index<=1;
 	end
 end
 
