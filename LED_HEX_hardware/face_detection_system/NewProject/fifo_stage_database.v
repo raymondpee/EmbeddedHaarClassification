@@ -21,6 +21,7 @@ parameter FILE_STAGE_MEM = "memory.mif"
 	o_end_count_database_index,	
 	o_data_database	
 );
+localparam DEFAULT_VALUE = 1010;
 localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS_STAGE*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
 /*-----------------IO Port declaration -----------------*/
 input clk_fpga;
@@ -44,15 +45,15 @@ wire [ADDR_WIDTH-1:0] database_index;
 wire [ADDR_WIDTH-1:0] classifier_index;
 wire [ADDR_WIDTH-1:0] current_classifier_index;
 wire [ADDR_WIDTH-1:0] tree_index;
-wire [DATA_WIDTH_12-1:0] data_database;
 
-reg r_rden;
+
 reg ren_tree_index;
 reg ren_classifier_index;
 reg ren_database_index;
 reg ren_database;
 reg r_end_count_database_index;
 reg ren_current_classifier_index;
+reg [DATA_WIDTH_12-1:0] data_database;
 
 assign o_data_database = data_database;
 assign o_tree_index = tree_index;
@@ -60,7 +61,7 @@ assign o_classifier_index = classifier_index;
 assign o_database_index = database_index;
 assign o_end_count_tree_index = end_count_tree_index;
 assign o_end_count_database_index = end_count_database_index;
-assign o_end_count_classifier_index = end_count_classifier_index;
+assign o_end_count_classifier_index = end_count_current_classifier_index;
 
 
 always@(posedge end_count_database_index)
@@ -69,15 +70,7 @@ begin
 end
 
 
-always@(posedge clk_fpga)
-begin
-	if(rden)
-		r_rden<=1;
-	if(r_end_count_database_index)
-		r_rden<=0;
-end
-
-always@(posedge r_rden)
+always@(posedge rden)
 begin
 	ren_classifier_index<=1;
 	ren_database_index <=1;
@@ -88,6 +81,7 @@ always@(posedge clk_fpga)
 begin
 	if(reset_fpga)
 	begin
+		data_database<=DEFAULT_VALUE;
 		ren_tree_index<=0;
 		ren_classifier_index<=0;
 		ren_database_index<=0;
@@ -97,27 +91,45 @@ begin
 	end
 end
 
+
+
+always@(data_database)
+begin
+	if(data_database == DEFAULT_VALUE)
+		ren_current_classifier_index<=0;
+	else
+		ren_current_classifier_index<=1;
+end
+
+
 always@(posedge clk_fpga)
 begin
 	if(ren_tree_index)
 		ren_tree_index<=0;
 end
 
+always@(posedge clk_fpga)
+begin
+	if(end_count_current_classifier_index)
+		data_database<=DEFAULT_VALUE;
+end
 
 always@(end_count_classifier_index,end_count_tree_index,end_count_current_classifier_index)
 begin
 	if(end_count_classifier_index)
 	begin
-		ren_tree_index <= 1;
 		ren_classifier_index<=0;
 		ren_database_index<=0;	
 		if(end_count_current_classifier_index)
 		begin
+			
+			ren_tree_index <= 1;
 			ren_current_classifier_index<=0;
 			ren_database<=0;
 		end
 		else
 		begin
+			ren_tree_index <= 0;
 			ren_current_classifier_index<=1;
 			ren_database<=1;
 		end
@@ -138,9 +150,6 @@ begin
 		ren_database_index<=1;
 	end
 end
-
-
-
 
 counter
 #(
