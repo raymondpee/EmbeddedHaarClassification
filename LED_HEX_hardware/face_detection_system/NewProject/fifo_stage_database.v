@@ -43,23 +43,31 @@ wire end_count_tree_index;
 wire end_count_current_database_index;
 wire end_count_current_classifier_index;
 wire end_count_database_index;
+wire end_count_stage_threshold_index;
+wire w_end_classifier;
 wire [ADDR_WIDTH-1:0] database_index;
 wire [ADDR_WIDTH-1:0] current_database_index;
 wire [ADDR_WIDTH-1:0] current_classifier_index;
 wire [ADDR_WIDTH-1:0] tree_index;
+wire [ADDR_WIDTH-1:0] stage_threshold_index;
 
-
+reg [DATA_WIDTH_12-1:0] r_stage_threshold;
+reg [DATA_WIDTH_12-1:0] r_parent;
+reg [DATA_WIDTH_12-1:0] r_next;
 reg ren_tree_index;
 reg ren_database_index;
 reg ren_database;
 reg ren_current_classifier_index;
 reg ren_current_database_index;
+reg ren_stage_threshold_index;
 reg end_database;
+reg r_end_classifier;
 reg reset_logic;
 reg reset_tree_index;
 reg reset_counter_current_database_index;
 reg reset_counter_current_classifier_index;
 reg reset_stage_database;
+reg reset_stage_threshold_index;
 reg [DATA_WIDTH_12-1:0] data_database;
 
 assign o_data_database = data_database;
@@ -70,18 +78,45 @@ assign o_end_count_tree_index = end_count_tree_index;
 assign o_end_count_database_index = end_count_current_database_index;
 assign o_end_count_classifier_index = end_count_current_classifier_index;
 assign o_end_database = end_database;
+assign w_end_classifier = ((current_database_index + NUM_STAGE_THRESHOLD) == NUM_DATABASE_INDEX);
+
+always@(posedge end_count_current_database_index) end_database<=1;
+always@(posedge w_end_classifier) r_end_classifier<=1;
+always@(posedge r_end_classifier) ren_stage_threshold_index<=1;
+always@(posedge end_count_stage_threshold_index) ren_stage_threshold_index<=0;
 
 
-
-
+always@(posedge clk_fpga)
+begin
+	if(r_end_classifier)
+	begin
+		if(end_count_stage_threshold_index == 0)
+		begin
+			case(stage_threshold_index)
+			0:r_stage_threshold<= data_database;
+			1:r_parent<= data_database;
+			2:r_next<= data_database;
+			endcase
+		end
+	end
+end
 
 always@(posedge reset_fpga)
 begin
+	r_stage_threshold<=0;
+	r_parent<=0;
+	r_next<=0;
+	end_database<=0;
+	ren_current_classifier_index<=0;
+	ren_current_database_index<=0;
+	ren_stage_threshold_index<=0;
 	reset_logic<=1;
 	reset_tree_index<=1;
+	reset_stage_threshold_index<=1;
 	reset_counter_current_classifier_index<=1;
 	reset_counter_current_database_index<=1;
 	reset_stage_database<=1;
+	r_end_classifier<=0;
 end
 
 always@(posedge clk_fpga)
@@ -92,26 +127,18 @@ begin
 	if(reset_counter_current_classifier_index)reset_counter_current_classifier_index<=0;
 	if(reset_stage_database)reset_stage_database<=0;
 	if(ren_tree_index) ren_tree_index<=0;
-end
-
-
-always@(posedge end_count_current_database_index)
-begin
-	end_database<=1;
+	if(reset_stage_threshold_index)reset_stage_threshold_index<=0;
 end
 
 
 always@(posedge clk_fpga)
 begin
 	if(reset_logic)
-	begin
-		end_database<=0;
+	begin	
 		data_database<=DEFAULT_VALUE;
 		ren_tree_index<=0;
 		ren_database_index<=0;
 		ren_database<=0;
-		ren_current_classifier_index<=0;
-		ren_current_database_index<=0;
 	end
 	if(end_count_current_database_index)
 	begin
@@ -140,8 +167,16 @@ begin
 	end
 	else
 	begin
-		ren_current_classifier_index<=1;
-		ren_current_database_index<=1;
+		if(end_database)
+		begin
+			ren_current_classifier_index<=0;
+			ren_current_database_index<=0;
+		end
+		else
+		begin
+			ren_current_classifier_index<=1;
+			ren_current_database_index<=1;
+		end
 	end
 end
 
@@ -160,6 +195,20 @@ begin
 		ren_database_index<=0;
 	end
 end
+
+counter
+#(
+.DATA_WIDTH(DATA_WIDTH_12)
+)
+counter_stage_threshold
+(
+.clk(clk_fpga),
+.reset(reset_stage_threshold_index),
+.enable(ren_stage_threshold_index),
+.ctr_out(stage_threshold_index),
+.max_size(NUM_STAGE_THRESHOLD-1),
+.end_count(end_count_stage_threshold_index)
+);
 
 counter
 #(
