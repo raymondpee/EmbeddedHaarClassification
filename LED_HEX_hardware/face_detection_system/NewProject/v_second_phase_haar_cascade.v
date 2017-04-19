@@ -55,24 +55,15 @@ output [ADDR_WIDTH-1:0] o_database_index[NUM_STAGES-1:0];
 output [DATA_WIDTH_12-1:0]o_data_database[NUM_STAGES-1:0];
 /*-----------------------------------------------------------------------*/
 
-wire end_count_classifier_index; 
+wire end_count_classifier_index;
+wire end_database;
 reg rden;
+
  
-always@(posedge i_rden)
-begin
-	rden<=1;	
-end
- 
+always@(posedge i_rden) rden<=1;	
 always@(posedge clk_fpga)
 begin
-	if(rden)
-	begin
-		rden<=0;
-	end
-	else if(end_count_classifier_index)
-	begin
-		rden<=1;
-	end
+	if(rden) rden<=0;
 end
  
 assign o_end_count_classifier_index = end_count_classifier_index;
@@ -99,7 +90,8 @@ fifo_stage_database_4
 .o_end_count_classifier_index(end_count_classifier_index),
 .o_end_count_tree_index(o_end_count_tree_index[0]),
 .o_end_count_database_index(o_end_count_database_index[0]),
-.o_data_database(o_data_database[0])
+.o_data_database(o_data_database[0]),
+.o_end_database(end_database)
 );
 
 endmodule
