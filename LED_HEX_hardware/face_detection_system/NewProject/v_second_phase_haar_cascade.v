@@ -28,13 +28,14 @@ parameter NUM_CLASSIFIERS_STAGE11 = 99
 	clk_fpga,
 	reset_fpga,
 	i_rden,
-	o_tree_index,
-	o_classifier_index,
-	o_database_index,
-	o_data_database,	
-	o_end_count_classifier_index,
-	o_end_count_tree_index,
-	o_end_count_database_index,
+	o_index_tree,
+	o_index_classifier,
+	o_index_database,
+	o_end_single_classifier,
+	o_end_tree,
+	o_end_database,
+	o_end,
+	o_data
 );
 
 /*-----------------------------LocalParam-----------------------------------*/
@@ -46,28 +47,25 @@ input clk_fpga;
 input reset_fpga;
 input i_rden;
 
-output [NUM_STAGES-1:0]o_end_count_database_index;
-output [NUM_STAGES-1:0]o_end_count_tree_index;
-output [NUM_STAGES-1:0]o_end_count_classifier_index;
-output [ADDR_WIDTH-1:0]o_tree_index[NUM_STAGES-1:0];
-output [ADDR_WIDTH-1:0] o_classifier_index[NUM_STAGES-1:0];
-output [ADDR_WIDTH-1:0] o_database_index[NUM_STAGES-1:0];
-output [DATA_WIDTH_12-1:0]o_data_database[NUM_STAGES-1:0];
+output o_end;
+output [NUM_STAGES-1:0]o_end_database;
+output [NUM_STAGES-1:0]o_end_tree;
+output [NUM_STAGES-1:0]o_end_single_classifier;
+output [ADDR_WIDTH-1:0]o_index_tree[NUM_STAGES-1:0];
+output [ADDR_WIDTH-1:0] o_index_classifier[NUM_STAGES-1:0];
+output [ADDR_WIDTH-1:0] o_index_database[NUM_STAGES-1:0];
+output [DATA_WIDTH_12-1:0]o_data[NUM_STAGES-1:0];
 /*-----------------------------------------------------------------------*/
 
-wire end_count_classifier_index;
-wire end_database;
-reg rden;
-
- 
-always@(posedge i_rden) rden<=1;	
+reg r_rden;
+always@(posedge i_rden) r_rden<=1;	
 always@(posedge clk_fpga)
 begin
-	if(rden) rden<=0;
+	if(r_rden) r_rden<=0;
 end
- 
-assign o_end_count_classifier_index = end_count_classifier_index;
- 
+  
+ assign o_end = o_end_database[0] && o_end_database[1];
+  
 fifo_stage_database
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
@@ -83,15 +81,40 @@ fifo_stage_database_4
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
-.rden(rden),
-.o_tree_index(o_tree_index[0]),
-.o_classifier_index(o_classifier_index[0]),
-.o_database_index(o_database_index[0]),
-.o_end_count_classifier_index(end_count_classifier_index),
-.o_end_count_tree_index(o_end_count_tree_index[0]),
-.o_end_count_database_index(o_end_count_database_index[0]),
-.o_data_database(o_data_database[0]),
-.o_end_database(end_database)
+.rden(r_rden),
+.o_index_tree(o_index_tree[0]),
+.o_index_classifier(o_index_classifier[0]),
+.o_index_database(o_index_database[0]),
+.o_end_single_classifier(o_end_single_classifier[0]),
+.o_end_tree(o_end_tree[0]),
+.o_end_database(o_end_database[0]),
+.o_data(o_data[0])
 );
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE5)
+)
+fifo_stage_database_5
+(
+.clk_fpga(clk_fpga),
+.reset_fpga(reset_fpga),
+.rden(r_rden),
+.o_index_tree(o_index_tree[1]),
+.o_index_classifier(o_index_classifier[1]),
+.o_index_database(o_index_database[1]),
+.o_end_single_classifier(o_end_single_classifier[1]),
+.o_end_tree(o_end_tree[1]),
+.o_end_database(o_end_database[1]),
+.o_data(o_data[1])
+);
+
 
 endmodule

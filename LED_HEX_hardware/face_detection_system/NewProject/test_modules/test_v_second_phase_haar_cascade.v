@@ -56,14 +56,15 @@ end
 // Clock:
 always # 1 clk <= ~clk;
 
+wire w_end;
 wire ready;
-wire [NUM_STAGES-1:0] end_count_database_index;
-wire [NUM_STAGES-1:0] end_count_tree_index;
-wire [NUM_STAGES-1:0] end_count_classifier_index;
-wire [ADDR_WIDTH-1:0] tree_index[NUM_STAGES-1:0];
-wire [ADDR_WIDTH-1:0] classifier_index[NUM_STAGES-1:0];
-wire [ADDR_WIDTH-1:0] database_index[NUM_STAGES-1:0];
-wire [DATA_WIDTH_12-1:0] data_database[NUM_STAGES-1:0]; 
+wire [NUM_STAGES-1:0] end_database;
+wire [NUM_STAGES-1:0] end_tree;
+wire [NUM_STAGES-1:0] end_single_classifier;
+wire [ADDR_WIDTH-1:0] index_tree[NUM_STAGES-1:0];
+wire [ADDR_WIDTH-1:0] index_classifier[NUM_STAGES-1:0];
+wire [ADDR_WIDTH-1:0] index_database[NUM_STAGES-1:0];
+wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
 
 v_second_phase_haar_cascade
 #(
@@ -96,13 +97,14 @@ v_second_phase_haar_cascade
 .clk_fpga(clk),
 .reset_fpga(reset),
 .i_rden(rden),
-.o_tree_index(tree_index),
-.o_classifier_index(classifier_index),
-.o_database_index(database_index),
-.o_data_database(data_database),	
-.o_end_count_classifier_index(end_count_classifier_index),
-.o_end_count_tree_index(end_count_tree_index),
-.o_end_count_database_index(end_count_database_index)
+.o_index_tree(index_tree),
+.o_index_classifier(index_classifier),
+.o_index_database(index_database),
+.o_data(data),	
+.o_end(w_end),
+.o_end_single_classifier(end_single_classifier),
+.o_end_tree(end_tree),
+.o_end_database(end_database)
 );
 
 endmodule

@@ -13,14 +13,13 @@ parameter FILE_STAGE_MEM = "memory.mif"
 	clk_fpga,
 	reset_fpga,
 	rden,
-	o_tree_index,
-	o_classifier_index,
-	o_database_index,
+	o_index_tree,
+	o_index_classifier,
+	o_index_database,
 	o_end_database,
-	o_end_count_classifier_index,
-	o_end_count_tree_index,
-	o_end_count_database_index,	
-	o_data_database	
+	o_end_single_classifier,
+	o_end_tree,
+	o_data	
 );
 localparam DEFAULT_VALUE = 1010;
 localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS_STAGE*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
@@ -30,13 +29,12 @@ input reset_fpga;
 input rden;
 
 output o_end_database;
-output o_end_count_database_index;
-output o_end_count_tree_index;
-output o_end_count_classifier_index;
-output [ADDR_WIDTH-1:0]o_tree_index;
-output [ADDR_WIDTH-1:0] o_classifier_index;
-output [ADDR_WIDTH-1:0] o_database_index;
-output [DATA_WIDTH_12-1:0]o_data_database;
+output o_end_tree;
+output o_end_single_classifier;
+output [ADDR_WIDTH-1:0]o_index_tree;
+output [ADDR_WIDTH-1:0] o_index_classifier;
+output [ADDR_WIDTH-1:0] o_index_database;
+output [DATA_WIDTH_12-1:0]o_data;
 /*-------------------------------------------------------*/
 
 wire w_end_tree;
@@ -71,13 +69,12 @@ reg [DATA_WIDTH_12-1:0] r_stage_threshold;
 reg [DATA_WIDTH_12-1:0] r_parent;
 reg [DATA_WIDTH_12-1:0] r_next;
 
-assign o_data_database = r_data;
-assign o_tree_index = w_index_tree;
-assign o_classifier_index = w_index_classifier;
-assign o_database_index = w_index_fifoin_database;
-assign o_end_count_tree_index = w_end_tree;
-assign o_end_count_database_index = w_end_fifoout_database;
-assign o_end_count_classifier_index = w_end_single_classifier;
+assign o_data = r_data;
+assign o_index_tree = w_index_tree;
+assign o_index_classifier = w_index_classifier;
+assign o_index_database = w_index_fifoout_database;
+assign o_end_tree = w_end_tree;
+assign o_end_single_classifier = w_end_single_classifier;
 assign o_end_database = r_end_database;
 assign w_end_all_classifiers = ((w_index_fifoout_database + NUM_STAGE_THRESHOLD) == NUM_DATABASE_INDEX);
 
