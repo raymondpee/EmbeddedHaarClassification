@@ -22,23 +22,23 @@ localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER + NUM_S
 input clk_fpga;
 input reset_fpga;
 output o_ready;
-output [DATA_WIDTH_16-1:0] o_rom[NUM_DATABASE_INDEX-1:0];
+output [DATA_WIDTH_12-1:0] o_rom[NUM_DATABASE_INDEX-1:0];
 /*-------------------------------------------------------*/
 
-wire end_count;
-wire end_count_database_index;
-wire [ADDR_WIDTH-1:0] address;
-wire [DATA_WIDTH_16-1:0] data;
-wire start_load;
-wire [ADDR_WIDTH-1:0] database_index;
+wire w_end_fifoin_database;
+wire w_end_fifoout_database;
+wire w_start_load;
+wire [ADDR_WIDTH-1:0] w_index_fifoout_database;
+wire [ADDR_WIDTH-1:0] w_index_fifoin_database;
+wire [DATA_WIDTH_12-1:0] w_data;
 
 integer k;
 reg r_ren;
-reg ready;
-reg ren_database_index;
-reg [DATA_WIDTH_16-1:0] rom [NUM_DATABASE_INDEX-1:0];	
+reg r_ready;
+reg r_count_fifo_database;
+reg [DATA_WIDTH_12-1:0] rom [NUM_DATABASE_INDEX-1:0];	
 
-assign o_ready = ready;
+assign o_ready = r_ready;
 assign o_rom = rom;
 
 initial 
@@ -49,34 +49,30 @@ begin
 	end
 end
 
-
-always@(posedge clk_fpga)
-begin
-	if(ren)
-		r_ren<=1;
-	if(end_count)
-		r_ren<=0;
-end
-
-always@(posedge start_load)
-begin
-	ren_database_index<=1;
-end
+always@(posedge w_start_load) r_count_fifo_database<=1;
 
 always@(posedge clk_fpga)
 begin	
-	if(ren_database_index)
+	if(reset_fpga)
 	begin
-		if(end_count_database_index)
+		r_ren<=1;
+		r_ready<=0;
+		r_count_fifo_database<=0;
+	end
+	if(w_end_fifoin_database)
+		r_ren<=0;
+	if(r_count_fifo_database)
+	begin
+		if(w_end_fifoout_database)
 		begin
-			ready<=1;
-			ren_database_index<=0;
+			r_ready<=1;
+			r_count_fifo_database<=0;
 		end
 		else
 		begin			
-			rom[database_index] <= data;
-			ready<=0;
-			ren_database_index<=1;
+			rom[w_index_fifoout_database] <= w_data;
+			r_ready<=0;
+			r_count_fifo_database<=1;
 		end
 	end
 end
@@ -86,14 +82,14 @@ counter
 #(
 .DATA_WIDTH(DATA_WIDTH_12)
 )
-counter_stage
+counter_fifoout_database
 (
 .clk(clk_fpga),
 .reset(reset_fpga),
-.enable(ren_database_index),
-.ctr_out(database_index),
-.max_size(NUM_DATABASE_INDEX),
-.end_count(end_count_database_index)
+.enable(r_count_fifo_database),
+.ctr_out(w_index_fifoout_database),
+.max_size(NUM_DATABASE_INDEX-1),
+.end_count(w_end_fifoout_database)
 );
 
 
@@ -110,11 +106,12 @@ stage_database
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
-.ren(r_ren),
-.o_end_count(end_count),
-.o_start_load(start_load),
-.o_data(data),
-.o_address(address)
+.ren_database_index(r_ren),
+.ren_database(r_ren),
+.o_end_count(w_end_fifoin_database),
+.o_start_load(w_start_load),
+.o_data(w_data),
+.o_address(w_index_fifoin_database)
 );
 
 endmodule
