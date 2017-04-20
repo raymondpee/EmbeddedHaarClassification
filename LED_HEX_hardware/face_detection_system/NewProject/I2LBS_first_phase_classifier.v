@@ -1,4 +1,4 @@
-module I2LBS_cascade
+module I2LBS_first_phase_classifier
 #(
 parameter DATA_WIDTH = 8,
 parameter NUM_STAGE_THRESHOLD = 1,

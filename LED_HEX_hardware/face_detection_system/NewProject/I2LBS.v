@@ -28,14 +28,12 @@ parameter NUM_CLASSIFIERS_THIRD_STAGE = 10
 	rom_stage3,
 	o_scale_xcoord,
 	o_scale_ycoord,
-	candidate,
-	integral_image
+	o_candidate,
+	o_integral_image
 );
 
-
-wire is_candidate;
-wire is_write_enable;
-wire is_coord_reach;
+wire wr_en;
+wire reach;
 wire [DATA_WIDTH_12-1:0] scale_xcoord;
 wire [DATA_WIDTH_12-1:0] scale_ycoord;
 
@@ -52,15 +50,15 @@ input [DATA_WIDTH_8-1:0] rom_first_stage_classifier [NUM_CLASSIFIERS_FIRST_STAGE
 input [DATA_WIDTH_8-1:0] rom_second_stage_classifier [NUM_CLASSIFIERS_SECOND_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
 input [DATA_WIDTH_8-1:0] rom_third_stage_classifier [NUM_CLASSIFIERS_THIRD_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
 
-output candidate;
+output o_candidate;
 output [DATA_WIDTH_12-1:0] o_scale_xcoord;
 output [DATA_WIDTH_12-1:0] o_scale_ycoord;
-output [DATA_WIDTH_8-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+output [DATA_WIDTH_8-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 /*-----------------------------------------------------------------------*/
 
 assign o_scale_xcoord = scale_xcoord;
 assign o_scale_ycoord = scale_ycoord;
-assign is_write_enable = is_coord_reach;
+assign wr_en = reach;
 
 
 memory 
@@ -74,13 +72,13 @@ memory
 .clk_os(clk_os),
 .reset_os(reset_os),
 .pixel(pixel),
-.wen(is_write_enable),
+.wen(wr_en),
 .frame_width(frame_dst_width),
 .frame_height(frame_dst_height),
-.integral_image(integral_image)
+.integral_image(o_integral_image)
 );
 
-I2LBS_cascade
+I2LBS_first_phase_classifier
 #(
 .DATA_WIDTH(DATA_WIDTH_8),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
@@ -88,15 +86,15 @@ I2LBS_cascade
 .NUM_CLASSIFIERS_SECOND_STAGE(NUM_CLASSIFIERS_SECOND_STAGE),
 .NUM_CLASSIFIERS_THIRD_STAGE(NUM_CLASSIFIERS_THIRD_STAGE)
 )
-I2LBS_cascade
+I2LBS_first_phase_classifier
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
 .rom_stage1(rom_stage1),
 .rom_stage2(rom_stage2),
 .rom_stage3(rom_stage3),
-.integral_image(integral_image),
-.candidate(candidate)
+.integral_image(o_integral_image),
+.candidate(o_candidate)
 );
 
 resize
@@ -115,7 +113,7 @@ resize
 .dst_height(frame_dst_height),
 .o_xcoord(scale_xcoord),
 .o_ycoord(scale_ycoord),
-.o_isreach(is_coord_reach)
+.o_isreach(reach)
 );
 
 endmodule
