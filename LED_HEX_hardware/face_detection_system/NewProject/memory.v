@@ -13,20 +13,49 @@ parameter INTEGRAL_HEIGHT = 3
 	wen,
 	frame_width,
 	frame_height,
-	o_integral_image
+	o_integral_image,
+	o_integral_image_ready
 );
-wire [DATA_WIDTH_8-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
-wire [DATA_WIDTH_8-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
-wire [DATA_WIDTH_12-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
-
-
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 input reset_os;
 input wen;
 input [DATA_WIDTH_8-1:0] pixel;
+output o_integral_image_ready;
 output [DATA_WIDTH_12-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 /*-----------------------------------------------------------------------*/
+
+
+localparam TOTAL_SIZE_COUNT = ((INTEGRAL_WIDTH+frame_width)*INTEGRAL_HEIGHT);
+
+reg r_wen_count;
+wire [DATA_WIDTH_16-1:0] integral_image_count;
+wire [DATA_WIDTH_8-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_8-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_12-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
+
+always@(posedge wen) r_wen_count=>1;
+
+always@(posedge clk_os)
+begin
+	if(o_integral_image_ready)
+		r_wen_count=>0;
+end
+
+counter 
+#(
+.DATA_WIDTH(DATA_WIDTH_16)
+)
+counter_integral_image_size
+(
+.clk(clk_os),
+.reset(reset_os),
+.enable(r_wen_count),
+.max_size(TOTAL_SIZE_COUNT-1),
+.end_count(o_integral_image_ready),
+.ctr_out(integral_image_count)
+);
+
 
 /*----------------Reduction Sum declaration---------------------------------*/
 assign fifo_reduction_sum[INTEGRAL_HEIGHT-1] = 0;

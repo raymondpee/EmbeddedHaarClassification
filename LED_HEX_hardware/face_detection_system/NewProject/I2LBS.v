@@ -6,10 +6,11 @@ parameter DATA_WIDTH_16 = 16,
 parameter INTEGRAL_WIDTH = 3,
 parameter INTEGRAL_HEIGHT = 3,
 parameter NUM_STAGE_THRESHOLD = 1,
+parameter SECOND_PHASE_NUM_STAGES = 8,
 parameter NUM_PARAM_PER_CLASSIFIER = 18,
-parameter NUM_CLASSIFIERS_FIRST_STAGE = 10,
-parameter NUM_CLASSIFIERS_SECOND_STAGE = 10,
-parameter NUM_CLASSIFIERS_THIRD_STAGE = 10
+parameter NUM_CLASSIFIERS_STAGE_1 = 10,
+parameter NUM_CLASSIFIERS_STAGE_2 = 10,
+parameter NUM_CLASSIFIERS_STAGE_3 = 10
 )
 (
 	clk_os,
@@ -26,14 +27,23 @@ parameter NUM_CLASSIFIERS_THIRD_STAGE = 10
 	rom_stage1,
 	rom_stage2,
 	rom_stage3,
+	second_phase_index_tree,
+	second_phase_index_classifier,
+	second_phase_index_database,
+	second_phase_data,
+	second_phase_end,
+	second_phase_end_single_classifier,
+	second_phase_end_tree,
+	second_phase_end_database	
 	o_scale_xcoord,
 	o_scale_ycoord,
-	o_candidate,
+	o_first_phase_candidate,
 	o_integral_image
 );
 
 wire wr_en;
 wire reach;
+wire integral_image_ready;
 wire [DATA_WIDTH_12-1:0] scale_xcoord;
 wire [DATA_WIDTH_12-1:0] scale_ycoord;
 
@@ -46,9 +56,17 @@ input reset_fpga;
 input [DATA_WIDTH_8-1:0] pixel;
 input [DATA_WIDTH_12-1:0] i_xcoord;
 input [DATA_WIDTH_12-1:0] i_ycoord;
-input [DATA_WIDTH_8-1:0] rom_first_stage_classifier [NUM_CLASSIFIERS_FIRST_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
-input [DATA_WIDTH_8-1:0] rom_second_stage_classifier [NUM_CLASSIFIERS_SECOND_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
-input [DATA_WIDTH_8-1:0] rom_third_stage_classifier [NUM_CLASSIFIERS_THIRD_STAGE*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+input [DATA_WIDTH_8-1:0] rom_first_stage_classifier [NUM_CLASSIFIERS_STAGE_1*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+input [DATA_WIDTH_8-1:0] rom_second_stage_classifier [NUM_CLASSIFIERS_STAGE_2*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+input [DATA_WIDTH_8-1:0] rom_third_stage_classifier [NUM_CLASSIFIERS_STAGE_3*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+input [SECOND_PHASE_NUM_STAGES-1:0] second_phase_end_database;
+input [SECOND_PHASE_NUM_STAGES-1:0] second_phase_end_tree;
+input [SECOND_PHASE_NUM_STAGES-1:0] second_phase_end_single_classifier;
+input [ADDR_WIDTH-1:0] second_phase_index_tree[SECOND_PHASE_NUM_STAGES-1:0];
+input [ADDR_WIDTH-1:0] second_phase_index_classifier[SECOND_PHASE_NUM_STAGES-1:0];
+input [ADDR_WIDTH-1:0] second_phase_index_database[SECOND_PHASE_NUM_STAGES-1:0];
+input [DATA_WIDTH_12-1:0] second_phase_data[SECOND_PHASE_NUM_STAGES-1:0]; 
+
 
 output o_candidate;
 output [DATA_WIDTH_12-1:0] o_scale_xcoord;
@@ -75,16 +93,17 @@ memory
 .wen(wr_en),
 .frame_width(frame_dst_width),
 .frame_height(frame_dst_height),
-.integral_image(o_integral_image)
+.integral_image(o_integral_image),
+.o_integral_image_ready(integral_image_ready)
 );
 
 I2LBS_first_phase_classifier
 #(
 .DATA_WIDTH(DATA_WIDTH_8),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
-.NUM_CLASSIFIERS_FIRST_STAGE(NUM_CLASSIFIERS_FIRST_STAGE),
-.NUM_CLASSIFIERS_SECOND_STAGE(NUM_CLASSIFIERS_SECOND_STAGE),
-.NUM_CLASSIFIERS_THIRD_STAGE(NUM_CLASSIFIERS_THIRD_STAGE)
+.NUM_CLASSIFIERS_FIRST_STAGE(NUM_CLASSIFIERS_STAGE_1),
+.NUM_CLASSIFIERS_SECOND_STAGE(NUM_CLASSIFIERS_STAGE_2),
+.NUM_CLASSIFIERS_THIRD_STAGE(NUM_CLASSIFIERS_STAGE_3)
 )
 I2LBS_first_phase_classifier
 (
@@ -94,7 +113,7 @@ I2LBS_first_phase_classifier
 .rom_stage2(rom_stage2),
 .rom_stage3(rom_stage3),
 .integral_image(o_integral_image),
-.candidate(o_candidate)
+.o_first_phase_candidate(o_candidate)
 );
 
 resize

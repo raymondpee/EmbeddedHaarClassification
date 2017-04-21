@@ -33,7 +33,6 @@ wire [DATA_WIDTH_8-1:0] fifo_usedw;
 wire [DATA_WIDTH_8-1:0] fifo_data_out;        
 reg[DATA_WIDTH_12-1:0]row_integral[INTEGRAL_WIDTH-1:0];
 
-
 /*--------------------Assignment declaration---------------------------------*/
 assign o_fifo_data_out = fifo_data_out;
 assign fifo_rdreq = (fifo_usedw == fifo_width -1) ? 1:0;

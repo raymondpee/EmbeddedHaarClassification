@@ -47,7 +47,6 @@ parameter NUM_CLASSIFIERS = 10
 		for(index_classifier = 0; index_classifier<NUM_CLASSIFIERS; index_classifier = index_classifier +1)
 		begin
 		
-			wire [DATA_WIDTH_8-1:0]stage_thresholds;
 			wire [DATA_WIDTH_8-1:0]rect_A_1_index;
 			wire [DATA_WIDTH_8-1:0]rect_B_1_index;
 			wire [DATA_WIDTH_8-1:0]rect_C_1_index;
@@ -63,9 +62,9 @@ parameter NUM_CLASSIFIERS = 10
 			wire [DATA_WIDTH_8-1:0]rect_C_3_index;
 			wire [DATA_WIDTH_8-1:0]rect_D_3_index;
 			wire [DATA_WIDTH_8-1:0]weight_3;
-			wire [DATA_WIDTH_8-1:0]threshold_index;
-			wire [DATA_WIDTH_8-1:0]left_word_index;
-			wire [DATA_WIDTH_8-1:0]right_word_index;		
+			wire [DATA_WIDTH_8-1:0]threshold;
+			wire [DATA_WIDTH_8-1:0]left_word;
+			wire [DATA_WIDTH_8-1:0]right_word;		
 			
 			
 			
