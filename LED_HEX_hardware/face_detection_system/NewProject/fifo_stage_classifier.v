@@ -7,17 +7,32 @@ parameter DATA_WIDTH_16 = 16,
 (
 clk_fpga,
 reset_fpga,
-second_phase_end_database,
-second_phase_end_tree,
-second_phase_end_single_classifier,
-second_phase_index_tree,
-second_phase_index_classifier,
-second_phase_index_database,
-second_phase_data
+end_database,
+end_tree,
+end_single_classifier,
+index_tree,
+index_classifier,
+index_database,
+data,
+stage_threshold,
+o_candidate
 );
 
-wire [DATA_WIDTH_12-1:0]reduction_haar_value[NUM_CLASSIFIERS-1:0];
+input clk_fpga;
+input reset_fpga;
+input end_database;
+input end_tree;
+input end_single_classifier;
+input index_tree;
+input index_classifier;
+input index_database;
+input data;
+input stage_threshold;
+output o_candidate;
 
+reg r_index_tree;
+reg candidate;
+reg [DATA_WIDTH_12-1:0]sum_haar;
 reg [DATA_WIDTH_8-1:0]rect_A_1_index;
 reg [DATA_WIDTH_8-1:0]rect_B_1_index;
 reg [DATA_WIDTH_8-1:0]rect_C_1_index;
@@ -36,42 +51,85 @@ reg [DATA_WIDTH_8-1:0]weight_3;
 reg [DATA_WIDTH_8-1:0]threshold_index;
 reg [DATA_WIDTH_8-1:0]left_word_index;
 reg [DATA_WIDTH_8-1:0]right_word_index;
-reg [DATA_WIDTH_12-1:0] haar_value[NUM_CLASSIFIERS-1:0];
+reg [DATA_WIDTH_12-1:0] haar[NUM_CLASSIFIERS-1:0];
+
+integer k_haar;
+
+// Delay based on clock cycle
+always@(posedge clk_fpga)
+begin
+	r_index_tree = index_tree;
+end
 
 always@(clk_fpga)
 begin
-	case(second_phase_index_classifier)
-	0:	rect_A_1_index <= second_phase_data;
-	1:	rect_B_1_index <= second_phase_data;
-	2:	rect_C_1_index <= second_phase_data;
-	3:	rect_D_1_index <= second_phase_data;
-	4:	weight_1 <= second_phase_data;
-	5:	rect_A_2_index <= second_phase_data;
-	6:	rect_B_2_index <= second_phase_data;
-	7:	rect_C_2_index <= second_phase_data;
-	8:	rect_D_2_index <= second_phase_data;
-	9:	weight_2 <= second_phase_data;
-	10:	rect_A_3_index <= second_phase_data;
-	11:	rect_B_3_index <= second_phase_data;
-	12:	rect_C_3_index <= second_phase_data;
-	13:	rect_D_3_index <= second_phase_data;
-	14:	weight_3 <= second_phase_data;
-	15:	threshold_index <= second_phase_data;
-	16:	left_word_index <= second_phase_data;
-	17:	right_word_index <= second_phase_data;
-	endcase
+	if(reset_fpga)
+	begin
+		r_index_tree<=0;
+		candidate<=0;
+		sum_haar<=0;
+		rect_A_1_index<=0;
+		rect_B_1_index<=0;
+		rect_C_1_index<=0;
+		rect_D_1_index<=0;
+		weight_1<=0;
+		rect_A_2_index<=0;
+		rect_B_2_index<=0;
+		rect_C_2_index<=0;
+		rect_D_2_index<=0;
+		weight_2<=0;
+		rect_A_3_index<=0;
+		rect_B_3_index<=0;
+		rect_C_3_index<=0;
+		rect_D_3_index<=0;
+		weight_3<=0;
+		threshold_index<=0;
+		left_word_index<=0;
+		right_word_index<=0;
+		for(k_haar = 0; k_haar<NUM_CLASSIFIERS; k_haar= k_haar+1)
+		begin
+			haar[k_haar]<= 0;
+		end
+	end
+	else
+	begin
+		case(index_classifier)
+			0:	rect_A_1_index <= data;
+			1:	rect_B_1_index <= data;
+			2:	rect_C_1_index <= data;
+			3:	rect_D_1_index <= data;
+			4:	weight_1 <= data;
+			5:	rect_A_2_index <= data;
+			6:	rect_B_2_index <= data;
+			7:	rect_C_2_index <= data;
+			8:	rect_D_2_index <= data;
+			9:	weight_2 <= data;
+			10:	rect_A_3_index <= data;
+			11:	rect_B_3_index <= data;
+			12:	rect_C_3_index <= data;
+			13:	rect_D_3_index <= data;
+			14:	weight_3 <= data;
+			15:	threshold_index <= data;
+			16:	left_word_index <= data;
+			17:	right_word_index <= data;
+		endcase
+	end
 end
 
-/*--------------------REDUCTION CALCULATION---------------------------------*/
-assign reduction_haar_value[0] = haar_value[0];
-for(index_reduction = 1; index_reduction<NUM_CLASSIFIERS; index_reduction = index_reduction +1)
+integer k;
+always@(posedge end_single_classifier)
 begin
-	assign reduction_haar_value[index_reduction] =  reduction_haar_value[index_reduction-1] + haar_value[index_reduction];
+	for(k =0; k< NUM_CLASSIFIERS; k++)
+	begin
+		sum_haar = sum_haar + haar[index_tree];  
+	end
 end
-/*-------------------------------------------------------------------------*/
-assign final_haar_value = reduction_haar_value[NUM_CLASSIFIERS-1];
-assign stage_threshold = rom_stage[NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD];
-assign candidate = final_haar_value>stage_threshold;
+
+assign o_candidate = candidate;
+always@(posedge end_database)
+begin
+	candidate = final_haar>stage_threshold;
+end
 
 
 classifier
@@ -101,7 +159,7 @@ classifier
 .threshold(threshold),
 .left_word(left_word),
 .right_word(right_word),
-.o_haarvalue(haar_value[index_classifier])
+.o_haarvalue(haar[r_index_tree])
 );
 
 
