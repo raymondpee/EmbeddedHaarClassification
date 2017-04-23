@@ -32,6 +32,7 @@ parameter NUM_CLASSIFIERS_STAGE11 = 99
 	o_index_classifier,
 	o_index_database,
 	o_end_single_classifier,
+	o_end_all_classifier,
 	o_end_tree,
 	o_end_database,
 	o_end,
@@ -51,6 +52,7 @@ output o_end;
 output [NUM_STAGES-1:0]o_end_database;
 output [NUM_STAGES-1:0]o_end_tree;
 output [NUM_STAGES-1:0]o_end_single_classifier;
+output [NUM_STAGES-1:0]o_end_all_classifier;
 output [ADDR_WIDTH-1:0]o_index_tree[NUM_STAGES-1:0];
 output [ADDR_WIDTH-1:0] o_index_classifier[NUM_STAGES-1:0];
 output [ADDR_WIDTH-1:0] o_index_database[NUM_STAGES-1:0];
@@ -77,7 +79,7 @@ fifo_stage_database
 .NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .FILE_STAGE_MEM(FILE_STAGE4)
 )
-fifo_stage_database_4
+stage_4
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
@@ -86,6 +88,7 @@ fifo_stage_database_4
 .o_index_classifier(o_index_classifier[0]),
 .o_index_database(o_index_database[0]),
 .o_end_single_classifier(o_end_single_classifier[0]),
+.o_end_all_classifier(o_end_all_classifier[0]),
 .o_end_tree(o_end_tree[0]),
 .o_end_database(o_end_database[0]),
 .o_data(o_data[0])
@@ -102,7 +105,7 @@ fifo_stage_database
 .NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .FILE_STAGE_MEM(FILE_STAGE5)
 )
-fifo_stage_database_5
+stage_5
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),

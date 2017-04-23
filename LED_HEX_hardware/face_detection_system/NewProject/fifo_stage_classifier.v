@@ -2,7 +2,7 @@ module fifo_stage_classifier
 #(
 parameter DATA_WIDTH_8 = 8,
 parameter DATA_WIDTH_12 = 12,
-parameter DATA_WIDTH_16 = 16,
+parameter DATA_WIDTH_16 = 16
 )
 (
 clk_fpga,
@@ -10,6 +10,7 @@ reset_fpga,
 end_database,
 end_tree,
 end_single_classifier,
+end_all_classifier,
 index_tree,
 index_classifier,
 index_database,
@@ -23,6 +24,7 @@ input reset_fpga;
 input end_database;
 input end_tree;
 input end_single_classifier;
+input end_all_classifier,
 input index_tree;
 input index_classifier;
 input index_database;
@@ -30,6 +32,8 @@ input data;
 input stage_threshold;
 output o_candidate;
 
+
+w_index_stage_threshold;
 reg r_index_tree;
 reg candidate;
 reg [DATA_WIDTH_12-1:0]sum_haar;
@@ -60,6 +64,22 @@ always@(posedge clk_fpga)
 begin
 	r_index_tree = index_tree;
 end
+
+always@(posedge clk_fpga)
+begin
+	if(r_end_classifier)
+	begin
+		if(w_end_stage_threshold == 0)
+		begin
+			case(w_index_stage_threshold)
+			0:r_stage_threshold<= r_data;
+			1:r_parent<= r_data;
+			2:r_next<= r_data;
+			endcase
+		end
+	end
+end
+
 
 always@(clk_fpga)
 begin
@@ -93,26 +113,33 @@ begin
 	end
 	else
 	begin
-		case(index_classifier)
-			0:	rect_A_1_index <= data;
-			1:	rect_B_1_index <= data;
-			2:	rect_C_1_index <= data;
-			3:	rect_D_1_index <= data;
-			4:	weight_1 <= data;
-			5:	rect_A_2_index <= data;
-			6:	rect_B_2_index <= data;
-			7:	rect_C_2_index <= data;
-			8:	rect_D_2_index <= data;
-			9:	weight_2 <= data;
-			10:	rect_A_3_index <= data;
-			11:	rect_B_3_index <= data;
-			12:	rect_C_3_index <= data;
-			13:	rect_D_3_index <= data;
-			14:	weight_3 <= data;
-			15:	threshold_index <= data;
-			16:	left_word_index <= data;
-			17:	right_word_index <= data;
-		endcase
+		if(end_all_classifier == 0)
+		begin
+			case(index_classifier)
+				0:	rect_A_1_index <= data;
+				1:	rect_B_1_index <= data;
+				2:	rect_C_1_index <= data;
+				3:	rect_D_1_index <= data;
+				4:	weight_1 <= data;
+				5:	rect_A_2_index <= data;
+				6:	rect_B_2_index <= data;
+				7:	rect_C_2_index <= data;
+				8:	rect_D_2_index <= data;
+				9:	weight_2 <= data;
+				10:	rect_A_3_index <= data;
+				11:	rect_B_3_index <= data;
+				12:	rect_C_3_index <= data;
+				13:	rect_D_3_index <= data;
+				14:	weight_3 <= data;
+				15:	threshold_index <= data;
+				16:	left_word_index <= data;
+				17:	right_word_index <= data;
+			endcase
+		end
+		else
+		begin
+			
+		end
 	end
 end
 
@@ -131,6 +158,19 @@ begin
 	candidate = final_haar>stage_threshold;
 end
 
+counter
+#(
+.DATA_WIDTH(DATA_WIDTH_12)
+)
+counter_stage_threshold
+(
+.clk(clk_fpga),
+.reset(reset_counter_stage_threshold),
+.enable(r_count_stage_threshold),
+.ctr_out(w_index_stage_threshold),
+.max_size(NUM_STAGE_THRESHOLD-1),
+.end_count(w_end_stage_threshold)
+);
 
 classifier
 #(

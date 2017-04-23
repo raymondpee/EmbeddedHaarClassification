@@ -72,6 +72,7 @@ wire ready;
 wire [SECOND_PHASE_NUM_STAGES-1:0] end_database;
 wire [SECOND_PHASE_NUM_STAGES-1:0] end_tree;
 wire [SECOND_PHASE_NUM_STAGES-1:0] end_single_classifier;
+wire [SECOND_PHASE_NUM_STAGES-1:0] end_all_classifier;
 wire [ADDR_WIDTH-1:0] index_tree[SECOND_PHASE_NUM_STAGES-1:0];
 wire [ADDR_WIDTH-1:0] index_classifier[SECOND_PHASE_NUM_STAGES-1:0];
 wire [ADDR_WIDTH-1:0] index_database[SECOND_PHASE_NUM_STAGES-1:0];
@@ -212,6 +213,7 @@ v_second_phase_haar_cascade
 .o_index_database(index_database),
 .o_data(data),	
 .o_end(w_end),
+.o_end_all_classifier(end_all_classifier),
 .o_end_single_classifier(end_single_classifier),
 .o_end_tree(end_tree),
 .o_end_database(end_database)

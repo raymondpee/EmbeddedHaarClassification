@@ -31,6 +31,7 @@ input rden;
 output o_end_database;
 output o_end_tree;
 output o_end_single_classifier;
+output o_end_all_classifier;
 output [ADDR_WIDTH-1:0]o_index_tree;
 output [ADDR_WIDTH-1:0] o_index_classifier;
 output [ADDR_WIDTH-1:0] o_index_database;
@@ -77,6 +78,7 @@ assign o_end_tree = w_end_tree;
 assign o_end_single_classifier = w_end_single_classifier;
 assign o_end_database = r_end_database;
 assign w_end_all_classifiers = ((w_index_fifoout_database + NUM_STAGE_THRESHOLD) == NUM_DATABASE_INDEX);
+assign o_end_all_classifier = w_end_all_classifiers;
 
 always@(posedge w_end_fifoout_database) r_end_database<=1;
 always@(posedge w_end_all_classifiers) r_end_classifier<=1;
