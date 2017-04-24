@@ -81,13 +81,13 @@ assign o_scale_ycoord = scale_ycoord;
 assign wr_en = reach;
 
 
-memory 
+I2LBS_memory 
 #(
 .DATA_WIDTH(DATA_WIDTH_8),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
 )
-memory 
+I2LBS_memory 
 (
 .clk_os(clk_os),
 .reset_os(reset_os),
