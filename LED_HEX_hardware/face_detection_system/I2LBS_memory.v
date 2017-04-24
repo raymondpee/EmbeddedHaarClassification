@@ -9,18 +9,18 @@ parameter FRAME_CAMERA_WIDTH = 10,
 parameter FRAME_CAMERA_HEIGHT = 10
 )
 (
-	clk_os,
-	reset_os,
-	pixel,
-	wen,
-	o_integral_image,
-	o_integral_image_ready
+clk_os,
+reset_os,
+pixel,
+wen,
+o_integral_image,
+o_integral_image_ready
 );
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 input reset_os;
 input wen;
-input [DATA_WIDTH_8-1:0] pixel;
+input [DATA_WIDTH_12-1:0] pixel;
 
 output o_integral_image_ready;
 output [DATA_WIDTH_12-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
@@ -29,9 +29,9 @@ output [DATA_WIDTH_12-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 localparam TOTAL_SIZE_COUNT = ((INTEGRAL_WIDTH+FRAME_CAMERA_WIDTH-1)*INTEGRAL_HEIGHT);
 
 reg r_wen_count;
-wire [DATA_WIDTH_16-1:0] integral_image_count;
-wire [DATA_WIDTH_8-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
-wire [DATA_WIDTH_8-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_12-1:0] integral_image_count;
+wire [DATA_WIDTH_12-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_12-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
 wire [DATA_WIDTH_12-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
 
 always@(wen) r_wen_count<= wen;
@@ -43,7 +43,7 @@ end
 
 counter 
 #(
-.DATA_WIDTH(DATA_WIDTH_16)
+.DATA_WIDTH(DATA_WIDTH_12)
 )
 counter_integral_image_size
 (

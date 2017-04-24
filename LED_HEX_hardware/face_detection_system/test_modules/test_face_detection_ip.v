@@ -1,6 +1,6 @@
 // Modelsim-ASE requires a timescale directive
 `timescale 1 ns / 1 ns
-module test_module;
+module test_face_detection_ip;
 
 localparam DATA_WIDTH_8 = 8;
 localparam MAX_VAL = 255;

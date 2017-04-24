@@ -5,7 +5,9 @@ parameter DATA_WIDTH_12 = 12, // Max value 4095
 parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter NUM_PARAM_PER_CLASSIFIER = 18,
 parameter NUM_STAGE_THRESHOLD = 1,
-parameter NUM_CLASSIFIERS = 10
+parameter NUM_CLASSIFIERS = 10,
+parameter INTEGRAL_WIDTH = 10,
+parameter INTEGRAL_HEIGHT = 10
 )
 (
 	clk_fpga,
@@ -16,7 +18,7 @@ parameter NUM_CLASSIFIERS = 10
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_fpga;
-input [DATA_WIDTH_8-1:0] rom_stage [NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
+input [DATA_WIDTH_12-1:0] rom_stage [NUM_CLASSIFIERS*NUM_PARAM_PER_CLASSIFIER+NUM_STAGE_THRESHOLD-1:0];	
 input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
 /*-----------------------------------------------------------------------*/
@@ -34,10 +36,13 @@ assign o_candidate = final_haar>stage_threshold;
 	
 /*--------------------REDUCTION CALCULATION---------------------------------*/
 assign sum_haar[0] = haar[0];
-for(index_sum = 1; index_sum<NUM_CLASSIFIERS; index_sum = index_sum +1)
-begin
-	assign sum_haar[index_sum] =  sum_haar[index_sum-1] + haar[index_sum];
-end
+generate
+	genvar index_sum;
+	for(index_sum = 1; index_sum<NUM_CLASSIFIERS; index_sum = index_sum +1)
+	begin
+		assign sum_haar[index_sum] =  sum_haar[index_sum-1] + haar[index_sum];
+	end
+endgenerate
 /*-------------------------------------------------------------------------*/
 
 
@@ -47,24 +52,24 @@ generate
 	for(index_classifier = 0; index_classifier<NUM_CLASSIFIERS; index_classifier = index_classifier +1)
 	begin
 	
-		wire [DATA_WIDTH_8-1:0]rect_A_1_index;
-		wire [DATA_WIDTH_8-1:0]rect_B_1_index;
-		wire [DATA_WIDTH_8-1:0]rect_C_1_index;
-		wire [DATA_WIDTH_8-1:0]rect_D_1_index;
-		wire [DATA_WIDTH_8-1:0]weight_1;
-		wire [DATA_WIDTH_8-1:0]rect_A_2_index;
-		wire [DATA_WIDTH_8-1:0]rect_B_2_index;
-		wire [DATA_WIDTH_8-1:0]rect_C_2_index;
-		wire [DATA_WIDTH_8-1:0]rect_D_2_index;
-		wire [DATA_WIDTH_8-1:0]weight_2;
-		wire [DATA_WIDTH_8-1:0]rect_A_3_index;
-		wire [DATA_WIDTH_8-1:0]rect_B_3_index;
-		wire [DATA_WIDTH_8-1:0]rect_C_3_index;
-		wire [DATA_WIDTH_8-1:0]rect_D_3_index;
-		wire [DATA_WIDTH_8-1:0]weight_3;
-		wire [DATA_WIDTH_8-1:0]threshold;
-		wire [DATA_WIDTH_8-1:0]left_word;
-		wire [DATA_WIDTH_8-1:0]right_word;		
+		wire [DATA_WIDTH_12-1:0]rect_A_1_index;
+		wire [DATA_WIDTH_12-1:0]rect_B_1_index;
+		wire [DATA_WIDTH_12-1:0]rect_C_1_index;
+		wire [DATA_WIDTH_12-1:0]rect_D_1_index;
+		wire [DATA_WIDTH_12-1:0]weight_1;
+		wire [DATA_WIDTH_12-1:0]rect_A_2_index;
+		wire [DATA_WIDTH_12-1:0]rect_B_2_index;
+		wire [DATA_WIDTH_12-1:0]rect_C_2_index;
+		wire [DATA_WIDTH_12-1:0]rect_D_2_index;
+		wire [DATA_WIDTH_12-1:0]weight_2;
+		wire [DATA_WIDTH_12-1:0]rect_A_3_index;
+		wire [DATA_WIDTH_12-1:0]rect_B_3_index;
+		wire [DATA_WIDTH_12-1:0]rect_C_3_index;
+		wire [DATA_WIDTH_12-1:0]rect_D_3_index;
+		wire [DATA_WIDTH_12-1:0]weight_3;
+		wire [DATA_WIDTH_12-1:0]threshold;
+		wire [DATA_WIDTH_12-1:0]left_word;
+		wire [DATA_WIDTH_12-1:0]right_word;		
 		
 		
 		

@@ -2,11 +2,15 @@ module fifo_stage_classifier
 #(
 parameter DATA_WIDTH_8 = 8,
 parameter DATA_WIDTH_12 = 12,
-parameter DATA_WIDTH_16 = 16
+parameter DATA_WIDTH_16 = 16,
+parameter NUM_CLASSIFIERS = 18,
+parameter INTEGRAL_WIDTH = 10,
+parameter INTEGRAL_HEIGHT = 10
 )
 (
 clk_fpga,
 reset_fpga,
+integral_image,
 end_database,
 end_tree,
 end_single_classifier,
@@ -15,7 +19,6 @@ index_tree,
 index_classifier,
 index_database,
 data,
-stage_threshold,
 o_candidate
 );
 
@@ -24,37 +27,43 @@ input reset_fpga;
 input end_database;
 input end_tree;
 input end_single_classifier;
-input end_all_classifier,
-input index_tree;
-input index_classifier;
-input index_database;
-input data;
-input stage_threshold;
+input end_all_classifier;
+input [DATA_WIDTH_12-1:0] index_tree;
+input [DATA_WIDTH_12-1:0] index_classifier;
+input [DATA_WIDTH_12-1:0] index_database;
+input [DATA_WIDTH_12-1:0] data;
+input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
 
 
-w_index_stage_threshold;
+wire w_index_stage_threshold;
+wire [DATA_WIDTH_12-1:0] w_haar;
+
 reg r_index_tree;
+reg r_end_all_classifier;
 reg candidate;
 reg [DATA_WIDTH_12-1:0]sum_haar;
-reg [DATA_WIDTH_8-1:0]rect_A_1_index;
-reg [DATA_WIDTH_8-1:0]rect_B_1_index;
-reg [DATA_WIDTH_8-1:0]rect_C_1_index;
-reg [DATA_WIDTH_8-1:0]rect_D_1_index;
-reg [DATA_WIDTH_8-1:0]weight_1;
-reg [DATA_WIDTH_8-1:0]rect_A_2_index;
-reg [DATA_WIDTH_8-1:0]rect_B_2_index;
-reg [DATA_WIDTH_8-1:0]rect_C_2_index;
-reg [DATA_WIDTH_8-1:0]rect_D_2_index;
-reg [DATA_WIDTH_8-1:0]weight_2;
-reg [DATA_WIDTH_8-1:0]rect_A_3_index;
-reg [DATA_WIDTH_8-1:0]rect_B_3_index;
-reg [DATA_WIDTH_8-1:0]rect_C_3_index;
-reg [DATA_WIDTH_8-1:0]rect_D_3_index;
-reg [DATA_WIDTH_8-1:0]weight_3;
-reg [DATA_WIDTH_8-1:0]threshold_index;
-reg [DATA_WIDTH_8-1:0]left_word_index;
-reg [DATA_WIDTH_8-1:0]right_word_index;
+reg [DATA_WIDTH_12-1:0]rect_A_1_index;
+reg [DATA_WIDTH_12-1:0]rect_B_1_index;
+reg [DATA_WIDTH_12-1:0]rect_C_1_index;
+reg [DATA_WIDTH_12-1:0]rect_D_1_index;
+reg [DATA_WIDTH_12-1:0]weight_1;
+reg [DATA_WIDTH_12-1:0]rect_A_2_index;
+reg [DATA_WIDTH_12-1:0]rect_B_2_index;
+reg [DATA_WIDTH_12-1:0]rect_C_2_index;
+reg [DATA_WIDTH_12-1:0]rect_D_2_index;
+reg [DATA_WIDTH_12-1:0]weight_2;
+reg [DATA_WIDTH_12-1:0]rect_A_3_index;
+reg [DATA_WIDTH_12-1:0]rect_B_3_index;
+reg [DATA_WIDTH_12-1:0]rect_C_3_index;
+reg [DATA_WIDTH_12-1:0]rect_D_3_index;
+reg [DATA_WIDTH_12-1:0]weight_3;
+reg [DATA_WIDTH_12-1:0]threshold_index;
+reg [DATA_WIDTH_12-1:0]left_word_index;
+reg [DATA_WIDTH_12-1:0]right_word_index;
+reg [DATA_WIDTH_12-1:0]r_stage_threshold;
+reg [DATA_WIDTH_12-1:0]r_parent;
+reg [DATA_WIDTH_12-1:0]r_next;
 reg [DATA_WIDTH_12-1:0] haar[NUM_CLASSIFIERS-1:0];
 
 integer k_haar;
@@ -62,24 +71,23 @@ integer k_haar;
 // Delay based on clock cycle
 always@(posedge clk_fpga)
 begin
-	r_index_tree = index_tree;
+	r_index_tree <= index_tree;
+	r_end_all_classifier <= end_all_classifier;
 end
 
 always@(posedge clk_fpga)
 begin
-	if(r_end_classifier)
+	if(r_end_all_classifier)
 	begin
-		if(w_end_stage_threshold == 0)
-		begin
-			case(w_index_stage_threshold)
-			0:r_stage_threshold<= r_data;
-			1:r_parent<= r_data;
-			2:r_next<= r_data;
-			endcase
-		end
+		case(w_index_stage_threshold)
+		0:r_stage_threshold<= data;
+		1:r_parent<= data;
+		2:r_next<= data;
+		endcase
 	end
 end
 
+always@(w_haar)haar[index_tree]= w_haar;
 
 always@(clk_fpga)
 begin
@@ -155,7 +163,7 @@ end
 assign o_candidate = candidate;
 always@(posedge end_database)
 begin
-	candidate = final_haar>stage_threshold;
+	candidate = sum_haar>r_stage_threshold;
 end
 
 counter
@@ -199,7 +207,7 @@ classifier
 .threshold(threshold),
 .left_word(left_word),
 .right_word(right_word),
-.o_haarvalue(haar[r_index_tree])
+.o_haarvalue(w_haar)
 );
 
 

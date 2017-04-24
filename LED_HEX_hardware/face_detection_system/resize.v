@@ -2,38 +2,33 @@ module resize
 #(
 parameter DATA_WIDTH_8  = 8,
 parameter DATA_WIDTH_12  = 12,
-parameter DATA_WIDTH_16 = 16
+parameter DATA_WIDTH_16 = 16,
+parameter FRAME_ORIGINAL_CAMERA_WIDTH = 10,
+parameter FRAME_ORIGINAL_CAMERA_HEIGHT = 10,
+parameter FRAME_RESIZE_CAMERA_WIDTH = 10,
+parameter FRAME_RESIZE_CAMERA_HEIGHT = 10
 )
 (
 	clk_os,    //clock based on the trigger from linux
-	src_width,
-	src_height,
-	dst_width,
-	dst_height,
-	i_xcoord,  //Origin X coordinate
-	i_ycoord,  //Origin Y coordinate
-	o_xcoord,  //Nex X coordinate
-	o_ycoord,  //Nex Y coordinate
-	o_isreach  //Is the current coordinate is reached
+	ori_x,  //Origin X coordinate
+	ori_y,  //Origin Y coordinate
+	o_resize_x,  //Nex X coordinate
+	o_resize_y,  //Nex Y coordinate
+	o_reach  //Is the current coordinate is reached
 );
-
-/*------Calculate output --------*/
-assign x_ratio = (src_width<<16)/dst_width   +1;
-assign y_ratio = (src_height<<16)/dst_height +1;
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
-/*---[input] X and Y coordinate from origin ----*/
-input  [DATA_WIDTH_12-1:0] i_xcoord;
-input  [DATA_WIDTH_12-1:0] i_ycoord;
-
-output [DATA_WIDTH_12-1:0] o_xcoord;
-output [DATA_WIDTH_12-1:0] o_ycoord;
-output o_isreach; 
+input  [DATA_WIDTH_12-1:0] ori_x;
+input  [DATA_WIDTH_12-1:0] ori_y;
+output [DATA_WIDTH_12-1:0] o_resize_x;
+output [DATA_WIDTH_12-1:0] o_resize_y;
+output o_reach; 
 /*-----------------------------------------------------------------------*/
 
-
-
+/*------Calculate output --------*/
+assign x_ratio = (FRAME_ORIGINAL_CAMERA_WIDTH<<16)/FRAME_RESIZE_CAMERA_WIDTH   +1;
+assign y_ratio = (FRAME_ORIGINAL_CAMERA_HEIGHT<<16)/FRAME_RESIZE_CAMERA_HEIGHT +1;
 
 /*----- local variables ------*/
 wire xloc;
@@ -46,12 +41,12 @@ reg [DATA_WIDTH_12-1:0] tempycoord = 0;
  
 /*--------------------Assignment declaration---------------------------------*/
 /*-----Assign back to output-------*/
-assign o_xcoord = oxcoord;
-assign o_ycoord = oycoord;
+assign o_resize_x = oxcoord;
+assign o_resize_y = oycoord;
 /*---- Evaluate see is the location is reached ---*/
-assign xloc = (oxcoord == i_xcoord);
-assign yloc = (oycoord == i_ycoord);
-assign o_isreach = xloc && yloc;
+assign xloc = (oxcoord == ori_x);
+assign yloc = (oycoord == ori_y);
+assign o_reach = xloc && yloc;
 /*-----------------------------------------------------------------------*/
 
 
@@ -59,19 +54,19 @@ assign o_isreach = xloc && yloc;
 always @(posedge clk_os )
 begin
   
-  if( i_xcoord == src_width -1)
+  if( ori_x == FRAME_ORIGINAL_CAMERA_WIDTH -1)
   begin 
     tempxcoord <= 0;
     oxcoord <=0;
     
-    if( i_ycoord == src_height -1) 
+    if( ori_y == FRAME_ORIGINAL_CAMERA_HEIGHT -1) 
     begin
       tempycoord <= 0; 
       oycoord <= 0; 
     end
     else
     begin
-      if(i_ycoord > oycoord)
+      if(ori_y > oycoord)
       begin
         tempycoord <= tempycoord + 1;
         oycoord <= ((tempycoord + 1) * y_ratio)>>16;
@@ -84,7 +79,7 @@ begin
   
   else                  
   begin
-    if(i_xcoord > oxcoord)
+    if(ori_x > oxcoord)
     begin    
       tempxcoord <= tempxcoord +1;
       oxcoord <= ((tempxcoord + 1) * x_ratio)>>16;

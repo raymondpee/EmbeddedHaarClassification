@@ -10,16 +10,17 @@ parameter NUM_STAGE_THRESHOLD = 3,
 parameter FILE_STAGE_MEM = "memory.mif"
 )
 (
-	clk_fpga,
-	reset_fpga,
-	rden,
-	o_index_tree,
-	o_index_classifier,
-	o_index_database,
-	o_end_database,
-	o_end_single_classifier,
-	o_end_tree,
-	o_data	
+clk_fpga,
+reset_fpga,
+rden,
+o_index_tree,
+o_index_classifier,
+o_index_database,
+o_end_database,
+o_end_single_classifier,
+o_end_all_classifier,
+o_end_tree,
+o_data	
 );
 localparam DEFAULT_VALUE = 1010;
 localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS_STAGE*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
@@ -32,9 +33,9 @@ output o_end_database;
 output o_end_tree;
 output o_end_single_classifier;
 output o_end_all_classifier;
-output [ADDR_WIDTH-1:0]o_index_tree;
-output [ADDR_WIDTH-1:0] o_index_classifier;
-output [ADDR_WIDTH-1:0] o_index_database;
+output [DATA_WIDTH_12-1:0]o_index_tree;
+output [DATA_WIDTH_12-1:0] o_index_classifier;
+output [DATA_WIDTH_12-1:0] o_index_database;
 output [DATA_WIDTH_12-1:0]o_data;
 /*-------------------------------------------------------*/
 
@@ -44,11 +45,11 @@ wire w_end_fifoout_database;
 wire w_end_all_classifiers;
 wire w_end_single_classifier;
 wire w_end_stage_threshold;
-wire [ADDR_WIDTH-1:0] w_index_fifoin_database;
-wire [ADDR_WIDTH-1:0] w_index_fifoout_database;
-wire [ADDR_WIDTH-1:0] w_index_classifier;
-wire [ADDR_WIDTH-1:0] w_index_tree;
-wire [ADDR_WIDTH-1:0] w_index_stage_threshold;
+wire [DATA_WIDTH_12-1:0] w_index_fifoin_database;
+wire [DATA_WIDTH_12-1:0] w_index_fifoout_database;
+wire [DATA_WIDTH_12-1:0] w_index_classifier;
+wire [DATA_WIDTH_12-1:0] w_index_tree;
+wire [DATA_WIDTH_12-1:0] w_index_stage_threshold;
 
 
 reg r_count_tree;

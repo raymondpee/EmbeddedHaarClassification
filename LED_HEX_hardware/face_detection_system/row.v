@@ -23,15 +23,15 @@ localparam ADDR_WIDTH = 12;
 input clk_os;
 input reset_os;
 input wen;
-input [DATA_WIDTH_8-1:0] fifo_in;
-input [DATA_WIDTH_8-1:0] fifo_reduction_sum;
-output [DATA_WIDTH_8-1:0] o_fifo_data_out;
+input [DATA_WIDTH_12-1:0] fifo_in;
+input [DATA_WIDTH_12-1:0] fifo_reduction_sum;
+output [DATA_WIDTH_12-1:0] o_fifo_data_out;
 output [DATA_WIDTH_12-1:0] o_row_integral[INTEGRAL_WIDTH-1:0];
 /*-----------------------------------------------------------------------*/
 
 wire fifo_rdreq;
-wire [DATA_WIDTH_8-1:0] fifo_usedw;                    
-wire [DATA_WIDTH_8-1:0] fifo_data_out;        
+wire [DATA_WIDTH_12-1:0] fifo_usedw;                    
+wire [DATA_WIDTH_12-1:0] fifo_data_out;        
 reg[DATA_WIDTH_12-1:0]row_integral[INTEGRAL_WIDTH-1:0];
 
 /*--------------------Assignment declaration---------------------------------*/
