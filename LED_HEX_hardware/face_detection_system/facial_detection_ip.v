@@ -12,7 +12,7 @@ pixel
 /*--------------------------------------------------------------------*/
 localparam FRAME_CAMERA_WIDTH = 10;
 localparam FRAME_CAMERA_HEIGHT = 10;
-localparam INTEGRAL_LENGTH = 8;
+localparam INTEGRAL_LENGTH = 24;
 localparam NUM_CLASSIFIERS_STAGE_1 = 9;
 localparam NUM_CLASSIFIERS_STAGE_2 = 16;
 localparam NUM_CLASSIFIERS_STAGE_3 = 27;

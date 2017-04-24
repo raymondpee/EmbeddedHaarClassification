@@ -2,7 +2,7 @@ module classifier
 #(
 	parameter DATA_WIDTH_8 = 8,   // Max value 255
 	parameter DATA_WIDTH_12 = 12, // Max value 4095
-	parameter DATA_WIDTH_16 = 16, // Max value 177777
+	parameter DATA_WIDTH_16 = 16 // Max value 177777
 )
 (
 	input clk,	

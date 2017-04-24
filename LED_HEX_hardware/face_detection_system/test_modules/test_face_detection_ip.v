@@ -16,8 +16,12 @@ initial
 begin
   clk_os = 0;
   clk_fpga = 0;
-  #1 reset_os = 1;
-  #1 reset_os = 0;
+  #1 
+  reset_os <= 1;
+  reset_fpga<=1;
+  #1 
+  reset_os <= 0;
+  reset_fpga<=0;
 end
 /*-----------------------------------------------------------------------*/
 
