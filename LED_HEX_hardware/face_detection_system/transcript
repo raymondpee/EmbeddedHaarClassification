@@ -1,0 +1,93 @@
+# ** Warning: (vsim-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# vsim -L altera_mf_ver test_counter 
+# Start time: 21:08:43 on Apr 13,2017
+# Loading sv_std.std
+# Loading work.test_counter
+# Loading work.counter
+# ** Warning: (vsim-3015) test_counter.v(44): [PCDPC] - Port size (12) does not match connection size (32) for port 'max_size'. The port definition is at: counter.v(9).
+#    Time: 0 ns  Iteration: 0  Instance: /test_counter/counter File: counter.v
+add wave -position end  sim:/test_counter/enable
+# ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
+#           File in use by: pc  Hostname: RPEE-HP  ProcessID: 15472
+#           Attempting to use alternate WLF file "./wlfth97jec".
+# ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
+#           Using alternate file: ./wlfth97jec
+add wave -position end  sim:/test_counter/address
+add wave -position end  sim:/test_counter/end_count
+# ** Warning: (vish-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# ** Warning: (vish-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+run -next
+# End time: 21:10:41 on Apr 13,2017, Elapsed time: 0:01:58
+# Errors: 0, Warnings: 3

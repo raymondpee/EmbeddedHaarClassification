@@ -1,0 +1,70 @@
+# ** Warning: (vsim-14) Failed to open "C:\intelFPGA_lite\16.1\modelsim_ase\win32aloem" specified by the MODELSIM environment variable.
+# No such file or directory. (errno = ENOENT)
+# vsim -L altera_mf_ver test_v_first_phase_haar_cascade 
+# Start time: 23:33:01 on Apr 20,2017
+# Loading sv_std.std
+# Loading work.test_v_first_phase_haar_cascade
+# Loading work.v_first_phase_haar_cascade
+# Loading work.embedded_stage_database
+# Loading work.counter
+# Loading work.stage_database
+# Loading work.rom
+# Loading altera_mf_ver.altsyncram
+# Loading altera_mf_ver.altsyncram_body
+# Loading altera_mf_ver.ALTERA_DEVICE_FAMILIES
+# Loading altera_mf_ver.ALTERA_MF_MEMORY_INITIALIZATION
+# ** Warning: (vsim-3017) test_v_first_phase_haar_cascade.v(55): [TFMPC] - Too few port connections. Expected 6, found 4.
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade File: ../v_first_phase_haar_cascade.v
+# ** Warning: (vsim-3015) test_v_first_phase_haar_cascade.v(55): [PCDPC] - Port size (2088) does not match connection size (2784) for port 'o_rom_stage1'. The port definition is at: ../v_first_phase_haar_cascade.v(20).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade File: ../v_first_phase_haar_cascade.v
+# ** Warning: (vsim-3722) test_v_first_phase_haar_cascade.v(55): [TFMPC] - Missing connection for port 'o_rom_stage2'.
+# ** Warning: (vsim-3722) test_v_first_phase_haar_cascade.v(55): [TFMPC] - Missing connection for port 'o_rom_stage3'.
+# ** Warning: (vsim-3015) ../embedded_stage_database.v(85): [PCDPC] - Port size (12) does not match connection size (32) for port 'max_size'. The port definition is at: ../counter.v(9).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/counter_fifoout_database File: ../counter.v
+# ** Warning: (vsim-3015) ../embedded_stage_database.v(105): [PCDPC] - Port size (16) does not match connection size (12) for port 'o_data'. The port definition is at: ../stage_database.v(17).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/stage_database File: ../stage_database.v
+# ** Warning: (vsim-3015) ../stage_database.v(66): [PCDPC] - Port size (16) does not match connection size (12) for port 'ctr_out'. The port definition is at: ../counter.v(11).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/stage_database/counter_database_index File: ../counter.v
+# ** Warning: (vsim-3015) ../stage_database.v(66): [PCDPC] - Port size (16) does not match connection size (32) for port 'max_size'. The port definition is at: ../counter.v(9).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/stage_database/counter_database_index File: ../counter.v
+# ** Warning: (vsim-3015) ../stage_database.v(82): [PCDPC] - Port size (16) does not match connection size (12) for port 'q'. The port definition is at: ../rom.v(50).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/stage_database/rom_database File: ../rom.v
+# ** Warning: (vsim-3015) ../embedded_stage_database.v(85): [PCDPC] - Port size (12) does not match connection size (32) for port 'max_size'. The port definition is at: ../counter.v(9).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/counter_fifoout_database File: ../counter.v
+# ** Warning: (vsim-3015) ../embedded_stage_database.v(105): [PCDPC] - Port size (16) does not match connection size (12) for port 'o_data'. The port definition is at: ../stage_database.v(17).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/stage_database File: ../stage_database.v
+# ** Warning: (vsim-3015) ../stage_database.v(66): [PCDPC] - Port size (16) does not match connection size (12) for port 'ctr_out'. The port definition is at: ../counter.v(11).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/stage_database/counter_database_index File: ../counter.v
+# ** Warning: (vsim-3015) ../stage_database.v(66): [PCDPC] - Port size (16) does not match connection size (32) for port 'max_size'. The port definition is at: ../counter.v(9).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/stage_database/counter_database_index File: ../counter.v
+# ** Warning: (vsim-3015) ../stage_database.v(82): [PCDPC] - Port size (16) does not match connection size (12) for port 'q'. The port definition is at: ../rom.v(50).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/stage_database/rom_database File: ../rom.v
+# ** Warning: (vsim-3015) ../embedded_stage_database.v(85): [PCDPC] - Port size (12) does not match connection size (32) for port 'max_size'. The port definition is at: ../counter.v(9).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/counter_fifoout_database File: ../counter.v
+# ** Warning: (vsim-3015) ../embedded_stage_database.v(105): [PCDPC] - Port size (16) does not match connection size (12) for port 'o_data'. The port definition is at: ../stage_database.v(17).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/stage_database File: ../stage_database.v
+# ** Warning: (vsim-3015) ../stage_database.v(66): [PCDPC] - Port size (16) does not match connection size (12) for port 'ctr_out'. The port definition is at: ../counter.v(11).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/stage_database/counter_database_index File: ../counter.v
+# ** Warning: (vsim-3015) ../stage_database.v(66): [PCDPC] - Port size (16) does not match connection size (32) for port 'max_size'. The port definition is at: ../counter.v(9).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/stage_database/counter_database_index File: ../counter.v
+# ** Warning: (vsim-3015) ../stage_database.v(82): [PCDPC] - Port size (16) does not match connection size (12) for port 'q'. The port definition is at: ../rom.v(50).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/stage_database/rom_database File: ../rom.v
+# ** Warning: (vsim-3839) ../stage_database.v(57): Variable '/test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/stage_database/r_address', driven via a port connection, is multiply driven. See ../stage_database.v(66).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/stage_database File: ../stage_database.v
+# ** Warning: (vsim-3839) ../stage_database.v(56): Variable '/test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/stage_database/r_rom_data', driven via a port connection, is multiply driven. See ../stage_database.v(82).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_1/stage_database File: ../stage_database.v
+# ** Warning: (vsim-3839) ../stage_database.v(57): Variable '/test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/stage_database/r_address', driven via a port connection, is multiply driven. See ../stage_database.v(66).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/stage_database File: ../stage_database.v
+# ** Warning: (vsim-3839) ../stage_database.v(56): Variable '/test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/stage_database/r_rom_data', driven via a port connection, is multiply driven. See ../stage_database.v(82).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_2/stage_database File: ../stage_database.v
+# ** Warning: (vsim-3839) ../stage_database.v(57): Variable '/test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/stage_database/r_address', driven via a port connection, is multiply driven. See ../stage_database.v(66).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/stage_database File: ../stage_database.v
+# ** Warning: (vsim-3839) ../stage_database.v(56): Variable '/test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/stage_database/r_rom_data', driven via a port connection, is multiply driven. See ../stage_database.v(82).
+#    Time: 0 ps  Iteration: 0  Instance: /test_v_first_phase_haar_cascade/v_first_phase_haar_cascade/stage_3/stage_database File: ../stage_database.v
+run -all
+# Break key hit
+# Break in Module altsyncram_body at /build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v line 50015
+# Error opening C:/build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v
+# Path name 'C:/build/swbuild/SJ/nightly/16.1/196/l64/work/modelsim/eda/sim_lib/altera_mf.v' doesn't exist.
+# End time: 23:33:53 on Apr 20,2017, Elapsed time: 0:00:52
+# Errors: 1, Warnings: 25
