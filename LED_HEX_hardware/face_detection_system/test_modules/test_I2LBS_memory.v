@@ -17,7 +17,7 @@ reg clk_os;
 reg reset_os;
 reg clk_fpga;
 reg reset_fpga;
-reg [DATA_WIDTH_8-1:0] pixel = 0; // Pixel of the image
+reg [DATA_WIDTH_12-1:0] pixel = 0; // Pixel of the image
 reg wen;
 
 wire integral_image_ready;

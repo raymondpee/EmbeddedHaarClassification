@@ -17,6 +17,8 @@ parameter FRAME_RESIZE_CAMERA_HEIGHT = 10
 	o_reach  //Is the current coordinate is reached
 );
 
+localparam DATA_WIDTH_24 = 24;
+
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 input  [DATA_WIDTH_12-1:0] ori_x;
@@ -26,17 +28,22 @@ output [DATA_WIDTH_12-1:0] o_resize_y;
 output o_reach; 
 /*-----------------------------------------------------------------------*/
 
-/*------Calculate output --------*/
-assign x_ratio = (FRAME_ORIGINAL_CAMERA_WIDTH<<16)/FRAME_RESIZE_CAMERA_WIDTH   +1;
-assign y_ratio = (FRAME_ORIGINAL_CAMERA_HEIGHT<<16)/FRAME_RESIZE_CAMERA_HEIGHT +1;
-
 /*----- local variables ------*/
 wire xloc;
 wire yloc;
-reg [DATA_WIDTH_12-1:0] oxcoord = 0;
-reg [DATA_WIDTH_12-1:0] oycoord = 0;
-reg [DATA_WIDTH_12-1:0] tempxcoord = 0;
-reg [DATA_WIDTH_12-1:0] tempycoord = 0;
+wire [DATA_WIDTH_24-1:0] x_ratio;
+wire [DATA_WIDTH_24-1:0] y_ratio;
+reg [DATA_WIDTH_24-1:0] oxcoord = 0;
+reg [DATA_WIDTH_24-1:0] oycoord = 0;
+reg [DATA_WIDTH_24-1:0] tempxcoord = 0;
+reg [DATA_WIDTH_24-1:0] tempycoord = 0;
+
+
+/*------Calculate output --------*/
+localparam x_ratio = (FRAME_ORIGINAL_CAMERA_WIDTH<<DATA_WIDTH_24)/FRAME_RESIZE_CAMERA_WIDTH   +1;
+localparam y_ratio = (FRAME_ORIGINAL_CAMERA_HEIGHT<<DATA_WIDTH_24)/FRAME_RESIZE_CAMERA_HEIGHT +1;
+
+
  
  
 /*--------------------Assignment declaration---------------------------------*/
@@ -69,7 +76,7 @@ begin
       if(ori_y > oycoord)
       begin
         tempycoord <= tempycoord + 1;
-        oycoord <= ((tempycoord + 1) * y_ratio)>>16;
+        oycoord <= ((tempycoord + 1) * y_ratio)>>DATA_WIDTH_24;
       end  
       else
         tempycoord <= tempycoord;
@@ -82,7 +89,7 @@ begin
     if(ori_x > oxcoord)
     begin    
       tempxcoord <= tempxcoord +1;
-      oxcoord <= ((tempxcoord + 1) * x_ratio)>>16;
+      oxcoord <= ((tempxcoord + 1) * x_ratio)>>DATA_WIDTH_24;
     end
     else                      
       tempxcoord <= tempxcoord;

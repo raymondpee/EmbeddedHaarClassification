@@ -49,7 +49,7 @@ endgenerate
 /*---------------------------------FIFO module ----------------------------*/
 fifo 
 #(
-.DATA_WIDTH(DATA_WIDTH_8),
+.DATA_WIDTH(DATA_WIDTH_12),
 .ADDR_WIDTH(ADDR_WIDTH)
 )
 row_fifo
