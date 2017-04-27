@@ -1,4 +1,4 @@
-module I2LBS_second_phase_classifier
+module I2LBS_classifier
 #(
 parameter DATA_WIDTH_8 = 8,
 parameter DATA_WIDTH_12 = 12,
@@ -32,27 +32,34 @@ input [DATA_WIDTH_12-1:0] index_classifier [NUM_STAGE-1:0];
 input [DATA_WIDTH_12-1:0] index_database [NUM_STAGE-1:0];
 input [DATA_WIDTH_12-1:0] data [NUM_STAGE-1:0];
 output[NUM_STAGE-1:0] o_candidate;
-fifo_stage_classifier
-#(
-.DATA_WIDTH_8(DATA_WIDTH_8),
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
-.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
-.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
-)
-stage_4
-(
-.clk_fpga(clk_fpga),
-.reset_fpga(reset_fpga),
-.integral_image(integral_image),
-.end_database(end_database[0]),
-.end_tree(end_tree[0]),
-.end_single_classifier(end_single_classifier[0]),
-.index_tree(index_tree[0]),
-.index_classifier(index_classifier[0]),
-.index_database(index_database[0]),
-.data(data[0]),
-.o_candidate(o_candidate[0])
-);
+
+generate
+genvar index;
+for(index = 0; index<NUM_STAGE; index = index +1)
+begin
+	fifo_stage_classifier
+	#(
+	.DATA_WIDTH_8(DATA_WIDTH_8),
+	.DATA_WIDTH_12(DATA_WIDTH_12),
+	.DATA_WIDTH_16(DATA_WIDTH_16),
+	.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
+	.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
+	)
+	fifo_stage_classifier
+	(
+	.clk_fpga(clk_fpga),
+	.reset_fpga(reset_fpga),
+	.integral_image(integral_image),
+	.end_database(end_database[index]),
+	.end_tree(end_tree[index]),
+	.end_single_classifier(end_single_classifier[index]),
+	.index_tree(index_tree[index]),
+	.index_classifier(index_classifier[index]),
+	.index_database(index_database[index]),
+	.data(data[index]),
+	.o_candidate(o_candidate[index])
+	);
+end
+endgenerate
 
 endmodule
