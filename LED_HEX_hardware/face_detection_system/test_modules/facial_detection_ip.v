@@ -10,10 +10,8 @@ pixel
 /*--------------------------------------------------------------------*/
 /*---------------------------USER DEFINE-----------------------------*/
 /*--------------------------------------------------------------------*/
-localparam FRAME_CAMERA_WIDTH = 10;
-localparam FRAME_CAMERA_HEIGHT = 10;
-localparam FRAME_ORIGINAL_CAMERA_WIDTH = 10;
-localparam FRAME_ORIGINAL_CAMERA_HEIGHT= 10;
+localparam FRAME_ORIGINAL_CAMERA_WIDTH = 800;
+localparam FRAME_ORIGINAL_CAMERA_HEIGHT= 600;
 localparam FRAME_RESIZE_CAMERA_WIDTH = FRAME_ORIGINAL_CAMERA_WIDTH/2;
 localparam FRAME_RESIZE_CAMERA_HEIGHT = FRAME_ORIGINAL_CAMERA_HEIGHT/2;
 
@@ -176,10 +174,12 @@ v_first_phase_haar_cascade
 )
 v_first_phase_haar_cascade
 (
-.clk_fpga(clk),
-.reset_fpga(reset),
+.clk_fpga(clk_fpga),
+.reset_fpga(reset_fpga),
 .o_ready(ready),
-.o_rom_stage1(rom_stage1)
+.o_rom_stage1(rom_stage1),
+.o_rom_stage2(rom_stage2),
+.o_rom_stage3(rom_stage3)
 );
 
 v_second_phase_haar_cascade
@@ -210,8 +210,8 @@ v_second_phase_haar_cascade
 )
 v_second_phase_haar_cascade
 (
-.clk_fpga(clk),
-.reset_fpga(reset),
+.clk_fpga(clk_fpga),
+.reset_fpga(reset_fpga),
 .i_rden(first_phase_candidate),
 .o_index_tree(second_phase_index_tree),
 .o_index_classifier(second_phase_index_classifier),

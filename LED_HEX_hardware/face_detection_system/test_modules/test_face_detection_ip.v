@@ -5,10 +5,10 @@ module test_face_detection_ip;
 localparam DATA_WIDTH_12 = 12;
 localparam MAX_VAL = 255;
 
-reg clk_os;
-reg reset_os;
-reg clk_fpga;
-reg reset_fpga;
+reg clk_os = 0;
+reg reset_os = 0;
+reg clk_fpga = 0;
+reg reset_fpga = 0;
 reg [DATA_WIDTH_12-1:0] pixel = 0; // Pixel of the image
 
 /*--------------------------- INITIAL STATEMENT ---------------------------*/

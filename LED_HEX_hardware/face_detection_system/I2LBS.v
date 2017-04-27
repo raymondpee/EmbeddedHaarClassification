@@ -99,7 +99,7 @@ I2LBS_memory
 .reset_os(reset_os),
 .pixel(pixel),
 .wen(wr_en),
-.o_integral_image(o_integral_image),
+.o_integral_image(integral_image),
 .o_integral_image_ready(integral_image_ready)
 );
 

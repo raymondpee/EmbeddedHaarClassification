@@ -26,7 +26,7 @@ output o_integral_image_ready;
 output [DATA_WIDTH_12-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 /*-----------------------------------------------------------------------*/
 
-localparam TOTAL_SIZE_COUNT = ((INTEGRAL_WIDTH+FRAME_CAMERA_WIDTH-1)*INTEGRAL_HEIGHT);
+localparam TOTAL_SIZE_COUNT = (FRAME_CAMERA_WIDTH*INTEGRAL_HEIGHT) + 2*INTEGRAL_WIDTH;
 
 reg r_wen_count;
 wire [DATA_WIDTH_12-1:0] integral_image_count;
@@ -49,7 +49,7 @@ counter_integral_image_size
 (
 .clk(clk_os),
 .reset(reset_os),
-.enable(r_wen_count),
+.enable(wen),
 .max_size(TOTAL_SIZE_COUNT),
 .end_count(o_integral_image_ready),
 .ctr_out(integral_image_count)
