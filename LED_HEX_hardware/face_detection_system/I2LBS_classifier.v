@@ -18,7 +18,8 @@ index_tree,
 index_classifier,
 index_database,
 data,
-o_candidate
+o_candidate,
+o_inspect_done
 );
 
 input clk_fpga;
@@ -31,6 +32,7 @@ input [DATA_WIDTH_12-1:0] index_tree[NUM_STAGE-1:0];
 input [DATA_WIDTH_12-1:0] index_classifier [NUM_STAGE-1:0];
 input [DATA_WIDTH_12-1:0] index_database [NUM_STAGE-1:0];
 input [DATA_WIDTH_12-1:0] data [NUM_STAGE-1:0];
+output o_inspect_done;
 output[NUM_STAGE-1:0] o_candidate;
 
 generate

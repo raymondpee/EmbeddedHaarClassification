@@ -12,6 +12,7 @@ parameter FRAME_CAMERA_WIDTH =10
 	wen,
 	fifo_in,
 	fifo_reduction_sum,
+	o_fill,
 	o_fifo_data_out,
 	o_row_integral,
 );
@@ -25,6 +26,7 @@ input reset_os;
 input wen;
 input [DATA_WIDTH_12-1:0] fifo_in;
 input [DATA_WIDTH_12-1:0] fifo_reduction_sum;
+output o_fill;
 output [DATA_WIDTH_12-1:0] o_fifo_data_out;
 output [DATA_WIDTH_12-1:0] o_row_integral[INTEGRAL_WIDTH-1:0];
 /*-----------------------------------------------------------------------*/
@@ -37,6 +39,7 @@ reg[DATA_WIDTH_12-1:0]row_integral[INTEGRAL_WIDTH-1:0];
 /*--------------------Assignment declaration---------------------------------*/
 assign o_fifo_data_out = fifo_data_out;
 assign fifo_rdreq = (fifo_usedw == FRAME_CAMERA_WIDTH) ? 1:0;
+assign o_fill = fifo_rdreq;
 generate
 	genvar index_integral;
 	for(index_integral = 0; index_integral<INTEGRAL_WIDTH; index_integral = index_integral +1)

@@ -42,7 +42,6 @@ wire all_database_end;
 wire candidate;
 wire [DATA_WIDTH_12 -1:0] resize_x;
 wire [DATA_WIDTH_12 -1:0] resize_y;
-wire [DATA_WIDTH_12 -1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 wire [NUM_STAGES_ALL_PHASE-1:0] end_database;
 wire [NUM_STAGES_ALL_PHASE-1:0] end_tree;
@@ -114,7 +113,6 @@ I2LBS
 .end_database(end_database),	
 .o_resize_x(resize_x),
 .o_resize_y(resize_y),
-.o_integral_image(integral_image),
 .o_candidate(candidate)
 );
 

@@ -21,6 +21,7 @@ reset_fpga,
 pixel,
 ori_x,
 ori_y,
+i_pixel_recieve,
 index_tree,
 index_classifier,
 index_database,
@@ -28,25 +29,19 @@ data,
 end_single_classifier,
 end_all_classifier,
 end_tree,
-end_database,	
+end_database,
+o_pixel_request,
 o_resize_x,
 o_resize_y,
-o_candidate,
-o_integral_image
+o_candidate
 );
-
-wire wr_en;
-wire reach;
-wire integral_image_ready;
-wire [DATA_WIDTH_12-1:0] resize_x;
-wire [DATA_WIDTH_12-1:0] resize_y;
-
 
 /*--------------------IO port declaration---------------------------------*/
 input clk_os;
 input clk_fpga;
 input reset_os;
 input reset_fpga;
+input i_pixel_recieve;
 input [DATA_WIDTH_12-1:0] pixel;
 input [DATA_WIDTH_12-1:0] ori_x;
 input [DATA_WIDTH_12-1:0] ori_y;
@@ -59,16 +54,96 @@ input [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES_ALL_PHASE-1:0];
 input [DATA_WIDTH_12-1:0] index_database[NUM_STAGES_ALL_PHASE-1:0];
 input [DATA_WIDTH_12-1:0] data[NUM_STAGES_ALL_PHASE-1:0]; 
 output o_candidate;
+output o_pixel_request;
 output [DATA_WIDTH_12-1:0] o_resize_x;
 output [DATA_WIDTH_12-1:0] o_resize_y;
-output [DATA_WIDTH_12-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 /*-----------------------------------------------------------------------*/
 
+wire wr_en;
+wire reach;
+wire integral_image_ready;
+wire inspect_done;
+wire [DATA_WIDTH_12-1:0] resize_x;
+wire [DATA_WIDTH_12-1:0] resize_y;
 wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
+
+reg pixel_request;
+reg pixel_recieve;
+reg[NUM_STATE-1:0] state;
+reg[NUM_STATE-1:0] next_state;
+
+localparam IDLE = 0;
+localparam REQUEST_RECIEVE = 1;
+localparam INSPECT = 2;
+localparam NUM_STATE = 3;
+
 assign o_resize_x = resize_x;
 assign o_resize_y = resize_y;
+assign o_pixel_request = pixel_request;
 assign wr_en = reach;
-assign o_integral_image = integral_image;
+
+
+always@(posedge clk_fpga)
+begin
+	if(reset_fpga)
+	begin
+		state<= IDLE;
+		pixel_request<=0;
+		pixel_recieve<=0;
+	end
+	else
+		state<= next_state;
+end
+
+always@(reach,pixel_recieve,integral_image_ready,inspect_done,i_pixel_recieve)
+begin
+	case(state)
+		IDLE: 
+		begin
+			if(reach)
+			begin
+				next_state = REQUEST_RECIEVE;
+				pixel_request = 1;
+			end
+			else
+			begin
+				next_state = IDLE;
+				pixel_request = 0;
+			end
+		end
+		REQUEST_RECIEVE: 
+		begin
+			if(i_pixel_recieve)
+				pixel_recieve = 1;
+			if(pixel_recieve && integral_image_ready)
+			begin
+				next_state = INSPECT;
+				pixel_request = 0;
+				pixel_recieve = 0;
+			end
+			else
+			begin
+				next_state = REQUEST_RECIEVE;
+				pixel_request = 1;
+			end
+		end
+		INSPECT: 
+		begin
+			if(inspect_done)
+				next_state = IDLE;
+				pixel_request = 0;
+			else
+				next_state = INSPECT;
+				pixel_request = 0;
+		end
+		default:
+		begin
+			next_state = IDLE;
+		end
+	endcase
+
+end
+
 
 I2LBS_memory 
 #(
@@ -112,6 +187,7 @@ I2LBS_classifier
 .index_classifier(index_classifier),
 .index_database(index_database),
 .data(data),
+.o_inspect_done(inspect_done),
 .o_candidate(o_candidate)
 );
 

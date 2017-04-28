@@ -28,18 +28,15 @@ output [DATA_WIDTH_12-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 localparam TOTAL_SIZE_COUNT = (FRAME_CAMERA_WIDTH*INTEGRAL_HEIGHT) + 2*INTEGRAL_WIDTH;
 
-reg r_wen_count;
+wire ready;
+wire[INTEGRAL_HEIGHT-1:0] fill;
 wire [DATA_WIDTH_12-1:0] integral_image_count;
 wire [DATA_WIDTH_12-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
 wire [DATA_WIDTH_12-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
 wire [DATA_WIDTH_12-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
 
-always@(wen) r_wen_count<= wen;
 
-always@(posedge o_integral_image_ready)
-begin
-	r_wen_count<=0;
-end
+assign ready = fill[INTEGRAL_HEIGHT-1];
 
 counter 
 #(
@@ -49,8 +46,8 @@ counter_integral_image_size
 (
 .clk(clk_os),
 .reset(reset_os),
-.enable(wen),
-.max_size(TOTAL_SIZE_COUNT),
+.enable(ready),
+.max_size(INTEGRAL_WIDTH),
 .end_count(o_integral_image_ready),
 .ctr_out(integral_image_count)
 );
@@ -98,6 +95,7 @@ haar_row_0
 	.wen(wen),
 	.fifo_in(pixel),
 	.fifo_reduction_sum(fifo_reduction_sum[0]),
+	.o_fill(fill[0]),
 	.o_fifo_data_out(fifo_data_out[0]),
 	.o_row_integral(row_integral[0])
 );
@@ -121,6 +119,7 @@ generate
 			.wen(wen),
 			.fifo_in(fifo_data_out[index-1]),
 			.fifo_reduction_sum(fifo_reduction_sum[index]),
+			.o_fill(fill[index]),
 			.o_fifo_data_out(fifo_data_out[index]),
 			.o_row_integral(row_integral[index])
 		);	
