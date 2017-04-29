@@ -69,13 +69,12 @@ wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 reg pixel_request;
 reg pixel_recieve;
-reg[NUM_STATE-1:0] state;
-reg[NUM_STATE-1:0] next_state;
+reg[NUM_STAGES_ALL_PHASE-1:0] state;
+reg[NUM_STAGES_ALL_PHASE-1:0] next_state;
 
 localparam IDLE = 0;
 localparam REQUEST_RECIEVE = 1;
 localparam INSPECT = 2;
-localparam NUM_STATE = 3;
 
 assign o_resize_x = resize_x;
 assign o_resize_y = resize_y;
@@ -130,11 +129,15 @@ begin
 		INSPECT: 
 		begin
 			if(inspect_done)
+			begin
 				next_state = IDLE;
 				pixel_request = 0;
+			end
 			else
+			begin
 				next_state = INSPECT;
 				pixel_request = 0;
+			end
 		end
 		default:
 		begin
