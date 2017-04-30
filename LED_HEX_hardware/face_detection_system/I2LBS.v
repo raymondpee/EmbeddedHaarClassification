@@ -68,7 +68,6 @@ wire [DATA_WIDTH_12-1:0] resize_y;
 wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
 
 reg pixel_request;
-reg pixel_recieve;
 reg[NUM_STAGES_ALL_PHASE-1:0] state;
 reg[NUM_STAGES_ALL_PHASE-1:0] next_state;
 
@@ -88,55 +87,50 @@ begin
 	begin
 		state<= IDLE;
 		pixel_request<=0;
-		pixel_recieve<=0;
 	end
 	else
 		state<= next_state;
 end
 
-always@(reach,pixel_recieve,integral_image_ready,inspect_done,i_pixel_recieve)
+always@(reach,integral_image_ready,inspect_done,i_pixel_recieve)
 begin
 	case(state)
 		IDLE: 
 		begin
-			if(reach)
+			if(reach && integral_image_ready)
+			begin
+				next_state = INSPECT;
+			end
+			else
+			begin
+				next_state = IDLE;
+			end
+			pixel_request = 0;
+		end
+		INSPECT: 
+		begin
+			if(inspect_done)
 			begin
 				next_state = REQUEST_RECIEVE;
 				pixel_request = 1;
 			end
 			else
 			begin
-				next_state = IDLE;
+				next_state = INSPECT;
 				pixel_request = 0;
 			end
 		end
 		REQUEST_RECIEVE: 
 		begin
 			if(i_pixel_recieve)
-				pixel_recieve = 1;
-			if(pixel_recieve && integral_image_ready)
-			begin
-				next_state = INSPECT;
-				pixel_request = 0;
-				pixel_recieve = 0;
-			end
-			else
-			begin
-				next_state = REQUEST_RECIEVE;
-				pixel_request = 1;
-			end
-		end
-		INSPECT: 
-		begin
-			if(inspect_done)
 			begin
 				next_state = IDLE;
 				pixel_request = 0;
 			end
 			else
 			begin
-				next_state = INSPECT;
-				pixel_request = 0;
+				next_state = REQUEST_RECIEVE;
+				pixel_request = 1;
 			end
 		end
 		default:
