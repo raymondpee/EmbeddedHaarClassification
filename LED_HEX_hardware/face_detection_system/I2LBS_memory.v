@@ -116,7 +116,7 @@ generate
 		(
 			.clk_os(clk_os),
 			.reset_os(reset_os),
-			.wen(wen),
+			.wen(fill[index-1]),
 			.fifo_in(fifo_data_out[index-1]),
 			.fifo_reduction_sum(fifo_reduction_sum[index]),
 			.o_fill(fill[index]),
