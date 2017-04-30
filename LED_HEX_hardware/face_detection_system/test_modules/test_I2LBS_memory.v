@@ -7,9 +7,9 @@ localparam DATA_WIDTH_12 = 12;
 localparam DATA_WIDTH_16 = 16;
 localparam MAX_VAL = 255;
 
-localparam FRAME_CAMERA_WIDTH = 20;
-localparam FRAME_CAMERA_HEIGHT = 20;
-localparam INTEGRAL_LENGTH = 8;
+localparam FRAME_CAMERA_WIDTH = 800;
+localparam FRAME_CAMERA_HEIGHT = 600;
+localparam INTEGRAL_LENGTH = 24;
 localparam INTEGRAL_WIDTH = INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT = INTEGRAL_LENGTH;
 

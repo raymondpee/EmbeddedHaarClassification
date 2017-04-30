@@ -35,8 +35,19 @@ wire [DATA_WIDTH_12-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
 wire [DATA_WIDTH_12-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
 wire [DATA_WIDTH_12-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
 
+wire w_integral_image_ready;
+reg r_integral_image_ready;
 
 assign ready = fill[INTEGRAL_HEIGHT-1];
+assign o_integral_image_ready = r_integral_image_ready;
+always@(posedge w_integral_image_ready) r_integral_image_ready = 1;
+
+
+always@(posedge clk_os)
+begin
+	if(reset_os)
+		r_integral_image_ready<=0;
+end
 
 counter 
 #(
@@ -47,8 +58,8 @@ counter_integral_image_size
 .clk(clk_os),
 .reset(reset_os),
 .enable(ready),
-.max_size(INTEGRAL_WIDTH),
-.end_count(o_integral_image_ready),
+.max_size(2*INTEGRAL_WIDTH),
+.end_count(w_integral_image_ready),
 .ctr_out(integral_image_count)
 );
 
