@@ -31,6 +31,7 @@ end_all_classifier,
 end_tree,
 end_database,
 o_pixel_request,
+o_database_request,
 o_resize_x,
 o_resize_y,
 o_candidate
@@ -55,11 +56,11 @@ input [DATA_WIDTH_12-1:0] index_database[NUM_STAGES_ALL_PHASE-1:0];
 input [DATA_WIDTH_12-1:0] data[NUM_STAGES_ALL_PHASE-1:0]; 
 output o_candidate;
 output o_pixel_request;
+output o_database_request;
 output [DATA_WIDTH_12-1:0] o_resize_x;
 output [DATA_WIDTH_12-1:0] o_resize_y;
 /*-----------------------------------------------------------------------*/
 
-wire wr_en;
 wire reach;
 wire integral_image_ready;
 wire inspect_done;
@@ -68,6 +69,8 @@ wire [DATA_WIDTH_12-1:0] resize_y;
 wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
 
 reg pixel_request;
+reg database_request;
+reg pixel_recieve;
 reg[NUM_STAGES_ALL_PHASE-1:0] state;
 reg[NUM_STAGES_ALL_PHASE-1:0] next_state;
 
@@ -78,8 +81,14 @@ localparam INSPECT = 2;
 assign o_resize_x = resize_x;
 assign o_resize_y = resize_y;
 assign o_pixel_request = pixel_request;
-assign wr_en = reach;
+assign o_database_request = database_request;
 
+
+always@(posedge clk_fpga) 
+begin
+if(i_pixel_recieve)
+	pixel_recieve = 1;
+end
 
 always@(posedge clk_fpga)
 begin
@@ -87,12 +96,13 @@ begin
 	begin
 		state<= IDLE;
 		pixel_request<=0;
+		database_request<=0;
 	end
 	else
 		state<= next_state;
 end
 
-always@(reach,integral_image_ready,inspect_done,i_pixel_recieve)
+always@(reach,integral_image_ready,inspect_done,pixel_recieve)
 begin
 	case(state)
 		IDLE: 
@@ -100,12 +110,15 @@ begin
 			if(reach && integral_image_ready)
 			begin
 				next_state = INSPECT;
+				database_request = 1;
 			end
 			else
 			begin
 				next_state = IDLE;
+				database_request = 0;
 			end
 			pixel_request = 0;
+			pixel_recieve = 0;
 		end
 		INSPECT: 
 		begin
@@ -118,11 +131,13 @@ begin
 			begin
 				next_state = INSPECT;
 				pixel_request = 0;
+				database_request = 1;
 			end
+			pixel_recieve = 0;
 		end
 		REQUEST_RECIEVE: 
 		begin
-			if(i_pixel_recieve)
+			if(pixel_recieve)
 			begin
 				next_state = IDLE;
 				pixel_request = 0;
@@ -132,6 +147,7 @@ begin
 				next_state = REQUEST_RECIEVE;
 				pixel_request = 1;
 			end
+			database_request = 0;
 		end
 		default:
 		begin
@@ -157,7 +173,7 @@ I2LBS_memory
 .clk_os(clk_os),
 .reset_os(reset_os),
 .pixel(pixel),
-.wen(wr_en),
+.wen(reach),
 .o_integral_image(integral_image),
 .o_integral_image_ready(integral_image_ready)
 );

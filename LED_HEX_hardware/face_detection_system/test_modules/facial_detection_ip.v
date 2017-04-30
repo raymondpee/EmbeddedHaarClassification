@@ -40,9 +40,10 @@ input [DATA_WIDTH_12 -1:0] pixel;
 
 wire all_database_end;
 wire candidate;
+wire pixel_request;
+wire database_request;
 wire [DATA_WIDTH_12 -1:0] resize_x;
 wire [DATA_WIDTH_12 -1:0] resize_y;
-
 wire [NUM_STAGES_ALL_PHASE-1:0] end_database;
 wire [NUM_STAGES_ALL_PHASE-1:0] end_tree;
 wire [NUM_STAGES_ALL_PHASE-1:0] end_single_classifier;
@@ -52,7 +53,7 @@ wire [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES_ALL_PHASE-1:0];
 wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES_ALL_PHASE-1:0];
 wire [DATA_WIDTH_12-1:0] data[NUM_STAGES_ALL_PHASE-1:0]; 
 
-reg rden_database;
+reg pixel_recieve;
 reg [DATA_WIDTH_12 -1:0]ori_x;
 reg [DATA_WIDTH_12 -1:0]ori_y;
 
@@ -61,20 +62,24 @@ always@(posedge reset_fpga)
 begin
 	ori_x <= 0;
 	ori_y <= 0;	
-	rden_database <= 0;
+	pixel_recieve <=0;
 end
 
 /*------------------------ COORDINATE ITERATION -------------------------*/
 always @(posedge clk_os)
 begin
-  if(ori_x == FRAME_ORIGINAL_CAMERA_WIDTH -1)
-  begin 
-      ori_x <= 0;
-      if(ori_y == FRAME_ORIGINAL_CAMERA_HEIGHT -1) ori_y <= 0;   
-      else                          ori_y <= ori_y + 1;
-  end
-  else
-    ori_x <= ori_x + 1;
+	if(pixel_request)
+	begin
+		if(ori_x == FRAME_ORIGINAL_CAMERA_WIDTH -1)
+		begin 
+			ori_x <= 0;
+			if(ori_y == FRAME_ORIGINAL_CAMERA_HEIGHT -1) ori_y <= 0;   
+			else                          ori_y <= ori_y + 1;
+		end
+		else
+			ori_x <= ori_x + 1;
+		pixel_recieve <=1;
+	end
 end
 /*-----------------------------------------------------------------------*/
 
@@ -101,6 +106,7 @@ I2LBS
 .reset_os(reset_os),
 .reset_fpga(reset_fpga),
 .pixel(pixel),
+.i_pixel_recieve(pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -113,7 +119,9 @@ I2LBS
 .end_database(end_database),	
 .o_resize_x(resize_x),
 .o_resize_y(resize_y),
-.o_candidate(candidate)
+.o_candidate(candidate),
+.o_pixel_request(pixel_request),
+.o_database_request(database_request)
 );
 
 
@@ -131,7 +139,7 @@ haar_database
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
-.i_rden(rden_database),
+.i_rden(database_request),
 .o_index_tree(index_tree),
 .o_index_classifier(index_classifier),
 .o_index_database(index_database),
