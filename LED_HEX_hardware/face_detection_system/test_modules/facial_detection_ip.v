@@ -27,7 +27,7 @@ localparam DATA_WIDTH_12 = 12; // Max value 4095
 localparam DATA_WIDTH_16 = 16; // Max value 177777
 localparam ADDR_WIDTH = DATA_WIDTH_12;
 localparam NUM_STAGE_THRESHOLD = 3;
-localparam NUM_PARAM_PER_CLASSIFIER = 18;
+localparam NUM_PARAM_PER_CLASSIFIER = 19;
 localparam INTEGRAL_WIDTH = INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT = INTEGRAL_LENGTH;
 

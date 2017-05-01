@@ -8,9 +8,10 @@ parameter INTEGRAL_WIDTH = 10,
 parameter INTEGRAL_HEIGHT = 10
 )
 (
-clk_fpga,
-reset_fpga,
-en,
+clk,
+reset,
+en_copy,
+calculate,
 integral_image,
 end_database,
 end_tree,
@@ -23,9 +24,10 @@ o_candidate,
 o_inspect_done
 );
 
-input  clk_fpga;
-input  reset_fpga;
-input  en;
+input  clk;
+input  reset;
+input  en_copy;
+input  calculate;
 input  [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 input  [NUM_STAGE-1:0]end_database;
 input  [NUM_STAGE-1:0]end_tree;
@@ -37,34 +39,11 @@ input  [DATA_WIDTH_12-1:0] data [NUM_STAGE-1:0];
 output o_inspect_done;
 output [NUM_STAGE-1:0] o_candidate;
 
-wire reset;
 wire [NUM_STAGE-1:0] candidate;
 reg  r_inspect_done;
 reg  [DATA_WIDTH_12-1:0] count_stage;
 
-assign reset = r_inspect_done || reset_fpga;
-assign o_inspect_done = r_inspect_done;
 assign o_candidate = candidate;
-
-always@(posedge clk_fpga)
-begin
-	if(reset)
-	begin
-		count_stage <=0;
-		r_inspect_done<=0;
-	end
-	else 
-	begin
-		if(en)
-			begin
-			if(end_database[count_stage])
-			begin
-				r_inspect_done = !candidate[count_stage];
-				count_stage = count_stage + 1;
-			end
-		end
-	end
-end	
 
 generate
 genvar index;
@@ -80,9 +59,10 @@ begin
 	)
 	fifo_stage_classifier
 	(
-	.clk_fpga(clk_fpga),
-	.reset_fpga(reset),
-	.en(en),
+	.clk(clk),
+	.reset(reset),
+	.en_copy(en_copy),
+	.calculate(calculate),
 	.integral_image(integral_image),
 	.end_database(end_database[index]),
 	.end_tree(end_tree[index]),

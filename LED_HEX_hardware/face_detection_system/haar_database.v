@@ -93,8 +93,6 @@ output [DATA_WIDTH_12-1:0] o_index_database[NUM_STAGES_ALL_PHASE-1:0];
 output [DATA_WIDTH_12-1:0] o_data[NUM_STAGES_ALL_PHASE-1:0];
 /*-----------------------------------------------------------------------*/
 
-wire reset_database;
-assign reset_database = !en || reset; 
   
 assign o_end = o_end_database[0] && o_end_database[1] && o_end_database[2] && o_end_database[3] && o_end_database[4]
 				&& o_end_database[5] && o_end_database[6] && o_end_database[7] && o_end_database[8] && o_end_database[9]
@@ -116,7 +114,7 @@ fifo_stage_database
 stage_1
 (
 .clk(clk),
-.reset(reset_database),
+.reset(reset),
 .en(en),
 .o_index_tree(o_index_tree[0]),
 .o_index_classifier(o_index_classifier[0]),
@@ -142,7 +140,7 @@ fifo_stage_database
 stage_2
 (
 .clk(clk),
-.reset(reset_database),
+.reset(reset),
 .en(en),
 .o_index_tree(o_index_tree[1]),
 .o_index_classifier(o_index_classifier[1]),
@@ -167,7 +165,7 @@ fifo_stage_database
 stage_3
 (
 .clk(clk),
-.reset(reset_database),
+.reset(reset),
 .en(en),
 .o_index_tree(o_index_tree[2]),
 .o_index_classifier(o_index_classifier[2]),
@@ -193,7 +191,7 @@ fifo_stage_database
 stage_4
 (
 .clk(clk),
-.reset(reset_database),
+.reset(reset),
 .en(en),
 .o_index_tree(o_index_tree[3]),
 .o_index_classifier(o_index_classifier[3]),
@@ -219,7 +217,7 @@ fifo_stage_database
 stage_5
 (
 .clk(clk),
-.reset(reset_database),
+.reset(reset),
 .en(en),
 .o_index_tree(o_index_tree[4]),
 .o_index_classifier(o_index_classifier[4]),

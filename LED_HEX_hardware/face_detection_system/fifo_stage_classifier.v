@@ -8,9 +8,10 @@ parameter INTEGRAL_WIDTH = 10,
 parameter INTEGRAL_HEIGHT = 10
 )
 (
-clk_fpga,
-reset_fpga,
-en,
+clk,
+reset,
+en_copy,
+calculate,
 integral_image,
 end_database,
 end_tree,
@@ -23,9 +24,12 @@ data,
 o_candidate
 );
 
-input clk_fpga;
-input reset_fpga;
-input en;
+localparam DEFAULT_VALUE = 1010;
+
+input clk;
+input reset;
+input en_copy;
+input calculate;
 input end_database;
 input end_tree;
 input end_single_classifier;
@@ -37,14 +41,10 @@ input [DATA_WIDTH_12-1:0] data;
 input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
 
-wire w_copy_data;
-wire w_calculate;
-wire w_index_stage_threshold;
-wire [DATA_WIDTH_12-1:0] w_haar;
+wire [DATA_WIDTH_12-1:0] w_index_stage_threshold;
 
-reg r_index_tree;
-reg r_end_all_classifier;
 reg candidate;
+reg [DATA_WIDTH_12-1:0]r_index_tree;
 reg [DATA_WIDTH_12-1:0]sum_haar;
 reg [DATA_WIDTH_12-1:0]rect_A_1_index;
 reg [DATA_WIDTH_12-1:0]rect_B_1_index;
@@ -69,22 +69,44 @@ reg [DATA_WIDTH_12-1:0]r_parent;
 reg [DATA_WIDTH_12-1:0]r_next;
 reg [DATA_WIDTH_12-1:0] haar[NUM_CLASSIFIERS-1:0];
 
+
+reg [DATA_WIDTH_12-1:0] rect_A_1;
+reg [DATA_WIDTH_12-1:0] rect_B_1;
+reg [DATA_WIDTH_12-1:0] rect_C_1;
+reg [DATA_WIDTH_12-1:0] rect_D_1;
+reg [DATA_WIDTH_12-1:0] rect_A_2;
+reg [DATA_WIDTH_12-1:0] rect_B_2;
+reg [DATA_WIDTH_12-1:0] rect_C_2;
+reg [DATA_WIDTH_12-1:0] rect_D_2;
+reg [DATA_WIDTH_12-1:0] rect_A_3;
+reg [DATA_WIDTH_12-1:0] rect_B_3;
+reg [DATA_WIDTH_12-1:0] rect_C_3;
+reg [DATA_WIDTH_12-1:0] rect_D_3;
+
+
+/*--- Rect for block 1 -----*/
+reg [DATA_WIDTH_12-1:0] rect_minus_A_1;
+reg [DATA_WIDTH_12-1:0] rect_minus_B_1;
+reg [DATA_WIDTH_12-1:0] rect_1;
+/*--- Rect for block 2 -----*/
+reg [DATA_WIDTH_12-1:0] rect_minus_A_2;
+reg [DATA_WIDTH_12-1:0] rect_minus_B_2;
+reg [DATA_WIDTH_12-1:0] rect_2;
+/*--- Rect for block 3 -----*/
+reg [DATA_WIDTH_12-1:0] rect_minus_A_3;
+reg [DATA_WIDTH_12-1:0] rect_minus_B_3;
+reg [DATA_WIDTH_12-1:0] rect_3;
+
+reg [DATA_WIDTH_12-1:0] rect_1_3;
+reg [DATA_WIDTH_12-1:0] value;
+
 integer k_haar;
 
 assign o_candidate = candidate;
-assign w_copy_data = !(end_single_classifier || end_database)&& en;
-assign w_calculate = !w_copy_data;
 
-// Delay based on clock cycle
-always@(posedge clk_fpga)
+always@(posedge clk)
 begin
-	r_index_tree <= index_tree;
-	r_end_all_classifier <= end_all_classifier;
-end
-
-always@(posedge clk_fpga)
-begin
-	if(r_end_all_classifier)
+	if(end_all_classifier)
 	begin
 		case(w_index_stage_threshold)
 		0:r_stage_threshold<= data;
@@ -94,14 +116,10 @@ begin
 	end
 end
 
-always@(posedge end_single_classifier)
-begin
-	haar[index_tree]= w_haar;
-end
 
-always@(clk_fpga)
+always@(clk)
 begin
-	if(reset_fpga)
+	if(reset)
 	begin
 		r_index_tree<=0;
 		candidate<=0;
@@ -126,7 +144,30 @@ begin
 		right_word<=0;
 		r_stage_threshold <=0;
 		r_parent<=0;
-		r_next<=0;
+		r_next<=0;		
+		rect_A_1<=0;
+		rect_B_1<=0;
+		rect_C_1<=0;
+		rect_D_1<=0;
+		rect_A_2<=0;
+		rect_B_2<=0;
+		rect_C_2<=0;
+		rect_D_2<=0;
+		rect_A_3<=0;
+		rect_B_3<=0;
+		rect_C_3<=0;
+		rect_D_3<=0;
+		rect_minus_A_1<=0;
+		rect_minus_B_1<=0;
+		rect_1<=0;
+		rect_minus_A_2<=0;
+		rect_minus_B_2<=0;
+		rect_2<=0;
+		rect_minus_A_3<=0;
+		rect_minus_B_3<=0;
+		rect_3<=0;
+		rect_1_3<=0;
+		value<=0;
 		for(k_haar = 0; k_haar<NUM_CLASSIFIERS; k_haar= k_haar+1)
 		begin
 			haar[k_haar]<= 0;
@@ -134,7 +175,7 @@ begin
 	end
 	else
 	begin
-		if(w_copy_data)
+		if(en_copy)
 		begin
 			case(index_classifier)
 				0:	rect_A_1_index <= data;
@@ -160,10 +201,46 @@ begin
 	end
 end
 
-integer k;
-always@(posedge end_single_classifier)
+always@(posedge calculate)
 begin
-	if(en)
+	rect_A_1 = integral_image[rect_A_1_index];
+	rect_B_1 = integral_image[rect_B_1_index];
+	rect_C_1 = integral_image[rect_C_1_index];
+	rect_D_1 = integral_image[rect_D_1_index];
+	rect_A_2 = integral_image[rect_A_2_index];
+	rect_B_2 = integral_image[rect_B_2_index];
+	rect_C_2 = integral_image[rect_C_2_index];
+	rect_D_2 = integral_image[rect_D_2_index];
+	rect_A_3 = integral_image[rect_A_3_index];
+	rect_B_3 = integral_image[rect_B_3_index];
+	rect_C_3 = integral_image[rect_C_3_index];
+	rect_D_3 = integral_image[rect_D_3_index];
+	
+	rect_minus_A_1 = rect_A_1 - rect_B_1;
+	rect_minus_B_1 = rect_C_1 - rect_D_1;
+	rect_1 = weight_1*(rect_minus_A_1 + rect_minus_B_1);
+		
+	//rect 2
+	rect_minus_A_2 = rect_A_2 - rect_B_2;
+	rect_minus_B_2 = rect_C_2 - rect_D_2;
+	rect_2 = weight_2*(rect_minus_A_2 + rect_minus_B_2);
+		
+	//rect 3
+	rect_minus_A_3 = rect_A_3 - rect_B_3;
+	rect_minus_B_3 = rect_C_3 - rect_D_3;
+	rect_3 = weight_3*(rect_minus_A_3 + rect_minus_B_3);
+
+	//value
+	value = (rect_1 + rect_3) - rect_2;
+	haar[r_index_tree] =(value > threshold)? right_word:left_word;	
+	r_index_tree = r_index_tree +1;
+end
+
+
+integer k;
+always@(posedge clk)
+begin
+	if(calculate)
 		begin
 		for(k =0; k< NUM_CLASSIFIERS; k++)
 		begin
@@ -183,45 +260,15 @@ counter
 )
 counter_stage_threshold
 (
-.clk(clk_fpga),
-.reset(reset_counter_stage_threshold),
-.enable(r_count_stage_threshold),
+.clk(clk),
+.reset(reset),
+.enable(end_all_classifier),
 .ctr_out(w_index_stage_threshold),
 .max_size(NUM_STAGE_THRESHOLD-1),
 .end_count(w_end_stage_threshold)
 );
 
-classifier
-#(
-.DATA_WIDTH_8(DATA_WIDTH_8),    // Max value 255
-.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
-.DATA_WIDTH_16(DATA_WIDTH_16) // Max value 177777
-)
-classifier
-(
-.clk(clk_fpga),	
-.reset(reset_fpga),
-.en(w_calculate),
-.rect_A_1(integral_image[rect_A_1_index]),
-.rect_B_1(integral_image[rect_B_1_index]),
-.rect_C_1(integral_image[rect_C_1_index]),
-.rect_D_1(integral_image[rect_D_1_index]),
-.weight_1(weight_1),
-.rect_A_2(integral_image[rect_A_2_index]),
-.rect_B_2(integral_image[rect_B_2_index]),
-.rect_C_2(integral_image[rect_C_2_index]),
-.rect_D_2(integral_image[rect_D_2_index]),
-.weight_2(weight_2),
-.rect_A_3(integral_image[rect_A_3_index]),
-.rect_B_3(integral_image[rect_B_3_index]),
-.rect_C_3(integral_image[rect_C_3_index]),
-.rect_D_3(integral_image[rect_D_3_index]),
-.weight_3(weight_3),
-.threshold(threshold),
-.left_word(left_word),
-.right_word(right_word),
-.o_haarvalue(w_haar)
-);
+
 
 
 endmodule

@@ -168,7 +168,7 @@ begin
 	end
 	else
 	begin
-		if(r_end_database)
+		if(r_end_database ||!en)
 		begin
 			r_count_classifier<=0;
 			r_count_fifoout_database<=0;
@@ -259,8 +259,8 @@ stage_database
 (
 .clk(clk),
 .reset(reset_stage_database),
-.ren_database_index(r_count_database),
-.ren_database(r_rden_database),
+.ren_database_index(en),
+.ren_database(en),
 .o_end_count(w_end_fifoin_database),
 .o_data(r_data),
 .o_address(w_index_fifoin_database)
