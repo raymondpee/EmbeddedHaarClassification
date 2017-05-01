@@ -14,7 +14,7 @@ localparam FRAME_ORIGINAL_CAMERA_WIDTH = 100;
 localparam FRAME_ORIGINAL_CAMERA_HEIGHT= 24;
 localparam FRAME_RESIZE_CAMERA_WIDTH = FRAME_ORIGINAL_CAMERA_WIDTH/2;
 localparam FRAME_RESIZE_CAMERA_HEIGHT = FRAME_ORIGINAL_CAMERA_HEIGHT/2;
-localparam NUM_STAGES_ALL_PHASE = 5;
+localparam NUM_STAGES = 5;
 localparam INTEGRAL_LENGTH = 24;
 
 /*--------------------------------------------------------------------*/
@@ -44,14 +44,14 @@ wire pixel_request;
 wire database_request;
 wire [DATA_WIDTH_12 -1:0] resize_x;
 wire [DATA_WIDTH_12 -1:0] resize_y;
-wire [NUM_STAGES_ALL_PHASE-1:0] end_database;
-wire [NUM_STAGES_ALL_PHASE-1:0] end_tree;
-wire [NUM_STAGES_ALL_PHASE-1:0] end_single_classifier;
-wire [NUM_STAGES_ALL_PHASE-1:0] end_all_classifier;
-wire [DATA_WIDTH_12-1:0] index_tree[NUM_STAGES_ALL_PHASE-1:0];
-wire [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES_ALL_PHASE-1:0];
-wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES_ALL_PHASE-1:0];
-wire [DATA_WIDTH_12-1:0] data[NUM_STAGES_ALL_PHASE-1:0]; 
+wire [NUM_STAGES-1:0] end_database;
+wire [NUM_STAGES-1:0] end_tree;
+wire [NUM_STAGES-1:0] end_single_classifier;
+wire [NUM_STAGES-1:0] end_all_classifier;
+wire [DATA_WIDTH_12-1:0] index_tree[NUM_STAGES-1:0];
+wire [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES-1:0];
+wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
+wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
 
 reg pixel_recieve;
 reg [DATA_WIDTH_12 -1:0]ori_x;
@@ -91,7 +91,7 @@ I2LBS
 .DATA_WIDTH_16(DATA_WIDTH_16),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT),
-.NUM_STAGES_ALL_PHASE(NUM_STAGES_ALL_PHASE),
+.NUM_STAGES(NUM_STAGES),
 .NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
@@ -133,7 +133,7 @@ haar_database
 .DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
 .NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
-.NUM_STAGES_ALL_PHASE(NUM_STAGES_ALL_PHASE)
+.NUM_STAGES(NUM_STAGES)
 )
 haar_database
 (

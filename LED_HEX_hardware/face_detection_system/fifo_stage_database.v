@@ -42,7 +42,6 @@ output [DATA_WIDTH_12-1:0]o_data;
 wire w_end_tree;
 wire w_end_fifoin_database;
 wire w_end_fifoout_database;
-wire w_end_all_classifiers;
 wire w_end_single_classifier;
 wire w_end_stage_threshold;
 wire [DATA_WIDTH_12-1:0] w_index_fifoin_database;
@@ -59,7 +58,7 @@ reg r_count_classifier;
 reg r_count_fifoout_database;
 reg r_count_stage_threshold;
 reg r_end_database;
-reg r_end_classifier;
+reg r_end_all_classifiers;
 reg reset_logic;
 reg reset_counter_tree;
 reg reset_counter_fifoout_database;
@@ -78,18 +77,28 @@ assign o_index_database = w_index_fifoout_database;
 assign o_end_tree = w_end_tree;
 assign o_end_single_classifier = w_end_single_classifier;
 assign o_end_database = r_end_database;
-assign w_end_all_classifiers = ((w_index_fifoout_database + NUM_STAGE_THRESHOLD) == SIZE_STAGE);
-assign o_end_all_classifier = w_end_all_classifiers;
+assign o_end_all_classifier = r_end_all_classifiers;
 
-always@(posedge w_end_fifoout_database) r_end_database<=1;
-always@(posedge w_end_all_classifiers) r_end_classifier<=1;
-always@(posedge r_end_classifier) r_count_stage_threshold<=1;
+
+always@(posedge w_end_fifoout_database)r_end_database<=1;
 always@(posedge w_end_stage_threshold) r_count_stage_threshold<=0;
+
+always@(w_index_fifoout_database)
+begin
+	if((w_index_fifoout_database + NUM_STAGE_THRESHOLD) == SIZE_STAGE)
+	begin
+		r_end_all_classifiers =1;
+		r_count_stage_threshold = 1;
+	end
+end
+
+
+
 
 
 always@(posedge clk)
 begin
-	if(r_end_classifier)
+	if(r_end_all_classifiers)
 	begin
 		if(w_end_stage_threshold == 0)
 		begin
@@ -111,13 +120,13 @@ begin
 	r_count_classifier<=0;
 	r_count_fifoout_database<=0;
 	r_count_stage_threshold<=0;
+	r_end_all_classifiers <=0;
 	reset_logic<=1;
 	reset_counter_tree<=1;
 	reset_counter_stage_threshold<=1;
 	reset_counter_classifier<=1;
 	reset_counter_fifoout_database<=1;
 	reset_stage_database<=1;
-	r_end_classifier<=0;
 end
 
 always@(posedge clk)

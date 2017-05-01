@@ -6,7 +6,7 @@ parameter DATA_WIDTH_12 = 12, // Max value 4095
 parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter NUM_STAGE_THRESHOLD = 3,
 parameter NUM_PARAM_PER_CLASSIFIER = 18,
-parameter NUM_STAGES_ALL_PHASE = 24
+parameter NUM_STAGES = 24
 )
 (
 	clk,
@@ -83,14 +83,14 @@ input reset;
 input en;
 
 output o_end;
-output [NUM_STAGES_ALL_PHASE-1:0]o_end_database;
-output [NUM_STAGES_ALL_PHASE-1:0]o_end_tree;
-output [NUM_STAGES_ALL_PHASE-1:0]o_end_single_classifier;
-output [NUM_STAGES_ALL_PHASE-1:0]o_end_all_classifier;
-output [DATA_WIDTH_12-1:0] o_index_tree[NUM_STAGES_ALL_PHASE-1:0];
-output [DATA_WIDTH_12-1:0] o_index_classifier[NUM_STAGES_ALL_PHASE-1:0];
-output [DATA_WIDTH_12-1:0] o_index_database[NUM_STAGES_ALL_PHASE-1:0];
-output [DATA_WIDTH_12-1:0] o_data[NUM_STAGES_ALL_PHASE-1:0];
+output [NUM_STAGES-1:0]o_end_database;
+output [NUM_STAGES-1:0]o_end_tree;
+output [NUM_STAGES-1:0]o_end_single_classifier;
+output [NUM_STAGES-1:0]o_end_all_classifier;
+output [DATA_WIDTH_12-1:0] o_index_tree[NUM_STAGES-1:0];
+output [DATA_WIDTH_12-1:0] o_index_classifier[NUM_STAGES-1:0];
+output [DATA_WIDTH_12-1:0] o_index_database[NUM_STAGES-1:0];
+output [DATA_WIDTH_12-1:0] o_data[NUM_STAGES-1:0];
 /*-----------------------------------------------------------------------*/
 
   

@@ -41,10 +41,10 @@ input [DATA_WIDTH_12-1:0] data;
 input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
 
+wire copy;
 wire [DATA_WIDTH_12-1:0] w_index_stage_threshold;
 
 reg candidate;
-reg [DATA_WIDTH_12-1:0]r_index_tree;
 reg [DATA_WIDTH_12-1:0]sum_haar;
 reg [DATA_WIDTH_12-1:0]rect_A_1_index;
 reg [DATA_WIDTH_12-1:0]rect_B_1_index;
@@ -67,7 +67,7 @@ reg [DATA_WIDTH_12-1:0]right_word;
 reg [DATA_WIDTH_12-1:0]r_stage_threshold;
 reg [DATA_WIDTH_12-1:0]r_parent;
 reg [DATA_WIDTH_12-1:0]r_next;
-reg [DATA_WIDTH_12-1:0] haar[NUM_CLASSIFIERS-1:0];
+reg [DATA_WIDTH_12-1:0] haar;
 
 
 reg [DATA_WIDTH_12-1:0] rect_A_1;
@@ -102,6 +102,7 @@ reg [DATA_WIDTH_12-1:0] value;
 
 integer k_haar;
 
+assign copy = en_copy && !end_all_classifier;
 assign o_candidate = candidate;
 
 always@(posedge clk)
@@ -121,7 +122,6 @@ always@(clk)
 begin
 	if(reset)
 	begin
-		r_index_tree<=0;
 		candidate<=0;
 		sum_haar<=0;
 		rect_A_1_index<=0;
@@ -168,14 +168,11 @@ begin
 		rect_3<=0;
 		rect_1_3<=0;
 		value<=0;
-		for(k_haar = 0; k_haar<NUM_CLASSIFIERS; k_haar= k_haar+1)
-		begin
-			haar[k_haar]<= 0;
-		end
+		haar<= 0;
 	end
 	else
 	begin
-		if(en_copy)
+		if(copy)
 		begin
 			case(index_classifier)
 				0:	rect_A_1_index <= data;
@@ -232,22 +229,10 @@ begin
 
 	//value
 	value = (rect_1 + rect_3) - rect_2;
-	haar[r_index_tree] =(value > threshold)? right_word:left_word;	
-	r_index_tree = r_index_tree +1;
+	haar =(value > threshold)? right_word:left_word;	
+	sum_haar = sum_haar + haar;
 end
 
-
-integer k;
-always@(posedge clk)
-begin
-	if(calculate)
-		begin
-		for(k =0; k< NUM_CLASSIFIERS; k++)
-		begin
-			sum_haar = sum_haar + haar[index_tree];  
-		end
-	end
-end
 
 always@(posedge end_database)
 begin

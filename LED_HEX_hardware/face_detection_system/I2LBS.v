@@ -6,7 +6,7 @@ parameter DATA_WIDTH_16 = 16,
 parameter INTEGRAL_WIDTH = 3,
 parameter INTEGRAL_HEIGHT = 3,
 parameter NUM_STAGE_THRESHOLD = 1,
-parameter NUM_STAGES_ALL_PHASE = 24,
+parameter NUM_STAGES = 24,
 parameter NUM_PARAM_PER_CLASSIFIER = 18,
 parameter FRAME_ORIGINAL_CAMERA_WIDTH = 10,
 parameter FRAME_ORIGINAL_CAMERA_HEIGHT = 10,
@@ -46,14 +46,14 @@ input i_pixel_recieve;
 input [DATA_WIDTH_12-1:0] pixel;
 input [DATA_WIDTH_12-1:0] ori_x;
 input [DATA_WIDTH_12-1:0] ori_y;
-input [NUM_STAGES_ALL_PHASE-1:0] end_database;
-input [NUM_STAGES_ALL_PHASE-1:0] end_tree;
-input [NUM_STAGES_ALL_PHASE-1:0] end_single_classifier;
-input [NUM_STAGES_ALL_PHASE-1:0] end_all_classifier;
-input [DATA_WIDTH_12-1:0] index_tree[NUM_STAGES_ALL_PHASE-1:0];
-input [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES_ALL_PHASE-1:0];
-input [DATA_WIDTH_12-1:0] index_database[NUM_STAGES_ALL_PHASE-1:0];
-input [DATA_WIDTH_12-1:0] data[NUM_STAGES_ALL_PHASE-1:0]; 
+input [NUM_STAGES-1:0] end_database;
+input [NUM_STAGES-1:0] end_tree;
+input [NUM_STAGES-1:0] end_single_classifier;
+input [NUM_STAGES-1:0] end_all_classifier;
+input [DATA_WIDTH_12-1:0] index_tree[NUM_STAGES-1:0];
+input [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES-1:0];
+input [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
+input [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
 output o_candidate;
 output o_pixel_request;
 output o_database_request;
@@ -74,8 +74,8 @@ reg pixel_recieve;
 reg state_idle;
 reg state_inspect;
 reg state_request_recieve;
-reg[NUM_STAGES_ALL_PHASE-1:0] state;
-reg[NUM_STAGES_ALL_PHASE-1:0] next_state;
+reg[NUM_STAGES-1:0] state;
+reg[NUM_STAGES-1:0] next_state;
 
 localparam IDLE = 0;
 localparam REQUEST_RECIEVE = 1;
@@ -218,7 +218,7 @@ I2LBS_classifier
 .DATA_WIDTH_8(DATA_WIDTH_8),
 .DATA_WIDTH_12(DATA_WIDTH_12),
 .DATA_WIDTH_16(DATA_WIDTH_16),
-.NUM_STAGE(NUM_STAGES_ALL_PHASE),
+.NUM_STAGE(NUM_STAGES),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
 )
@@ -232,6 +232,7 @@ I2LBS_classifier
 .end_database(end_database),
 .end_tree(end_tree),
 .end_single_classifier(end_single_classifier),
+.end_all_classifier(end_all_classifier),
 .index_tree(index_tree),
 .index_classifier(index_classifier),
 .index_database(index_database),
