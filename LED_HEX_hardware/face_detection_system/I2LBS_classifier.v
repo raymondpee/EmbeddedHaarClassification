@@ -42,10 +42,32 @@ output o_inspect_done;
 output [NUM_STAGE-1:0] o_candidate;
 
 wire [NUM_STAGE-1:0] candidate;
-reg  r_inspect_done;
+reg  inspect_done;
 reg  [DATA_WIDTH_12-1:0] count_stage;
 
+assign o_inspect_done = inspect_done;
 assign o_candidate = candidate;
+
+always@(posedge clk)
+begin
+	if(reset)
+	begin
+		count_stage<=0;
+		inspect_done<=0;
+	end
+end
+
+
+always@(end_database[count_stage])
+begin
+	if(!candidate[count_stage])
+		inspect_done =1;
+	else 
+	begin
+		inspect_done =0;
+		count_stage = count_stage+1;
+	end
+end
 
 generate
 genvar index;
