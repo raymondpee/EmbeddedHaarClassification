@@ -9,9 +9,9 @@ parameter NUM_PARAM_PER_CLASSIFIER = 18,
 parameter NUM_STAGES_ALL_PHASE = 24
 )
 (
-	clk_fpga,
-	reset_fpga,
-	i_rden,
+	clk,
+	reset,
+	en,
 	o_index_tree,
 	o_index_classifier,
 	o_index_database,
@@ -50,9 +50,9 @@ localparam FILE_STAGE23 = "ram22.mif";
 localparam FILE_STAGE24 = "ram23.mif";
 localparam FILE_STAGE25 = "ram24.mif";
 
-localparam NUM_CLASSIFIERS_STAGE1 = 32;
-localparam NUM_CLASSIFIERS_STAGE2 = 52;
-localparam NUM_CLASSIFIERS_STAGE3 = 53;
+localparam NUM_CLASSIFIERS_STAGE1 = 9;
+localparam NUM_CLASSIFIERS_STAGE2 = 16;
+localparam NUM_CLASSIFIERS_STAGE3 = 27;
 localparam NUM_CLASSIFIERS_STAGE4 = 32;
 localparam NUM_CLASSIFIERS_STAGE5 = 52;
 localparam NUM_CLASSIFIERS_STAGE6 = 53;
@@ -61,26 +61,26 @@ localparam NUM_CLASSIFIERS_STAGE8 = 72;
 localparam NUM_CLASSIFIERS_STAGE9 = 83;
 localparam NUM_CLASSIFIERS_STAGE10 = 91;
 localparam NUM_CLASSIFIERS_STAGE11 = 99;
-localparam NUM_CLASSIFIERS_STAGE12 = 91;
-localparam NUM_CLASSIFIERS_STAGE13 = 99;
-localparam NUM_CLASSIFIERS_STAGE14 = 91;
-localparam NUM_CLASSIFIERS_STAGE15 = 99;
-localparam NUM_CLASSIFIERS_STAGE16 = 91;
-localparam NUM_CLASSIFIERS_STAGE17 = 99;
-localparam NUM_CLASSIFIERS_STAGE18 = 91;
-localparam NUM_CLASSIFIERS_STAGE19 = 99;
-localparam NUM_CLASSIFIERS_STAGE20 = 91;
-localparam NUM_CLASSIFIERS_STAGE21 = 99;
-localparam NUM_CLASSIFIERS_STAGE22 = 99;
-localparam NUM_CLASSIFIERS_STAGE23 = 99;
-localparam NUM_CLASSIFIERS_STAGE24 = 99;
-localparam NUM_CLASSIFIERS_STAGE25 = 99;
+localparam NUM_CLASSIFIERS_STAGE12 = 115;
+localparam NUM_CLASSIFIERS_STAGE13 = 127;
+localparam NUM_CLASSIFIERS_STAGE14 = 135;
+localparam NUM_CLASSIFIERS_STAGE15 = 136;
+localparam NUM_CLASSIFIERS_STAGE16 = 137;
+localparam NUM_CLASSIFIERS_STAGE17 = 159;
+localparam NUM_CLASSIFIERS_STAGE18 = 155;
+localparam NUM_CLASSIFIERS_STAGE19 = 169;
+localparam NUM_CLASSIFIERS_STAGE20 = 196;
+localparam NUM_CLASSIFIERS_STAGE21 = 197;
+localparam NUM_CLASSIFIERS_STAGE22 = 181;
+localparam NUM_CLASSIFIERS_STAGE23 = 199;
+localparam NUM_CLASSIFIERS_STAGE24 = 211;
+localparam NUM_CLASSIFIERS_STAGE25 = 200;
 /*-------------------------------------------------------------------------*/
 
 /*--------------------IO port declaration---------------------------------*/
-input clk_fpga;
-input reset_fpga;
-input i_rden;
+input clk;
+input reset;
+input en;
 
 output o_end;
 output [NUM_STAGES_ALL_PHASE-1:0]o_end_database;
@@ -93,12 +93,8 @@ output [DATA_WIDTH_12-1:0] o_index_database[NUM_STAGES_ALL_PHASE-1:0];
 output [DATA_WIDTH_12-1:0] o_data[NUM_STAGES_ALL_PHASE-1:0];
 /*-----------------------------------------------------------------------*/
 
-reg r_rden;
-always@(posedge i_rden) r_rden<=1;	
-always@(posedge clk_fpga)
-begin
-	if(r_rden) r_rden<=0;
-end
+wire reset_database;
+assign reset_database = !en || reset; 
   
 assign o_end = o_end_database[0] && o_end_database[1] && o_end_database[2] && o_end_database[3] && o_end_database[4]
 				&& o_end_database[5] && o_end_database[6] && o_end_database[7] && o_end_database[8] && o_end_database[9]
@@ -119,9 +115,9 @@ fifo_stage_database
 )
 stage_1
 (
-.clk_fpga(clk_fpga),
-.reset_fpga(reset_fpga),
-.rden(r_rden),
+.clk(clk),
+.reset(reset_database),
+.en(en),
 .o_index_tree(o_index_tree[0]),
 .o_index_classifier(o_index_classifier[0]),
 .o_index_database(o_index_database[0]),
@@ -145,9 +141,9 @@ fifo_stage_database
 )
 stage_2
 (
-.clk_fpga(clk_fpga),
-.reset_fpga(reset_fpga),
-.rden(r_rden),
+.clk(clk),
+.reset(reset_database),
+.en(en),
 .o_index_tree(o_index_tree[1]),
 .o_index_classifier(o_index_classifier[1]),
 .o_index_database(o_index_database[1]),
@@ -170,9 +166,9 @@ fifo_stage_database
 )
 stage_3
 (
-.clk_fpga(clk_fpga),
-.reset_fpga(reset_fpga),
-.rden(r_rden),
+.clk(clk),
+.reset(reset_database),
+.en(en),
 .o_index_tree(o_index_tree[2]),
 .o_index_classifier(o_index_classifier[2]),
 .o_index_database(o_index_database[2]),
@@ -196,9 +192,9 @@ fifo_stage_database
 )
 stage_4
 (
-.clk_fpga(clk_fpga),
-.reset_fpga(reset_fpga),
-.rden(r_rden),
+.clk(clk),
+.reset(reset_database),
+.en(en),
 .o_index_tree(o_index_tree[3]),
 .o_index_classifier(o_index_classifier[3]),
 .o_index_database(o_index_database[3]),
@@ -222,9 +218,9 @@ fifo_stage_database
 )
 stage_5
 (
-.clk_fpga(clk_fpga),
-.reset_fpga(reset_fpga),
-.rden(r_rden),
+.clk(clk),
+.reset(reset_database),
+.en(en),
 .o_index_tree(o_index_tree[4]),
 .o_index_classifier(o_index_classifier[4]),
 .o_index_database(o_index_database[4]),

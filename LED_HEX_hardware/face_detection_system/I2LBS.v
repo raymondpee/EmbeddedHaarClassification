@@ -192,6 +192,7 @@ I2LBS_classifier
 (
 .clk_fpga(clk_fpga),
 .reset_fpga(reset_fpga),
+.en(database_request),
 .integral_image(integral_image),
 .end_database(end_database),
 .end_tree(end_tree),

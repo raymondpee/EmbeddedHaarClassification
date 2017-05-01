@@ -5,11 +5,11 @@ parameter DATA_WIDTH_8 = 8,   // Max value 255
 parameter DATA_WIDTH_12 = 12, // Max value 4095
 parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter FILE_STAGE_MEM = "ram1.mif",
-parameter NUM_DATABASE_INDEX = 10
+parameter SIZE_STAGE = 10
 )
 (
-	clk_fpga,
-	reset_fpga,
+	clk,
+	reset,
 	ren_database_index,
 	ren_database,
 	o_end_count,
@@ -17,8 +17,8 @@ parameter NUM_DATABASE_INDEX = 10
 	o_data,
 	o_address
 );
-input clk_fpga;
-input reset_fpga;
+input clk;
+input reset;
 input ren_database_index;
 input ren_database;
 output o_end_count;
@@ -51,7 +51,7 @@ begin
 	end
 end
 
-always @(posedge reset_fpga)
+always @(posedge reset)
 begin
 	r_rom_data<=0;
 	r_address<=0;
@@ -65,11 +65,11 @@ counter
 )
 counter_database_index
 (
-.clk(clk_fpga),
-.reset(reset_fpga),
+.clk(clk),
+.reset(reset),
 .enable(ren_database_index),
 .ctr_out(r_address),
-.max_size(NUM_DATABASE_INDEX-1),
+.max_size(SIZE_STAGE-1),
 .end_count(w_end_count)
 );
 
@@ -81,7 +81,7 @@ rom
 )
 rom_database
 (
-.clock(clk_fpga),
+.clock(clk),
 .ren(ren_database),
 .address(r_address),
 .q(r_rom_data)

@@ -6,6 +6,8 @@ parameter DATA_WIDTH_16 = 16 // Max value 177777
 )
 (
 input clk,	
+input reset,
+input en,
 input [DATA_WIDTH_12-1:0] rect_A_1,
 input [DATA_WIDTH_12-1:0] rect_B_1,
 input [DATA_WIDTH_12-1:0] rect_C_1,
@@ -28,41 +30,65 @@ output [DATA_WIDTH_12-1:0] o_haarvalue
 );
 
 /*--- Rect for block 1 -----*/
-wire [DATA_WIDTH_12-1:0] rect_minus_A_1;
-wire [DATA_WIDTH_12-1:0] rect_minus_B_1;
-wire [DATA_WIDTH_12-1:0] rect_1;
+reg [DATA_WIDTH_12-1:0] rect_minus_A_1;
+reg [DATA_WIDTH_12-1:0] rect_minus_B_1;
+reg [DATA_WIDTH_12-1:0] rect_1;
 /*--- Rect for block 2 -----*/
-wire [DATA_WIDTH_12-1:0] rect_minus_A_2;
-wire [DATA_WIDTH_12-1:0] rect_minus_B_2;
-wire [DATA_WIDTH_12-1:0] rect_2;
+reg [DATA_WIDTH_12-1:0] rect_minus_A_2;
+reg [DATA_WIDTH_12-1:0] rect_minus_B_2;
+reg [DATA_WIDTH_12-1:0] rect_2;
 /*--- Rect for block 3 -----*/
-wire [DATA_WIDTH_12-1:0] rect_minus_A_3;
-wire [DATA_WIDTH_12-1:0] rect_minus_B_3;
-wire [DATA_WIDTH_12-1:0] rect_3;
+reg [DATA_WIDTH_12-1:0] rect_minus_A_3;
+reg [DATA_WIDTH_12-1:0] rect_minus_B_3;
+reg [DATA_WIDTH_12-1:0] rect_3;
 
-wire [DATA_WIDTH_12-1:0] rect_1_3;
-wire [DATA_WIDTH_12-1:0] value;
-wire [DATA_WIDTH_12-1:0] haarvalue;
+reg [DATA_WIDTH_12-1:0] rect_1_3;
+reg [DATA_WIDTH_12-1:0] value;
+reg [DATA_WIDTH_12-1:0] haarvalue;
 
-//rect 1
-assign rect_minus_A_1 = rect_A_1 - rect_B_1;
-assign rect_minus_B_1 = rect_C_1 - rect_D_1;
-assign rect_1 = weight_1*(rect_minus_A_1 + rect_minus_B_1);
-	
-//rect 2
-assign rect_minus_A_2 = rect_A_2 - rect_B_2;
-assign rect_minus_B_2 = rect_C_2 - rect_D_2;
-assign rect_2 = weight_2*(rect_minus_A_2 + rect_minus_B_2);
-	
-//rect 3
-assign rect_minus_A_3 = rect_A_3 - rect_B_3;
-assign rect_minus_B_3 = rect_C_3 - rect_D_3;
-assign rect_3 = weight_3*(rect_minus_A_3 + rect_minus_B_3);
 
-//value
-assign value = (rect_1 + rect_3) - rect_2;
-assign haarvalue =(value > threshold)? right_word:left_word;
+always@(posedge clk)
+begin
+	if(reset)
+	begin
+		rect_minus_A_1<=0;
+		rect_minus_B_1<=0;
+		rect_1<=0;
+		rect_minus_A_2<=0;
+		rect_minus_B_2<=0;
+		rect_2<=0;
+		rect_minus_A_3<=0;
+		rect_minus_B_3<=0;
+		rect_3<=0;
+		rect_1_3<=0;
+		value<=0;
+		haarvalue<=0;
+	end
+end
+
 assign o_haarvalue = haarvalue;
+always@(posedge en)
+begin
+	rect_minus_A_1 = rect_A_1 - rect_B_1;
+	rect_minus_B_1 = rect_C_1 - rect_D_1;
+	rect_1 = weight_1*(rect_minus_A_1 + rect_minus_B_1);
+		
+	//rect 2
+	rect_minus_A_2 = rect_A_2 - rect_B_2;
+	rect_minus_B_2 = rect_C_2 - rect_D_2;
+	rect_2 = weight_2*(rect_minus_A_2 + rect_minus_B_2);
+		
+	//rect 3
+	rect_minus_A_3 = rect_A_3 - rect_B_3;
+	rect_minus_B_3 = rect_C_3 - rect_D_3;
+	rect_3 = weight_3*(rect_minus_A_3 + rect_minus_B_3);
+
+	//value
+	value = (rect_1 + rect_3) - rect_2;
+	haarvalue =(value > threshold)? right_word:left_word;	
+end
+
+
 
 
 endmodule

@@ -10,6 +10,7 @@ parameter INTEGRAL_HEIGHT = 10
 (
 clk_fpga,
 reset_fpga,
+en,
 integral_image,
 end_database,
 end_tree,
@@ -24,6 +25,7 @@ o_candidate
 
 input clk_fpga;
 input reset_fpga;
+input en;
 input end_database;
 input end_tree;
 input end_single_classifier;
@@ -35,7 +37,8 @@ input [DATA_WIDTH_12-1:0] data;
 input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
 
-
+wire w_copy_data;
+wire w_calculate;
 wire w_index_stage_threshold;
 wire [DATA_WIDTH_12-1:0] w_haar;
 
@@ -58,15 +61,19 @@ reg [DATA_WIDTH_12-1:0]rect_B_3_index;
 reg [DATA_WIDTH_12-1:0]rect_C_3_index;
 reg [DATA_WIDTH_12-1:0]rect_D_3_index;
 reg [DATA_WIDTH_12-1:0]weight_3;
-reg [DATA_WIDTH_12-1:0]threshold_index;
-reg [DATA_WIDTH_12-1:0]left_word_index;
-reg [DATA_WIDTH_12-1:0]right_word_index;
+reg [DATA_WIDTH_12-1:0]threshold;
+reg [DATA_WIDTH_12-1:0]left_word;
+reg [DATA_WIDTH_12-1:0]right_word;
 reg [DATA_WIDTH_12-1:0]r_stage_threshold;
 reg [DATA_WIDTH_12-1:0]r_parent;
 reg [DATA_WIDTH_12-1:0]r_next;
 reg [DATA_WIDTH_12-1:0] haar[NUM_CLASSIFIERS-1:0];
 
 integer k_haar;
+
+assign o_candidate = candidate;
+assign w_copy_data = !(end_single_classifier || end_database)&& en;
+assign w_calculate = !w_copy_data;
 
 // Delay based on clock cycle
 always@(posedge clk_fpga)
@@ -87,7 +94,10 @@ begin
 	end
 end
 
-always@(w_haar)haar[index_tree]= w_haar;
+always@(posedge end_single_classifier)
+begin
+	haar[index_tree]= w_haar;
+end
 
 always@(clk_fpga)
 begin
@@ -111,9 +121,12 @@ begin
 		rect_C_3_index<=0;
 		rect_D_3_index<=0;
 		weight_3<=0;
-		threshold_index<=0;
-		left_word_index<=0;
-		right_word_index<=0;
+		threshold<=0;
+		left_word<=0;
+		right_word<=0;
+		r_stage_threshold <=0;
+		r_parent<=0;
+		r_next<=0;
 		for(k_haar = 0; k_haar<NUM_CLASSIFIERS; k_haar= k_haar+1)
 		begin
 			haar[k_haar]<= 0;
@@ -121,7 +134,7 @@ begin
 	end
 	else
 	begin
-		if(end_all_classifier == 0)
+		if(w_copy_data)
 		begin
 			case(index_classifier)
 				0:	rect_A_1_index <= data;
@@ -139,14 +152,10 @@ begin
 				12:	rect_C_3_index <= data;
 				13:	rect_D_3_index <= data;
 				14:	weight_3 <= data;
-				15:	threshold_index <= data;
-				16:	left_word_index <= data;
-				17:	right_word_index <= data;
+				15:	threshold <= data;
+				16:	left_word <= data;
+				17:	right_word <= data;
 			endcase
-		end
-		else
-		begin
-			
 		end
 	end
 end
@@ -154,13 +163,15 @@ end
 integer k;
 always@(posedge end_single_classifier)
 begin
-	for(k =0; k< NUM_CLASSIFIERS; k++)
-	begin
-		sum_haar = sum_haar + haar[index_tree];  
+	if(en)
+		begin
+		for(k =0; k< NUM_CLASSIFIERS; k++)
+		begin
+			sum_haar = sum_haar + haar[index_tree];  
+		end
 	end
 end
 
-assign o_candidate = candidate;
 always@(posedge end_database)
 begin
 	candidate = sum_haar>r_stage_threshold;
@@ -189,6 +200,8 @@ classifier
 classifier
 (
 .clk(clk_fpga),	
+.reset(reset_fpga),
+.en(w_calculate),
 .rect_A_1(integral_image[rect_A_1_index]),
 .rect_B_1(integral_image[rect_B_1_index]),
 .rect_C_1(integral_image[rect_C_1_index]),

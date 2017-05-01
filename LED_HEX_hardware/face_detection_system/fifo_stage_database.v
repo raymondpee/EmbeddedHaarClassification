@@ -10,9 +10,9 @@ parameter NUM_STAGE_THRESHOLD = 3,
 parameter FILE_STAGE_MEM = "memory.mif"
 )
 (
-clk_fpga,
-reset_fpga,
-rden,
+clk,
+reset,
+en,
 o_index_tree,
 o_index_classifier,
 o_index_database,
@@ -23,11 +23,11 @@ o_end_tree,
 o_data	
 );
 localparam DEFAULT_VALUE = 1010;
-localparam NUM_DATABASE_INDEX = NUM_CLASSIFIERS_STAGE*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
+localparam SIZE_STAGE = NUM_CLASSIFIERS_STAGE*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
 /*-----------------IO Port declaration -----------------*/
-input clk_fpga;
-input reset_fpga;
-input rden;
+input clk;
+input reset;
+input en;
 
 output o_end_database;
 output o_end_tree;
@@ -78,7 +78,7 @@ assign o_index_database = w_index_fifoout_database;
 assign o_end_tree = w_end_tree;
 assign o_end_single_classifier = w_end_single_classifier;
 assign o_end_database = r_end_database;
-assign w_end_all_classifiers = ((w_index_fifoout_database + NUM_STAGE_THRESHOLD) == NUM_DATABASE_INDEX);
+assign w_end_all_classifiers = ((w_index_fifoout_database + NUM_STAGE_THRESHOLD) == SIZE_STAGE);
 assign o_end_all_classifier = w_end_all_classifiers;
 
 always@(posedge w_end_fifoout_database) r_end_database<=1;
@@ -87,7 +87,7 @@ always@(posedge r_end_classifier) r_count_stage_threshold<=1;
 always@(posedge w_end_stage_threshold) r_count_stage_threshold<=0;
 
 
-always@(posedge clk_fpga)
+always@(posedge clk)
 begin
 	if(r_end_classifier)
 	begin
@@ -102,7 +102,7 @@ begin
 	end
 end
 
-always@(posedge reset_fpga)
+always@(posedge reset)
 begin
 	r_stage_threshold<=0;
 	r_parent<=0;
@@ -120,7 +120,7 @@ begin
 	r_end_classifier<=0;
 end
 
-always@(posedge clk_fpga)
+always@(posedge clk)
 begin
 	if(reset_logic) reset_logic<=0;
 	if(reset_counter_tree)reset_counter_tree<=0;
@@ -132,7 +132,7 @@ begin
 end
 
 
-always@(posedge clk_fpga)
+always@(posedge clk)
 begin
 	if(reset_logic)
 	begin	
@@ -152,7 +152,7 @@ begin
 	end
 end
 
-always@(posedge rden)
+always@(posedge en)
 begin
 	r_count_database <=1;
 	r_rden_database<=1;
@@ -194,7 +194,7 @@ counter
 )
 counter_stage_threshold
 (
-.clk(clk_fpga),
+.clk(clk),
 .reset(reset_counter_stage_threshold),
 .enable(r_count_stage_threshold),
 .ctr_out(w_index_stage_threshold),
@@ -208,7 +208,7 @@ counter
 )
 counter_tree
 (
-.clk(clk_fpga),
+.clk(clk),
 .reset(reset_counter_tree),
 .enable(r_count_tree),
 .ctr_out(w_index_tree),
@@ -222,7 +222,7 @@ counter
 )
 counter_classifier
 (
-.clk(clk_fpga),
+.clk(clk),
 .reset(reset_counter_classifier),
 .enable(r_count_classifier),
 .ctr_out(w_index_classifier),
@@ -237,11 +237,11 @@ counter
 )
 counter_fifoout_database
 (
-.clk(clk_fpga),
+.clk(clk),
 .reset(reset_counter_fifoout_database),
 .enable(r_count_fifoout_database),
 .ctr_out(w_index_fifoout_database),
-.max_size(NUM_DATABASE_INDEX-1),
+.max_size(SIZE_STAGE-1),
 .end_count(w_end_fifoout_database)
 );
 
@@ -253,12 +253,12 @@ stage_database
 .DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
 .DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
 .FILE_STAGE_MEM(FILE_STAGE_MEM),
-.NUM_DATABASE_INDEX(NUM_DATABASE_INDEX)
+.SIZE_STAGE(SIZE_STAGE)
 )
 stage_database
 (
-.clk_fpga(clk_fpga),
-.reset_fpga(reset_stage_database),
+.clk(clk),
+.reset(reset_stage_database),
 .ren_database_index(r_count_database),
 .ren_database(r_rden_database),
 .o_end_count(w_end_fifoin_database),

@@ -10,11 +10,11 @@ pixel
 /*--------------------------------------------------------------------*/
 /*---------------------------USER DEFINE-----------------------------*/
 /*--------------------------------------------------------------------*/
-localparam FRAME_ORIGINAL_CAMERA_WIDTH = 800;
-localparam FRAME_ORIGINAL_CAMERA_HEIGHT= 600;
+localparam FRAME_ORIGINAL_CAMERA_WIDTH = 100;
+localparam FRAME_ORIGINAL_CAMERA_HEIGHT= 24;
 localparam FRAME_RESIZE_CAMERA_WIDTH = FRAME_ORIGINAL_CAMERA_WIDTH/2;
 localparam FRAME_RESIZE_CAMERA_HEIGHT = FRAME_ORIGINAL_CAMERA_HEIGHT/2;
-localparam NUM_STAGES_ALL_PHASE = 25;
+localparam NUM_STAGES_ALL_PHASE = 5;
 localparam INTEGRAL_LENGTH = 24;
 
 /*--------------------------------------------------------------------*/
@@ -137,9 +137,9 @@ haar_database
 )
 haar_database
 (
-.clk_fpga(clk_fpga),
-.reset_fpga(reset_fpga),
-.i_rden(database_request),
+.clk(clk_fpga),
+.reset(reset_fpga),
+.en(database_request),
 .o_index_tree(index_tree),
 .o_index_classifier(index_classifier),
 .o_index_database(index_database),
