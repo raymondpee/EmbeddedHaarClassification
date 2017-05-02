@@ -58,14 +58,17 @@ begin
 end
 
 
-always@(end_database[count_stage])
+always@(posedge clk)
 begin
-	if(!candidate[count_stage])
-		inspect_done =1;
-	else 
+	if(end_database[count_stage])
 	begin
-		inspect_done =0;
-		count_stage = count_stage+1;
+		if(!candidate[count_stage])
+			inspect_done <=1;
+		else 
+		begin
+			inspect_done <=0;
+			count_stage <= count_stage+1;
+		end
 	end
 end
 

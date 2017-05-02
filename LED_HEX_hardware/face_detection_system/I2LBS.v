@@ -61,6 +61,7 @@ output [DATA_WIDTH_12-1:0] o_resize_x;
 output [DATA_WIDTH_12-1:0] o_resize_y;
 /*-----------------------------------------------------------------------*/
 
+wire w_reset_classifier;
 wire reach;
 wire integral_image_ready;
 wire inspect_done;
@@ -68,9 +69,11 @@ wire [DATA_WIDTH_12-1:0] resize_x;
 wire [DATA_WIDTH_12-1:0] resize_y;
 wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
 
-reg en_copy;
+
 reg calculate;
+reg en_copy;
 reg pixel_recieve;
+reg reset_classifier;
 reg state_idle;
 reg state_inspect;
 reg state_request_recieve;
@@ -85,7 +88,7 @@ assign o_resize_x = resize_x;
 assign o_resize_y = resize_y;
 assign o_pixel_request = state_request_recieve;
 assign o_database_request = state_inspect && en_copy;
-
+assign w_reset_classifier = reset_classifier || reset_fpga;
 
 always@(posedge clk_fpga) 
 begin
@@ -97,7 +100,12 @@ always@(posedge clk_fpga)
 begin
 	if(reset_fpga)
 	begin
+		calculate <=0;
+		en_copy <=0;
+		pixel_recieve<=0;
+		reset_classifier<=0;
 		state<= IDLE;
+		next_state<=IDLE;
 		state_idle <=1;
 		state_inspect<=0;
 		state_request_recieve<=0;
@@ -144,6 +152,7 @@ begin
 				state_inspect =0;
 				state_request_recieve =0;
 			end
+			reset_classifier = 0;
 		end
 		INSPECT: 
 		begin
@@ -153,6 +162,7 @@ begin
 				state_idle =0;
 				state_inspect =0;
 				state_request_recieve =1;
+				reset_classifier = 1;
 			end
 			else
 			begin
@@ -160,6 +170,7 @@ begin
 				state_idle =0;
 				state_inspect =1;
 				state_request_recieve =0;
+				reset_classifier = 0;
 			end
 		end
 		REQUEST_RECIEVE: 
@@ -179,6 +190,7 @@ begin
 				state_inspect =0;
 				state_request_recieve =1;
 			end
+			reset_classifier = 0;
 		end
 		default:
 		begin
@@ -186,6 +198,7 @@ begin
 			state_idle =1;
 			state_inspect =0;
 			state_request_recieve =0;
+			reset_classifier = 0;
 		end
 	endcase
 
@@ -225,7 +238,7 @@ I2LBS_classifier
 I2LBS_classifier
 (
 .clk(clk_fpga),
-.reset(reset_fpga),
+.reset(w_reset_classifier),
 .en_copy(en_copy),
 .calculate(calculate),
 .integral_image(integral_image),
