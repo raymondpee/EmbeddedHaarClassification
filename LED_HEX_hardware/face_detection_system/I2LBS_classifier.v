@@ -10,8 +10,7 @@ parameter INTEGRAL_HEIGHT = 10
 (
 clk,
 reset,
-en_copy,
-calculate,
+enable,
 integral_image,
 end_database,
 end_tree,
@@ -27,8 +26,7 @@ o_inspect_done
 
 input  clk;
 input  reset;
-input  en_copy;
-input  calculate;
+input  enable;
 input  [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 input  [NUM_STAGE-1:0]end_database;
 input  [NUM_STAGE-1:0]end_tree;
@@ -42,6 +40,7 @@ output o_inspect_done;
 output [NUM_STAGE-1:0] o_candidate;
 
 wire [NUM_STAGE-1:0] candidate;
+reg  reset_classifier;
 reg  inspect_done;
 reg  [DATA_WIDTH_12-1:0] count_stage;
 
@@ -54,8 +53,19 @@ begin
 	begin
 		count_stage<=0;
 		inspect_done<=0;
+		reset_classifier<=1;
 	end
+	if(reset_classifier)
+	begin
+		count_stage<=0;
+		inspect_done<=0;
+		reset_classifier<=0;
+	end
+	if(inspect_done)
+		inspect_done<=0;
 end
+
+
 
 
 always@(posedge clk)
@@ -63,10 +73,12 @@ begin
 	if(end_database[count_stage])
 	begin
 		if(!candidate[count_stage])
+		begin
 			inspect_done <=1;
+			reset_classifier<=1;
+		end
 		else 
 		begin
-			inspect_done <=0;
 			count_stage <= count_stage+1;
 		end
 	end
@@ -87,9 +99,8 @@ begin
 	fifo_stage_classifier
 	(
 	.clk(clk),
-	.reset(reset),
-	.en_copy(en_copy),
-	.calculate(calculate),
+	.reset(reset_classifier),
+	.enable(enable),
 	.integral_image(integral_image),
 	.end_database(end_database[index]),
 	.end_tree(end_tree[index]),

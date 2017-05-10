@@ -21,7 +21,7 @@ reset_fpga,
 pixel,
 ori_x,
 ori_y,
-i_pixel_recieve,
+pixel_recieve,
 index_tree,
 index_classifier,
 index_database,
@@ -34,6 +34,7 @@ o_pixel_request,
 o_database_request,
 o_resize_x,
 o_resize_y,
+o_inspect_done,
 o_candidate
 );
 
@@ -42,7 +43,7 @@ input clk_os;
 input clk_fpga;
 input reset_os;
 input reset_fpga;
-input i_pixel_recieve;
+input pixel_recieve;
 input [DATA_WIDTH_12-1:0] pixel;
 input [DATA_WIDTH_12-1:0] ori_x;
 input [DATA_WIDTH_12-1:0] ori_y;
@@ -57,11 +58,11 @@ input [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0];
 output o_candidate;
 output o_pixel_request;
 output o_database_request;
+output o_inspect_done;
 output [DATA_WIDTH_12-1:0] o_resize_x;
 output [DATA_WIDTH_12-1:0] o_resize_y;
 /*-----------------------------------------------------------------------*/
 
-wire w_reset_classifier;
 wire reach;
 wire integral_image_ready;
 wire inspect_done;
@@ -70,13 +71,7 @@ wire [DATA_WIDTH_12-1:0] resize_y;
 wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
 
 
-reg calculate;
-reg en_copy;
-reg pixel_recieve;
-reg reset_classifier;
-reg state_idle;
-reg state_inspect;
-reg state_request_recieve;
+reg enable;
 reg[NUM_STAGES-1:0] state;
 reg[NUM_STAGES-1:0] next_state;
 
@@ -86,119 +81,64 @@ localparam INSPECT = 2;
 
 assign o_resize_x = resize_x;
 assign o_resize_y = resize_y;
-assign o_pixel_request = state_request_recieve;
-assign o_database_request = state_inspect && en_copy;
-assign w_reset_classifier = reset_classifier || reset_fpga;
-
-always@(posedge clk_fpga) 
-begin
-if(i_pixel_recieve)
-	pixel_recieve = 1;
-end
+assign o_pixel_request = next_state == REQUEST_RECIEVE ||!integral_image_ready || (next_state ==IDLE) && !reach;
+assign o_database_request = next_state == INSPECT;
+assign o_inspect_done = inspect_done;
 
 always@(posedge clk_fpga)
 begin
 	if(reset_fpga)
 	begin
-		calculate <=0;
-		en_copy <=0;
-		pixel_recieve<=0;
-		reset_classifier<=0;
+		enable <=0;
 		state<= IDLE;
 		next_state<=IDLE;
-		state_idle <=1;
-		state_inspect<=0;
-		state_request_recieve<=0;
 	end
 	else
 		state<= next_state;
 end
 
-
-always@(posedge clk_fpga)
+always@(*)
 begin
-	if(state_inspect)
-	begin
-		if(end_single_classifier)
-		begin
-			en_copy<=0;
-			calculate<=1;
-		end
-		else
-		begin
-			en_copy<=1;
-			calculate<=0;
-		end
-	end
-
-end
-
-always@(reach,integral_image_ready,inspect_done,pixel_recieve)
-begin
+	next_state = state;
 	case(state)
 		IDLE: 
 		begin
 			if(reach && integral_image_ready)
 			begin
 				next_state = INSPECT;
-				state_idle =0;
-				state_inspect =1;
-				state_request_recieve =0;
 			end
 			else
 			begin
 				next_state = IDLE;
-				state_idle =1;
-				state_inspect =0;
-				state_request_recieve =0;
 			end
-			reset_classifier = 0;
 		end
 		INSPECT: 
 		begin
 			if(inspect_done)
 			begin
 				next_state = REQUEST_RECIEVE;
-				state_idle =0;
-				state_inspect =0;
-				state_request_recieve =1;
-				reset_classifier = 1;
+				enable = 0;
 			end
 			else
 			begin
 				next_state = INSPECT;
-				state_idle =0;
-				state_inspect =1;
-				state_request_recieve =0;
-				reset_classifier = 0;
+				enable =1;
 			end
 		end
 		REQUEST_RECIEVE: 
 		begin
 			if(pixel_recieve)
 			begin
-				next_state = IDLE;
-				state_idle =1;
-				state_inspect =0;
-				state_request_recieve =0;
-				pixel_recieve = 0;
+				next_state = INSPECT;
 			end
 			else
 			begin
 				next_state = REQUEST_RECIEVE;
-				state_idle =0;
-				state_inspect =0;
-				state_request_recieve =1;
 			end
-			reset_classifier = 0;
 		end
 		default:
 		begin
 			next_state = IDLE;
-			state_idle =1;
-			state_inspect =0;
-			state_request_recieve =0;
-			reset_classifier = 0;
 		end
 	endcase
 
@@ -238,9 +178,8 @@ I2LBS_classifier
 I2LBS_classifier
 (
 .clk(clk_fpga),
-.reset(w_reset_classifier),
-.en_copy(en_copy),
-.calculate(calculate),
+.reset(reset_fpga),
+.enable(enable),
 .integral_image(integral_image),
 .end_database(end_database),
 .end_tree(end_tree),

@@ -40,6 +40,9 @@ input [DATA_WIDTH_12 -1:0] pixel;
 
 wire all_database_end;
 wire candidate;
+
+wire reset_database;
+wire inspect_done;
 wire pixel_request;
 wire database_request;
 wire [DATA_WIDTH_12 -1:0] resize_x;
@@ -53,16 +56,25 @@ wire [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
 
-reg pixel_recieve;
+reg r_pixel_request;
+reg r_pixel_recieve;
 reg [DATA_WIDTH_12 -1:0]ori_x;
 reg [DATA_WIDTH_12 -1:0]ori_y;
 
+
+assign reset_database = inspect_done || reset_fpga;
+
+always@(posedge pixel_request)
+begin
+	r_pixel_request<=1;
+end
 
 always@(posedge reset_fpga)
 begin
 	ori_x <= 0;
 	ori_y <= 0;	
-	pixel_recieve <=0;
+	r_pixel_recieve <=0;
+	r_pixel_request<=0;
 end
 
 /*------------------------ COORDINATE ITERATION -------------------------*/
@@ -78,8 +90,11 @@ begin
 		end
 		else
 			ori_x <= ori_x + 1;
-		pixel_recieve <=1;
+		r_pixel_recieve <=1;
+		r_pixel_request<=0;
 	end
+	if(r_pixel_recieve)
+		r_pixel_recieve <=0;
 end
 /*-----------------------------------------------------------------------*/
 
@@ -106,7 +121,7 @@ I2LBS
 .reset_os(reset_os),
 .reset_fpga(reset_fpga),
 .pixel(pixel),
-.i_pixel_recieve(pixel_recieve),
+.pixel_recieve(r_pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -121,7 +136,8 @@ I2LBS
 .o_resize_y(resize_y),
 .o_candidate(candidate),
 .o_pixel_request(pixel_request),
-.o_database_request(database_request)
+.o_database_request(database_request),
+.o_inspect_done(inspect_done)
 );
 
 
@@ -138,7 +154,7 @@ haar_database
 haar_database
 (
 .clk(clk_fpga),
-.reset(reset_fpga),
+.reset(reset_database),
 .en(database_request),
 .o_index_tree(index_tree),
 .o_index_classifier(index_classifier),

@@ -10,8 +10,7 @@ parameter INTEGRAL_HEIGHT = 10
 (
 clk,
 reset,
-en_copy,
-calculate,
+enable,
 integral_image,
 end_database,
 end_tree,
@@ -28,8 +27,7 @@ localparam DEFAULT_VALUE = 1010;
 
 input clk;
 input reset;
-input en_copy;
-input calculate;
+input enable;
 input end_database;
 input end_tree;
 input end_single_classifier;
@@ -42,6 +40,7 @@ input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
 
 wire copy;
+wire calculate;
 wire [DATA_WIDTH_12-1:0] w_index_stage_threshold;
 
 reg candidate;
@@ -102,7 +101,8 @@ reg [DATA_WIDTH_12-1:0] value;
 
 integer k_haar;
 
-assign copy = en_copy && !end_all_classifier;
+assign copy = enable && !end_all_classifier;
+assign calculate = enable && end_all_classifier;
 assign o_candidate = candidate;
 
 always@(posedge clk)
@@ -118,9 +118,9 @@ begin
 end
 
 
-always@(clk)
+always@(posedge clk)
 begin
-	if(reset)
+	if(reset ||!enable)
 	begin
 		candidate<=0;
 		sum_haar<=0;
