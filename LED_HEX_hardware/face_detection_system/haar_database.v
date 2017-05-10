@@ -229,4 +229,524 @@ stage_5
 .o_data(o_data[4])
 );
 
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE6)
+)
+stage_6
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[5]),
+.o_index_classifier(o_index_classifier[5]),
+.o_index_database(o_index_database[5]),
+.o_end_single_classifier(o_end_single_classifier[5]),
+.o_end_all_classifier(o_end_all_classifier[5]),
+.o_end_tree(o_end_tree[5]),
+.o_end_database(o_end_database[5]),
+.o_data(o_data[5])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE7)
+)
+stage_7
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[6]),
+.o_index_classifier(o_index_classifier[6]),
+.o_index_database(o_index_database[6]),
+.o_end_single_classifier(o_end_single_classifier[6]),
+.o_end_all_classifier(o_end_all_classifier[6]),
+.o_end_tree(o_end_tree[6]),
+.o_end_database(o_end_database[6]),
+.o_data(o_data[6])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE8)
+)
+stage_8
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[7]),
+.o_index_classifier(o_index_classifier[7]),
+.o_index_database(o_index_database[7]),
+.o_end_single_classifier(o_end_single_classifier[7]),
+.o_end_all_classifier(o_end_all_classifier[7]),
+.o_end_tree(o_end_tree[7]),
+.o_end_database(o_end_database[7]),
+.o_data(o_data[7])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE9)
+)
+stage_9
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[8]),
+.o_index_classifier(o_index_classifier[8]),
+.o_index_database(o_index_database[8]),
+.o_end_single_classifier(o_end_single_classifier[8]),
+.o_end_all_classifier(o_end_all_classifier[8]),
+.o_end_tree(o_end_tree[8]),
+.o_end_database(o_end_database[8]),
+.o_data(o_data[8])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE10)
+)
+stage_10
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[9]),
+.o_index_classifier(o_index_classifier[9]),
+.o_index_database(o_index_database[9]),
+.o_end_single_classifier(o_end_single_classifier[9]),
+.o_end_all_classifier(o_end_all_classifier[9]),
+.o_end_tree(o_end_tree[9]),
+.o_end_database(o_end_database[9]),
+.o_data(o_data[9])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE11)
+)
+stage_11
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[10]),
+.o_index_classifier(o_index_classifier[10]),
+.o_index_database(o_index_database[10]),
+.o_end_single_classifier(o_end_single_classifier[10]),
+.o_end_all_classifier(o_end_all_classifier[10]),
+.o_end_tree(o_end_tree[10]),
+.o_end_database(o_end_database[10]),
+.o_data(o_data[10])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE12)
+)
+stage_12
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[11]),
+.o_index_classifier(o_index_classifier[11]),
+.o_index_database(o_index_database[11]),
+.o_end_single_classifier(o_end_single_classifier[11]),
+.o_end_all_classifier(o_end_all_classifier[11]),
+.o_end_tree(o_end_tree[11]),
+.o_end_database(o_end_database[11]),
+.o_data(o_data[11])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE13)
+)
+stage_13
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[12]),
+.o_index_classifier(o_index_classifier[12]),
+.o_index_database(o_index_database[12]),
+.o_end_single_classifier(o_end_single_classifier[12]),
+.o_end_all_classifier(o_end_all_classifier[12]),
+.o_end_tree(o_end_tree[12]),
+.o_end_database(o_end_database[12]),
+.o_data(o_data[12])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE14)
+)
+stage_14
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[13]),
+.o_index_classifier(o_index_classifier[13]),
+.o_index_database(o_index_database[13]),
+.o_end_single_classifier(o_end_single_classifier[13]),
+.o_end_all_classifier(o_end_all_classifier[13]),
+.o_end_tree(o_end_tree[13]),
+.o_end_database(o_end_database[13]),
+.o_data(o_data[13])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE15)
+)
+stage_15
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[14]),
+.o_index_classifier(o_index_classifier[14]),
+.o_index_database(o_index_database[14]),
+.o_end_single_classifier(o_end_single_classifier[14]),
+.o_end_all_classifier(o_end_all_classifier[14]),
+.o_end_tree(o_end_tree[14]),
+.o_end_database(o_end_database[14]),
+.o_data(o_data[14])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE16)
+)
+stage_16
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[15]),
+.o_index_classifier(o_index_classifier[15]),
+.o_index_database(o_index_database[15]),
+.o_end_single_classifier(o_end_single_classifier[15]),
+.o_end_all_classifier(o_end_all_classifier[15]),
+.o_end_tree(o_end_tree[15]),
+.o_end_database(o_end_database[15]),
+.o_data(o_data[15])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE17)
+)
+stage_17
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[16]),
+.o_index_classifier(o_index_classifier[16]),
+.o_index_database(o_index_database[16]),
+.o_end_single_classifier(o_end_single_classifier[16]),
+.o_end_all_classifier(o_end_all_classifier[16]),
+.o_end_tree(o_end_tree[16]),
+.o_end_database(o_end_database[16]),
+.o_data(o_data[16])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE18)
+)
+stage_18
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[17]),
+.o_index_classifier(o_index_classifier[17]),
+.o_index_database(o_index_database[17]),
+.o_end_single_classifier(o_end_single_classifier[17]),
+.o_end_all_classifier(o_end_all_classifier[17]),
+.o_end_tree(o_end_tree[17]),
+.o_end_database(o_end_database[17]),
+.o_data(o_data[17])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE19)
+)
+stage_19
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[18]),
+.o_index_classifier(o_index_classifier[18]),
+.o_index_database(o_index_database[18]),
+.o_end_single_classifier(o_end_single_classifier[18]),
+.o_end_all_classifier(o_end_all_classifier[18]),
+.o_end_tree(o_end_tree[18]),
+.o_end_database(o_end_database[18]),
+.o_data(o_data[18])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE20)
+)
+stage_20
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[19]),
+.o_index_classifier(o_index_classifier[19]),
+.o_index_database(o_index_database[19]),
+.o_end_single_classifier(o_end_single_classifier[19]),
+.o_end_all_classifier(o_end_all_classifier[19]),
+.o_end_tree(o_end_tree[19]),
+.o_end_database(o_end_database[19]),
+.o_data(o_data[19])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE21)
+)
+stage_21
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[20]),
+.o_index_classifier(o_index_classifier[20]),
+.o_index_database(o_index_database[20]),
+.o_end_single_classifier(o_end_single_classifier[20]),
+.o_end_all_classifier(o_end_all_classifier[20]),
+.o_end_tree(o_end_tree[20]),
+.o_end_database(o_end_database[20]),
+.o_data(o_data[20])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE22)
+)
+stage_22
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[21]),
+.o_index_classifier(o_index_classifier[21]),
+.o_index_database(o_index_database[21]),
+.o_end_single_classifier(o_end_single_classifier[21]),
+.o_end_all_classifier(o_end_all_classifier[21]),
+.o_end_tree(o_end_tree[21]),
+.o_end_database(o_end_database[21]),
+.o_data(o_data[21])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE23)
+)
+stage_23
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[22]),
+.o_index_classifier(o_index_classifier[22]),
+.o_index_database(o_index_database[22]),
+.o_end_single_classifier(o_end_single_classifier[22]),
+.o_end_all_classifier(o_end_all_classifier[22]),
+.o_end_tree(o_end_tree[22]),
+.o_end_database(o_end_database[22]),
+.o_data(o_data[22])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE24)
+)
+stage_24
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[23]),
+.o_index_classifier(o_index_classifier[23]),
+.o_index_database(o_index_database[23]),
+.o_end_single_classifier(o_end_single_classifier[23]),
+.o_end_all_classifier(o_end_all_classifier[23]),
+.o_end_tree(o_end_tree[23]),
+.o_end_database(o_end_database[23]),
+.o_data(o_data[23])
+);
+
+fifo_stage_database
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_MEM(FILE_STAGE25)
+)
+stage_25
+(
+.clk(clk),
+.reset(reset),
+.en(en),
+.o_index_tree(o_index_tree[24]),
+.o_index_classifier(o_index_classifier[24]),
+.o_index_database(o_index_database[24]),
+.o_end_single_classifier(o_end_single_classifier[24]),
+.o_end_all_classifier(o_end_all_classifier[24]),
+.o_end_tree(o_end_tree[24]),
+.o_end_database(o_end_database[24]),
+.o_data(o_data[24])
+);
+
 endmodule
