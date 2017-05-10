@@ -4,7 +4,8 @@ clk_os,
 clk_fpga,
 reset_os,
 reset_fpga,
-pixel
+pixel,
+o_pixel_request
 );
 
 /*--------------------------------------------------------------------*/
@@ -37,6 +38,7 @@ input clk_fpga;
 input reset_os;
 input reset_fpga;
 input [DATA_WIDTH_12 -1:0] pixel;
+output o_pixel_request;
 
 wire all_database_end;
 wire candidate;
@@ -56,25 +58,18 @@ wire [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
 
-reg r_pixel_request;
 reg r_pixel_recieve;
 reg [DATA_WIDTH_12 -1:0]ori_x;
 reg [DATA_WIDTH_12 -1:0]ori_y;
 
-
+assign o_pixel_request = pixel_request;
 assign reset_database = inspect_done || reset_fpga;
-
-always@(posedge pixel_request)
-begin
-	r_pixel_request<=1;
-end
 
 always@(posedge reset_fpga)
 begin
 	ori_x <= 0;
 	ori_y <= 0;	
 	r_pixel_recieve <=0;
-	r_pixel_request<=0;
 end
 
 /*------------------------ COORDINATE ITERATION -------------------------*/
@@ -91,7 +86,6 @@ begin
 		else
 			ori_x <= ori_x + 1;
 		r_pixel_recieve <=1;
-		r_pixel_request<=0;
 	end
 	if(r_pixel_recieve)
 		r_pixel_recieve <=0;

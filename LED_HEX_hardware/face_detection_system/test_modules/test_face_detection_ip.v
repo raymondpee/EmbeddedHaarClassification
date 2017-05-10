@@ -5,6 +5,7 @@ module test_face_detection_ip;
 localparam DATA_WIDTH_12 = 12;
 localparam MAX_VAL = 255;
 
+wire pixel_request;
 reg clk_os = 0;
 reg reset_os = 0;
 reg clk_fpga = 0;
@@ -34,10 +35,13 @@ always # 1 clk_fpga <= ~clk_fpga;
 //Pixel Iteration:
 always @(posedge clk_os)
 begin
-  if(pixel == MAX_VAL)
-    pixel <= 0;
-  else
-    pixel <= pixel + 1;
+	if(pixel_request)
+	begin
+	  if(pixel == MAX_VAL)
+		pixel <= 0;
+	  else
+		pixel <= pixel + 1;
+	end
 end
 /*-----------------------------------------------------------------------*/
 
@@ -50,7 +54,8 @@ facial_detection_ip
 .clk_fpga(clk_fpga),
 .reset_os(reset_os),
 .reset_fpga(reset_fpga),
-.pixel(pixel)
+.pixel(pixel),
+.o_pixel_request(pixel_request)
 );
 /*-----------------------------------------------------------------------*/
 
