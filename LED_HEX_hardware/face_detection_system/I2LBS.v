@@ -160,7 +160,7 @@ I2LBS_memory
 .clk_os(clk_os),
 .reset_os(reset_os),
 .pixel(pixel),
-.wen(reach),
+.wen(pixel_recieve),
 .o_integral_image(integral_image),
 .o_integral_image_ready(integral_image_ready)
 );
