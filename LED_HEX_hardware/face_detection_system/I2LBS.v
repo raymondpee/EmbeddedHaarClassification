@@ -63,6 +63,7 @@ output [DATA_WIDTH_12-1:0] o_resize_x;
 output [DATA_WIDTH_12-1:0] o_resize_y;
 /*-----------------------------------------------------------------------*/
 
+
 wire reach;
 wire integral_image_ready;
 wire inspect_done;
@@ -72,6 +73,9 @@ wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 
 reg enable;
+reg pixel_request;
+reg database_request;
+reg enable_memory;
 reg[NUM_STAGES-1:0] state;
 reg[NUM_STAGES-1:0] next_state;
 
@@ -81,8 +85,8 @@ localparam INSPECT = 2;
 
 assign o_resize_x = resize_x;
 assign o_resize_y = resize_y;
-assign o_pixel_request = next_state == REQUEST_RECIEVE ||!integral_image_ready || (next_state ==IDLE) && !reach;
-assign o_database_request = next_state == INSPECT;
+assign o_pixel_request = pixel_request;
+assign o_database_request = database_request;
 assign o_inspect_done = inspect_done;
 
 always@(posedge clk_fpga)
@@ -90,6 +94,9 @@ begin
 	if(reset_fpga)
 	begin
 		enable <=0;
+		enable_memory<=0;
+		pixel_request<=0;
+		database_request<=0;
 		state<= IDLE;
 		next_state<=IDLE;
 	end
@@ -103,6 +110,9 @@ begin
 	case(state)
 		IDLE: 
 		begin
+			pixel_request = 1;
+			database_request = 0;
+			enable_memory = pixel_recieve && reach;
 			if(reach && integral_image_ready)
 			begin
 				next_state = INSPECT;
@@ -114,6 +124,9 @@ begin
 		end
 		INSPECT: 
 		begin
+			pixel_request = 0;
+			enable_memory = 0;
+			database_request = 1;
 			if(inspect_done)
 			begin
 				next_state = REQUEST_RECIEVE;
@@ -127,7 +140,10 @@ begin
 		end
 		REQUEST_RECIEVE: 
 		begin
-			if(pixel_recieve)
+			pixel_request = 1;
+			enable_memory = pixel_recieve && reach;
+			database_request = 0;
+			if(enable_memory)
 			begin
 				next_state = INSPECT;
 			end
@@ -160,7 +176,7 @@ I2LBS_memory
 .clk_os(clk_os),
 .reset_os(reset_os),
 .pixel(pixel),
-.wen(pixel_recieve),
+.wen(enable_memory),
 .o_integral_image(integral_image),
 .o_integral_image_ready(integral_image_ready)
 );
