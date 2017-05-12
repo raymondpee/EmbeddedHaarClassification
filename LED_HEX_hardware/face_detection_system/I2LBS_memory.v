@@ -9,16 +9,16 @@ parameter FRAME_CAMERA_WIDTH = 10,
 parameter FRAME_CAMERA_HEIGHT = 10
 )
 (
-clk_os,
-reset_os,
+clk,
+reset,
 pixel,
 wen,
 o_integral_image,
 o_integral_image_ready
 );
 /*--------------------IO port declaration---------------------------------*/
-input clk_os;
-input reset_os;
+input clk;
+input reset;
 input wen;
 input [DATA_WIDTH_12-1:0] pixel;
 
@@ -28,26 +28,71 @@ output [DATA_WIDTH_12-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 localparam TOTAL_SIZE_COUNT = (FRAME_CAMERA_WIDTH*INTEGRAL_HEIGHT) + 2*INTEGRAL_WIDTH;
 
+localparam NUM_STATE = 3;
+localparam IDLE = 0;
+localparam FILL_FIFO_INTEGRAL = 1;
+localparam FILL_INTEGRAL = 2;
+
 wire ready;
+wire end_count_integral;
 wire[INTEGRAL_HEIGHT-1:0] fill;
 wire [DATA_WIDTH_12-1:0] integral_image_count;
 wire [DATA_WIDTH_12-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
 wire [DATA_WIDTH_12-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
 wire [DATA_WIDTH_12-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
 
-wire w_integral_image_ready;
-reg r_integral_image_ready;
+reg count_integral;
+reg integral_image_ready;
+reg [NUM_STATE-1:0] state;
+reg [NUM_STATE-1:0] next_state;
 
 assign ready = fill[INTEGRAL_HEIGHT-1];
-assign o_integral_image_ready = r_integral_image_ready;
-always@(posedge w_integral_image_ready) r_integral_image_ready = 1;
+assign o_integral_image_ready = integral_image_ready;
 
-
-always@(posedge clk_os)
+always@(posedge clk)
 begin
-	if(reset_os)
-		r_integral_image_ready<=0;
+	if(reset)
+	begin
+		state <=IDLE;
+		next_state<=IDLE;
+		integral_image_ready <=0;
+		count_integral<=0;
+	end
+	else
+		state<=next_state;
 end
+
+always@(*)
+begin
+	next_state = state;
+	case(state)
+		IDLE:
+		begin
+			if(wen && !integral_image_ready)
+			begin
+				next_state = FILL_FIFO_INTEGRAL;
+			end
+		end
+		FILL_FIFO_INTEGRAL:
+		begin
+			if(ready)
+			begin
+				next_state = FILL_INTEGRAL;
+			end
+		end
+		FILL_INTEGRAL:
+		begin
+			count_integral = wen;
+			if(end_count_integral)
+			begin
+				count_integral = 0;
+				integral_image_ready = 1;
+				next_state = IDLE;
+			end
+		end
+	endcase
+end
+
 
 counter 
 #(
@@ -55,11 +100,11 @@ counter
 )
 counter_integral_image_size
 (
-.clk(clk_os),
-.reset(reset_os),
-.enable(ready),
+.clk(clk),
+.reset(reset),
+.enable(count_integral),
 .max_size(2*INTEGRAL_WIDTH),
-.end_count(w_integral_image_ready),
+.end_count(end_count_integral),
 .ctr_out(integral_image_count)
 );
 
@@ -101,8 +146,8 @@ row
 )
 haar_row_0
 (
-	.clk_os(clk_os),
-	.reset_os(reset_os),
+	.clk_os(clk),
+	.reset_os(reset),
 	.wen(wen),
 	.fifo_in(pixel),
 	.fifo_reduction_sum(fifo_reduction_sum[0]),
@@ -125,8 +170,8 @@ generate
 		)
 		haar_row_n
 		(
-			.clk_os(clk_os),
-			.reset_os(reset_os),
+			.clk_os(clk),
+			.reset_os(reset),
 			.wen(fill[index-1]),
 			.fifo_in(fifo_data_out[index-1]),
 			.fifo_reduction_sum(fifo_reduction_sum[index]),

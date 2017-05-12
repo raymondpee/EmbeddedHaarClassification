@@ -173,8 +173,8 @@ I2LBS_memory
 )
 I2LBS_memory 
 (
-.clk_os(clk_os),
-.reset_os(reset_os),
+.clk(clk_os),
+.reset(reset_os),
 .pixel(pixel),
 .wen(enable_memory),
 .o_integral_image(integral_image),
