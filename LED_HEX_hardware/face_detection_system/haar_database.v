@@ -146,6 +146,7 @@ stage_2
 .o_index_classifier(o_index_classifier[1]),
 .o_index_database(o_index_database[1]),
 .o_end_single_classifier(o_end_single_classifier[1]),
+.o_end_all_classifier(o_end_all_classifier[1]),
 .o_end_tree(o_end_tree[1]),
 .o_end_database(o_end_database[1]),
 .o_data(o_data[1])

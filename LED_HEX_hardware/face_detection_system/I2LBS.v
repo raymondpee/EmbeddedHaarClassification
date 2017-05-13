@@ -35,6 +35,7 @@ o_database_request,
 o_resize_x,
 o_resize_y,
 o_inspect_done,
+o_integral_image_ready,
 o_candidate
 );
 
@@ -59,6 +60,7 @@ output o_candidate;
 output o_pixel_request;
 output o_database_request;
 output o_inspect_done;
+output o_integral_image_ready;
 output [DATA_WIDTH_12-1:0] o_resize_x;
 output [DATA_WIDTH_12-1:0] o_resize_y;
 /*-----------------------------------------------------------------------*/
@@ -88,6 +90,7 @@ assign o_resize_y = resize_y;
 assign o_pixel_request = pixel_request;
 assign o_database_request = database_request;
 assign o_inspect_done = inspect_done;
+assign o_integral_image_ready = integral_image_ready;
 
 always@(posedge clk_fpga)
 begin

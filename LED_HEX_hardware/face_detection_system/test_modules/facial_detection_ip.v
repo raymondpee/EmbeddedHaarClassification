@@ -41,6 +41,7 @@ localparam NUM_STAGE_THRESHOLD = 3;
 localparam NUM_PARAM_PER_CLASSIFIER = 19;
 localparam INTEGRAL_WIDTH = INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT = INTEGRAL_LENGTH;
+localparam MAX_RESIZE = 2**(NUM_RESIZE-1);
 
 
 input clk_os;
@@ -52,10 +53,10 @@ output o_pixel_request;
 
 wire all_database_end;
 wire reset_database;
-wire global_inspect_done;
-wire global_pixel_request;
+wire global_database_request;
 wire [NUM_RESIZE-1:0] candidate;
 wire [NUM_RESIZE-1:0] inspect_done;
+wire [NUM_RESIZE-1:0] integral_image_ready;
 wire [NUM_RESIZE-1:0] pixel_request;
 wire [NUM_RESIZE-1:0] database_request;
 wire [NUM_STAGES-1:0] end_database;
@@ -68,20 +69,22 @@ wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
 
 
-reg r_pixel_recieve;
+reg pixel_recieve;
 reg [DATA_WIDTH_12 -1:0]ori_x;
 reg [DATA_WIDTH_12 -1:0]ori_y;
 
-assign global_pixel_request = pixel_request[0] || pixel_request[1]||pixel_request[2]|| pixel_request[3]|| pixel_request[4]; 
-assign global_inspect_done = inspect_done[0]&& inspect_done[1]&& inspect_done[2]&& inspect_done[3]&& inspect_done[4];
-assign reset_database = global_inspect_done || reset_fpga;
+assign global_database_request = database_request[0] || database_request[1];
+assign global_pixel_request = pixel_request[0] && pixel_request[1]; 
+
+assign reset_database = global_pixel_request || reset_fpga;
 assign o_pixel_request = global_pixel_request;
+
 
 always@(posedge reset_fpga)
 begin
 	ori_x <= 0;
 	ori_y <= 0;	
-	r_pixel_recieve <=0;
+	pixel_recieve <=0;
 end
 
 /*------------------------ COORDINATE ITERATION -------------------------*/
@@ -97,10 +100,10 @@ begin
 		end
 		else
 			ori_x <= ori_x + 1;
-		r_pixel_recieve <=1;
+		pixel_recieve <=1;
 	end
 	else
-		r_pixel_recieve <=0;
+		pixel_recieve <=0;
 end
 /*-----------------------------------------------------------------------*/
 
@@ -126,7 +129,7 @@ I2LBS_1
 .reset_os(reset_os),
 .reset_fpga(reset_fpga),
 .pixel(pixel),
-.pixel_recieve(r_pixel_recieve),
+.pixel_recieve(pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -140,7 +143,8 @@ I2LBS_1
 .o_candidate(candidate[0]),
 .o_pixel_request(pixel_request[0]),
 .o_database_request(database_request[0]),
-.o_inspect_done(inspect_done[0])
+.o_inspect_done(inspect_done[0]),
+.o_integral_image_ready(integral_image_ready[0])
 );
 
 I2LBS
@@ -165,7 +169,7 @@ I2LBS_2
 .reset_os(reset_os),
 .reset_fpga(reset_fpga),
 .pixel(pixel),
-.pixel_recieve(r_pixel_recieve),
+.pixel_recieve(pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -179,7 +183,8 @@ I2LBS_2
 .o_candidate(candidate[1]),
 .o_pixel_request(pixel_request[1]),
 .o_database_request(database_request[1]),
-.o_inspect_done(inspect_done[1])
+.o_inspect_done(inspect_done[1]),
+.o_integral_image_ready(integral_image_ready[1])
 );
 
 
@@ -197,7 +202,7 @@ haar_database
 (
 .clk(clk_fpga),
 .reset(reset_database),
-.en(database_request),
+.en(global_database_request),
 .o_index_tree(index_tree),
 .o_index_classifier(index_classifier),
 .o_index_database(index_database),
