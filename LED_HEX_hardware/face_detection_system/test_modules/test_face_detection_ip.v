@@ -1,5 +1,5 @@
 // Modelsim-ASE requires a timescale directive
-`timescale 5 ns / 1 ns  //Assume our clock frequency is 100MHz
+`timescale 1 ns / 1 ns  //Assume our clock frequency is 100MHz
 module test_face_detection_ip;
 
 localparam DATA_WIDTH_12 = 12;

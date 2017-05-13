@@ -67,6 +67,7 @@ output [DATA_WIDTH_12-1:0] o_resize_y;
 
 
 wire reach;
+wire w_candidate;
 wire integral_image_ready;
 wire inspect_done;
 wire [DATA_WIDTH_12-1:0] resize_x;
@@ -75,6 +76,7 @@ wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
 
 reg enable;
+reg candidate;
 reg pixel_request;
 reg database_request;
 reg enable_memory;
@@ -85,6 +87,7 @@ localparam IDLE = 0;
 localparam REQUEST_RECIEVE = 1;
 localparam INSPECT = 2;
 
+assign o_candidate = candidate;
 assign o_resize_x = resize_x;
 assign o_resize_y = resize_y;
 assign o_pixel_request = pixel_request;
@@ -97,6 +100,7 @@ begin
 	if(reset_fpga)
 	begin
 		enable <=0;
+		candidate<=0;
 		enable_memory<=0;
 		pixel_request<=0;
 		database_request<=0;
@@ -133,6 +137,7 @@ begin
 			if(inspect_done)
 			begin
 				next_state = REQUEST_RECIEVE;
+				candidate = w_candidate;
 				enable = 0;
 			end
 			else
@@ -148,6 +153,7 @@ begin
 			database_request = 0;
 			if(enable_memory)
 			begin
+				candidate = 0;
 				next_state = INSPECT;
 			end
 			else
@@ -209,7 +215,7 @@ I2LBS_classifier
 .index_database(index_database),
 .data(data),
 .o_inspect_done(inspect_done),
-.o_candidate(o_candidate)
+.o_candidate(w_candidate)
 );
 
 resize
