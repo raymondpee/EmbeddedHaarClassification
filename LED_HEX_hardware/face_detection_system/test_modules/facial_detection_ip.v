@@ -14,8 +14,8 @@ o_pixel_request
 localparam NUM_STAGES = 25;
 localparam INTEGRAL_LENGTH = 24;
 localparam NUM_RESIZE = 5;
-localparam FRAME_ORIGINAL_CAMERA_WIDTH = 100;
-localparam FRAME_ORIGINAL_CAMERA_HEIGHT= 24;
+localparam FRAME_ORIGINAL_CAMERA_WIDTH = 800;
+localparam FRAME_ORIGINAL_CAMERA_HEIGHT= 600;
 localparam FRAME_RESIZE_CAMERA_WIDTH_1 = 1*FRAME_ORIGINAL_CAMERA_WIDTH/NUM_RESIZE;
 localparam FRAME_RESIZE_CAMERA_HEIGHT_1 = 1*FRAME_ORIGINAL_CAMERA_HEIGHT/NUM_RESIZE;
 localparam FRAME_RESIZE_CAMERA_WIDTH_2 = 2*FRAME_ORIGINAL_CAMERA_WIDTH/NUM_RESIZE;
@@ -43,6 +43,9 @@ localparam INTEGRAL_WIDTH = INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT = INTEGRAL_LENGTH;
 localparam MAX_RESIZE = 2**(NUM_RESIZE-1);
 
+localparam NUM_STATE = 2;
+localparam INSPECT;
+localparam END;
 
 input clk_os;
 input clk_fpga;
@@ -70,14 +73,16 @@ wire [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
 
+
 reg global_candidate;
 reg save_index;
 reg save_ori_x;
 reg save_ori_y;
 
-reg enable_save_candidate;
 reg pixel_recieve;
-reg [DATA_WIDTH_12 -1:0] index;
+reg [NUM_STATE-1:0] state;
+reg [NUM_STATE-1:0] next_state;
+reg [DATA_WIDTH_12 -1:0] scale;
 reg [DATA_WIDTH_12 -1:0] ori_x;
 reg [DATA_WIDTH_12 -1:0] ori_y;
 
@@ -87,31 +92,43 @@ assign reset_database = global_pixel_request || reset_fpga;
 assign o_pixel_request = global_pixel_request;
 
 
+always@(posedge clk_fpga)
+begin
+	if(reset_fpga)
+	begin
+		state<=0;
+		next_state<=0;
+	end
+	else
+	begin
+		state <=next_state;
+	end
+
+end
+
 always@(posedge reset_fpga)
 begin
 	ori_x <= 0;
 	ori_y <= 0;	
 	pixel_recieve <=0;
-	enable_save_candidate<=0;
 	global_candidate<=0;
-	index<=0;
+	scale<=0;
 end
 
 
 always@(posedge clk_fpga)
 begin
-	global_candidate <= candidate> 0 && (pixel_request == 1'b11111);
+	global_candidate = candidate> 0 && (pixel_request == 1'b11111);
 	if(global_candidate)
 	begin
-		for(index = 0; index<NUM_STAGES; index = index +1)
+		for(scale = 0; scale<NUM_STAGES; scale = scale +1)
 		begin
-			enable_save_candidate <= 1;
-			save_ori_x <= ori_x;
-			save_ori_y <= ori_y;
-			save_index <= index;
+			save_ori_x = ori_x;
+			save_ori_y = ori_y;
+			save_index = scale;
 		end
-		index<=0;
-		global_candidate <=0;
+		scale =0;
+		global_candidate =0;
 	end
 end
 
