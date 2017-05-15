@@ -5,7 +5,9 @@ clk_fpga,
 reset_os,
 reset_fpga,
 pixel,
-o_pixel_request
+o_pixel_request,
+o_state_inspect,
+o_state_end
 );
 
 /*--------------------------------------------------------------------*/
@@ -43,9 +45,10 @@ localparam INTEGRAL_WIDTH = INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT = INTEGRAL_LENGTH;
 localparam MAX_RESIZE = 2**(NUM_RESIZE-1);
 
-localparam NUM_STATE = 2;
-localparam INSPECT;
-localparam END;
+localparam RECIEVE_PIXEL = 0;
+localparam INSPECT = 1;
+localparam END = 2;
+localparam NUM_STATE = 3;
 
 input clk_os;
 input clk_fpga;
@@ -53,12 +56,25 @@ input reset_os;
 input reset_fpga;
 input [DATA_WIDTH_12 -1:0] pixel;
 output o_pixel_request;
+output o_state_inspect;
+output o_state_end;
 
 wire all_database_end;
 wire reset_database;
 wire global_pixel_request;
 wire global_database_request;
 
+reg state_recieve_pixel;
+wire state_inspect;
+wire state_end;
+
+wire write_in_end;
+wire read_out_end;
+
+wire reset_i2lbs;
+wire enable_pixel_recieve;
+wire enable_pixel_request;
+wire enable_candidate;
 wire [NUM_RESIZE-1:0] candidate;
 wire [NUM_RESIZE-1:0] inspect_done;
 wire [NUM_RESIZE-1:0] integral_image_ready;
@@ -72,85 +88,166 @@ wire [DATA_WIDTH_12-1:0] index_tree[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
+wire [DATA_WIDTH_12-1:0] data_out;
 
-
-reg global_candidate;
-reg save_index;
-reg save_ori_x;
-reg save_ori_y;
-
-reg pixel_recieve;
+reg reset_new_frame;
+reg write_in;
+reg read_out;
+reg start_recieve;
+reg end_recieve;
+reg end_coordinate;
 reg [NUM_STATE-1:0] state;
 reg [NUM_STATE-1:0] next_state;
-reg [DATA_WIDTH_12 -1:0] scale;
 reg [DATA_WIDTH_12 -1:0] ori_x;
 reg [DATA_WIDTH_12 -1:0] ori_y;
 
+assign state_inspect = state == INSPECT;
+assign state_end = state == END;
+
 assign global_database_request = database_request>0;
-assign global_pixel_request = (global_candidate == 0) && (pixel_request == 5'b11111);   
-assign reset_database = global_pixel_request || reset_fpga;
-assign o_pixel_request = global_pixel_request;
+
+assign o_state_inspect = state == INSPECT;
+assign o_state_end = state == END;
+assign o_pixel_request = enable_pixel_request;
+
+assign enable_pixel_request = pixel_request == 5'b11111;
+assign enable_candidate = candidate>0; 
+
+assign reset_i2lbs = reset_new_frame || reset;
+assign reset_database = reset_new_frame|| enable_pixel_request || reset;
 
 
-always@(posedge clk_fpga)
+
+always@(posedge clk)
+begin
+	if(reset_new_frame)reset_new_frame<=0;
+end
+
+always@(posedge clk)
 begin
 	if(reset_fpga)
 	begin
+		write_in <=0;
+		read_out<=0;
 		state<=0;
 		next_state<=0;
+		ori_x <= 0;
+		ori_y <= 0;	
+		start_recieve<=0;
+		end_recieve <=0;
+		end_coordinate<=0;
+		reset_new_frame<=1;
 	end
 	else
 	begin
 		state <=next_state;
 	end
-
 end
 
-always@(posedge reset_fpga)
+always@(*)
 begin
-	ori_x <= 0;
-	ori_y <= 0;	
-	pixel_recieve <=0;
-	global_candidate<=0;
-	scale<=0;
-end
-
-
-always@(posedge clk_fpga)
-begin
-	global_candidate = candidate> 0 && (pixel_request == 1'b11111);
-	if(global_candidate)
-	begin
-		for(scale = 0; scale<NUM_STAGES; scale = scale +1)
+	next_state = state;
+	case(state)
+		RECIEVE_PIXEL:
 		begin
-			save_ori_x = ori_x;
-			save_ori_y = ori_y;
-			save_index = scale;
+			if(end_recieve)
+			begin
+				end_recieve = 0;
+				start_recieve = 0;
+				next_state = INSPECT;
+			end
 		end
-		scale =0;
-		global_candidate =0;
-	end
+		INSPECT:
+		begin
+			if(enable_pixel_request)
+			begin
+				if(end_coordinate)
+				begin
+					start_recieve = 0;
+					next_state = END;
+				end
+				else if(enable_candidate)
+				begin
+					write_in = 1;
+					if(write_in_end)
+					begin
+						write_in = 0;
+						start_recieve = 1;
+						next_state = RECIEVE_PIXEL;
+					end
+				end
+				else
+				begin
+					start_recieve =1;
+					next_state = RECIEVE_PIXEL;
+				end				
+			end
+		end
+		END:
+		begin
+			read_out = 1;
+			if(read_out_end)
+			begin
+				read_out = 0;
+				reset_new_frame = 1;
+				next_state = RECIEVE_PIXEL;
+			end
+		end
+	endcase
+
 end
+
 
 /*------------------------ COORDINATE ITERATION -------------------------*/
 always @(posedge clk_os)
 begin
-	if(global_pixel_request)
+	if(start_recieve)
 	begin			
 		if(ori_x == FRAME_ORIGINAL_CAMERA_WIDTH -1)
 		begin 
 			ori_x <= 0;
-			if(ori_y == FRAME_ORIGINAL_CAMERA_HEIGHT -1) ori_y <= 0;   
-			else                          ori_y <= ori_y + 1;
+			if(ori_y == FRAME_ORIGINAL_CAMERA_HEIGHT -1)
+			begin			
+				ori_y <= 0;   
+				end_coordinate<=1;
+			end
+			else
+			begin
+				ori_y <= ori_y + 1;
+			end
 		end
 		else
+		begin
 			ori_x <= ori_x + 1;
-		pixel_recieve <=1;
+		end
+		end_recieve<=1;
 	end
 	else
-		pixel_recieve <=0;
+		end_recieve<=0;
 end
 /*-----------------------------------------------------------------------*/
+
+
+result
+#(
+.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
+.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
+.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
+.NUM_RESIZE(NUM_RESIZE)
+)
+result
+{
+.clk(clk),
+.reset(reset_i2lbs),
+.write_in(write_in),
+.o_write_in_end(write_in_end),
+.read_out(read_out),
+.o_read_out_end(read_out_end),
+.ori_x(ori_x),
+.ori_y(ori_y),
+.candidate(candidate),
+.o_data_out(data_out);
+}
 
 I2LBS
 #(
@@ -169,12 +266,10 @@ I2LBS
 )
 I2LBS_1
 (
-.clk_os(clk_os),
-.clk_fpga(clk_fpga),
-.reset_os(reset_os),
-.reset_fpga(reset_fpga),
+.clk(clk),
+.reset(reset_i2lbs),
 .pixel(pixel),
-.pixel_recieve(pixel_recieve),
+.pixel_recieve(end_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -209,12 +304,10 @@ I2LBS
 )
 I2LBS_2
 (
-.clk_os(clk_os),
-.clk_fpga(clk_fpga),
-.reset_os(reset_os),
-.reset_fpga(reset_fpga),
+.clk(clk),
+.reset(reset_i2lbs),
 .pixel(pixel),
-.pixel_recieve(pixel_recieve),
+.pixel_recieve(end_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -249,12 +342,10 @@ I2LBS
 )
 I2LBS_3
 (
-.clk_os(clk_os),
-.clk_fpga(clk_fpga),
-.reset_os(reset_os),
-.reset_fpga(reset_fpga),
+.clk(clk),
+.reset(reset_i2lbs),
 .pixel(pixel),
-.pixel_recieve(pixel_recieve),
+.pixel_recieve(end_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -289,12 +380,10 @@ I2LBS
 )
 I2LBS_4
 (
-.clk_os(clk_os),
-.clk_fpga(clk_fpga),
-.reset_os(reset_os),
-.reset_fpga(reset_fpga),
+.clk(clk),
+.reset(reset_i2lbs),
 .pixel(pixel),
-.pixel_recieve(pixel_recieve),
+.pixel_recieve(end_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -329,12 +418,10 @@ I2LBS
 )
 I2LBS_5
 (
-.clk_os(clk_os),
-.clk_fpga(clk_fpga),
-.reset_os(reset_os),
-.reset_fpga(reset_fpga),
+.clk(clk),
+.reset(reset_i2lbs),
 .pixel(pixel),
-.pixel_recieve(pixel_recieve),
+.pixel_recieve(end_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -366,7 +453,7 @@ haar_database
 )
 haar_database
 (
-.clk(clk_fpga),
+.clk(clk),
 .reset(reset_database),
 .en(global_database_request),
 .o_index_tree(index_tree),

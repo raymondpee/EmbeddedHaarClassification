@@ -3,6 +3,7 @@ module result
 parameter DATA_WIDTH_8 = 8,   // Max value 255
 parameter DATA_WIDTH_12 = 12, // Max value 4095
 parameter DATA_WIDTH_16 = 16, // Max value 177777
+parameter NUM_RESIZE = 5
 )
 {
 	clk,
@@ -13,7 +14,7 @@ parameter DATA_WIDTH_16 = 16, // Max value 177777
 	o_read_out_end,
 	ori_x,
 	ori_y,
-	scale,
+	candidate,
 	o_data_out;
 }
 
@@ -23,8 +24,8 @@ input write_in;
 input read_out;
 
 input [DATA_WIDTH_12-1:0] ori_x;
-input [DATA_WIDTH_12-1:0]ori_y;
-input [DATA_WIDTH_12-1:0] scale;
+input [DATA_WIDTH_12-1:0] ori_y;
+input [NUM_RESIZE-1:0] candidate;
 
 output o_write_in_end;
 output o_read_out_end;
@@ -66,7 +67,7 @@ begin
 			1: data_in <= ori_y;
 			2: 
 			begin
-				data_in <= scale;
+				data_in <= candidate;
 				trig_write_in_end<=1;
 			end
 			default: data_in <= ori_x;

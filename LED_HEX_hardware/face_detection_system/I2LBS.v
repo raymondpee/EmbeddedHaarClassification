@@ -14,10 +14,8 @@ parameter FRAME_RESIZE_CAMERA_WIDTH = 10,
 parameter FRAME_RESIZE_CAMERA_HEIGHT = 10
 )
 (
-clk_os,
-clk_fpga,
-reset_os,
-reset_fpga,
+clk,
+reset,
 pixel,
 ori_x,
 ori_y,
@@ -40,10 +38,8 @@ o_candidate
 );
 
 /*--------------------IO port declaration---------------------------------*/
-input clk_os;
-input clk_fpga;
-input reset_os;
-input reset_fpga;
+input clk;
+input reset;
 input pixel_recieve;
 input [DATA_WIDTH_12-1:0] pixel;
 input [DATA_WIDTH_12-1:0] ori_x;
@@ -95,9 +91,9 @@ assign o_database_request = database_request;
 assign o_inspect_done = inspect_done;
 assign o_integral_image_ready = integral_image_ready;
 
-always@(posedge clk_fpga)
+always@(posedge clk)
 begin
-	if(reset_fpga)
+	if(reset)
 	begin
 		enable <=0;
 		candidate<=0;
@@ -182,8 +178,8 @@ I2LBS_memory
 )
 I2LBS_memory 
 (
-.clk(clk_os),
-.reset(reset_os),
+.clk(clk),
+.reset(reset),
 .pixel(pixel),
 .wen(enable_memory),
 .o_integral_image(integral_image),
@@ -202,8 +198,8 @@ I2LBS_classifier
 )
 I2LBS_classifier
 (
-.clk(clk_fpga),
-.reset(reset_fpga),
+.clk(clk),
+.reset(reset),
 .enable(enable),
 .integral_image(integral_image),
 .end_database(end_database),
