@@ -5,7 +5,7 @@ parameter DATA_WIDTH_12 = 12, // Max value 4095
 parameter DATA_WIDTH_16 = 16, // Max value 177777
 parameter NUM_RESIZE = 5
 )
-{
+(
 	clk,
 	reset,
 	write_in,
@@ -15,8 +15,8 @@ parameter NUM_RESIZE = 5
 	ori_x,
 	ori_y,
 	candidate,
-	o_data_out;
-}
+	o_data_out
+);
 
 input clk;
 input reset;
@@ -31,7 +31,7 @@ output o_write_in_end;
 output o_read_out_end;
 output o_data_out;
 
-localparam NUM_VARIABLE 3;
+localparam NUM_VARIABLE = 3;
 
 wire result_size;
 wire write_in_end;

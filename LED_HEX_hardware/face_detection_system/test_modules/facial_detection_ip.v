@@ -1,9 +1,7 @@
 module facial_detection_ip
 (
-clk_os,
-clk_fpga,
-reset_os,
-reset_fpga,
+clk,
+reset,
 pixel,
 o_pixel_request,
 o_state_inspect,
@@ -50,10 +48,8 @@ localparam INSPECT = 1;
 localparam END = 2;
 localparam NUM_STATE = 3;
 
-input clk_os;
-input clk_fpga;
-input reset_os;
-input reset_fpga;
+input clk;
+input reset;
 input [DATA_WIDTH_12 -1:0] pixel;
 output o_pixel_request;
 output o_state_inspect;
@@ -125,7 +121,7 @@ end
 
 always@(posedge clk)
 begin
-	if(reset_fpga)
+	if(reset)
 	begin
 		write_in <=0;
 		read_out<=0;
@@ -150,15 +146,16 @@ begin
 	case(state)
 		RECIEVE_PIXEL:
 		begin
+			start_recieve = 1;
 			if(end_recieve)
-			begin
-				end_recieve = 0;
+			begin	
 				start_recieve = 0;
 				next_state = INSPECT;
 			end
 		end
 		INSPECT:
 		begin
+			end_recieve = 0;
 			if(enable_pixel_request)
 			begin
 				if(end_coordinate)
@@ -199,7 +196,7 @@ end
 
 
 /*------------------------ COORDINATE ITERATION -------------------------*/
-always @(posedge clk_os)
+always @(posedge clk)
 begin
 	if(start_recieve)
 	begin			
@@ -236,7 +233,7 @@ result
 .NUM_RESIZE(NUM_RESIZE)
 )
 result
-{
+(
 .clk(clk),
 .reset(reset_i2lbs),
 .write_in(write_in),
@@ -246,8 +243,8 @@ result
 .ori_x(ori_x),
 .ori_y(ori_y),
 .candidate(candidate),
-.o_data_out(data_out);
-}
+.o_data_out(data_out)
+);
 
 I2LBS
 #(
