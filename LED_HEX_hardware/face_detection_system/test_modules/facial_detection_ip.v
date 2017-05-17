@@ -3,9 +3,10 @@ module facial_detection_ip
 clk,
 reset,
 pixel,
-o_pixel_request,
+o_ready_recieve_pixel,
+end_recieve_pixel,
 o_state_inspect,
-o_state_end
+o_end_frame
 );
 
 /*--------------------------------------------------------------------*/
@@ -45,15 +46,15 @@ localparam MAX_RESIZE = 2**(NUM_RESIZE-1);
 
 localparam RECIEVE_PIXEL = 0;
 localparam INSPECT = 1;
-localparam END = 2;
+localparam END_FRAME = 2;
 localparam NUM_STATE = 3;
 
 input clk;
 input reset;
 input [DATA_WIDTH_12 -1:0] pixel;
-output o_pixel_request;
+output o_ready_recieve_pixel;
 output o_state_inspect;
-output o_state_end;
+output o_end_frame;
 
 wire all_database_end;
 wire reset_database;
@@ -62,12 +63,13 @@ wire global_database_request;
 
 reg state_recieve_pixel;
 wire state_inspect;
-wire state_end;
+wire state_end_frame;
 
 wire write_in_end;
 wire read_out_end;
 
 wire reset_i2lbs;
+wire end_recieve;
 wire enable_pixel_recieve;
 wire enable_pixel_request;
 wire enable_candidate;
@@ -90,7 +92,7 @@ reg reset_new_frame;
 reg write_in;
 reg read_out;
 reg start_recieve;
-reg end_recieve;
+reg end_recieve_coordinate;
 reg end_coordinate;
 reg [NUM_STATE-1:0] state;
 reg [NUM_STATE-1:0] next_state;
@@ -98,17 +100,18 @@ reg [DATA_WIDTH_12 -1:0] ori_x;
 reg [DATA_WIDTH_12 -1:0] ori_y;
 
 assign state_inspect = state == INSPECT;
-assign state_end = state == END;
+assign state_end_frame = state == END_FRAME;
 
 assign global_database_request = database_request>0;
 
-assign o_state_inspect = state == INSPECT;
-assign o_state_end = state == END;
-assign o_pixel_request = enable_pixel_request;
+assign o_state_inspect = state_inspect;
+assign o_end_frame = state_end_frame;
+assign o_ready_recieve_pixel = start_recieve;
 
 assign enable_pixel_request = pixel_request == 5'b11111;
 assign enable_candidate = candidate>0; 
 
+assign end_recieve = end_recieve_coordinate && end_recieve_pixel;
 assign reset_i2lbs = reset_new_frame || reset;
 assign reset_database = reset_new_frame|| enable_pixel_request || reset;
 
@@ -130,7 +133,7 @@ begin
 		ori_x <= 0;
 		ori_y <= 0;	
 		start_recieve<=0;
-		end_recieve <=0;
+		end_recieve_coordinate <=0;
 		end_coordinate<=0;
 		reset_new_frame<=1;
 	end
@@ -155,13 +158,13 @@ begin
 		end
 		INSPECT:
 		begin
-			end_recieve = 0;
+			end_recieve_coordinate = 0;
 			if(enable_pixel_request)
 			begin
 				if(end_coordinate)
 				begin
 					start_recieve = 0;
-					next_state = END;
+					next_state = END_FRAME;
 				end
 				else if(enable_candidate)
 				begin
@@ -180,7 +183,7 @@ begin
 				end				
 			end
 		end
-		END:
+		END_FRAME:
 		begin
 			read_out = 1;
 			if(read_out_end)
@@ -217,10 +220,10 @@ begin
 		begin
 			ori_x <= ori_x + 1;
 		end
-		end_recieve<=1;
+		end_recieve_coordinate<=1;
 	end
 	else
-		end_recieve<=0;
+		end_recieve_coordinate<=0;
 end
 /*-----------------------------------------------------------------------*/
 
