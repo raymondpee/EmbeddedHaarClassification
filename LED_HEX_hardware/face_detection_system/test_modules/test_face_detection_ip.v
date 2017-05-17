@@ -41,7 +41,6 @@ begin
 	if(trig_reset)
 	begin
 		init <=1;
-		end_recieve_pixel<=0;
 		state <=RESET;
 		next_state<=0;
 		pixel<=0;

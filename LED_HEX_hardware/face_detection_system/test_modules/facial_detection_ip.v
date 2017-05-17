@@ -51,6 +51,7 @@ localparam NUM_STATE = 3;
 
 input clk;
 input reset;
+input end_recieve_pixel;
 input [DATA_WIDTH_12 -1:0] pixel;
 output o_ready_recieve_pixel;
 output o_state_inspect;
