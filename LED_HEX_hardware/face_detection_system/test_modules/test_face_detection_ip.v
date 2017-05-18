@@ -34,7 +34,7 @@ wire o_ready_recieve_pixel;
 
 assign is_init = init == 1;
 assign o_ready_recieve_pixel = ready_recieve_pixel_ip;
-assign end_recieve_pixel = ready_recieve_pixel_ip && lwhpcfpga_pixel_input;
+assign end_recieve_pixel = lwhpcfpga_pixel_input;
 
 always@(posedge clk)
 begin
