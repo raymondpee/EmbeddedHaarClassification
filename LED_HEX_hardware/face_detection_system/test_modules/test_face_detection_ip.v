@@ -5,6 +5,7 @@ module test_face_detection_ip;
 reg clk = 0;
 always # 1 clk <= ~clk;
 
+localparam IMAGE_NAME = "image.mif";
 
 /*------------------------------ADAPTER FOR THE HARDWARE--------------------*/
 
@@ -17,6 +18,7 @@ localparam RESET = 0;
 localparam PIXEL_INPUT_START = 1;
 localparam PIXEL_INPUT_END = 2;
 localparam FRAME_END = 3;
+
 
 wire end_frame;
 wire ready_recieve_pixel_ip;
@@ -85,6 +87,20 @@ end
 
 
 //Pixel Input [Assume this is from the c language]
+
+assign coordinate_index = ori_x + frame_width* ori_y;
+image_container
+#(
+.FILE_NAME(IMAGE_NAME)
+)
+image
+(
+.clk(clk),
+.enable(o_ready_recieve_pixel),
+.coordinate_index(coordinate_index),
+.o_pixel(pixel)
+);
+
 always @(posedge clk)
 begin
 	if(o_ready_recieve_pixel)
