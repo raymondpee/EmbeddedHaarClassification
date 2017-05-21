@@ -93,27 +93,18 @@ end
 
 
 //Pixel Input [Assume this is from the c language]
-
-assign coordinate_index = ori_x + frame_width* ori_y;
-
-always@(posedge trig_lwhpcfpga_pixel_input)
+always @(posedge clk)
 begin
-	lwhpcfpga_pixel_input<=1;
+    if(o_ready_recieve_pixel)
+    begin
+      if(pixel == MAX_VAL)
+        pixel <= 0;
+      else
+        pixel <= pixel + 1;
+    lwhpcfpga_pixel_input<=1;
+    end
 end
 
-image_container
-#(
-.FILE_NAME(IMAGE_NAME)
-)
-image
-(
-.clk(clk),
-.reset(trig_reset),
-.enable(o_ready_recieve_pixel),
-.coordinate_index(coordinate_index),
-.o_pixel(pixel),
-.o_lwphcfpga_input(trig_lwhpcfpga_pixel_input)
-);
 
 
 facial_detection_ip

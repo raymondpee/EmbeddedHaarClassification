@@ -213,22 +213,22 @@ begin
 	rect_C_3 = integral_image[rect_C_3_index];
 	rect_D_3 = integral_image[rect_D_3_index];
 	
-	rect_minus_A_1 = rect_A_1 - rect_B_1;
-	rect_minus_B_1 = rect_C_1 - rect_D_1;
-	rect_1 = weight_1*(rect_minus_A_1 + rect_minus_B_1);
+	rect_minus_A_1 = rect_A_1 + rect_D_1;
+	rect_minus_B_1 = rect_B_1 + rect_C_1;
+	rect_1 = weight_1*(rect_minus_A_1 - rect_minus_B_1);
 		
 	//rect 2
-	rect_minus_A_2 = rect_A_2 - rect_B_2;
-	rect_minus_B_2 = rect_C_2 - rect_D_2;
-	rect_2 = weight_2*(rect_minus_A_2 + rect_minus_B_2);
+	rect_minus_A_2 = rect_A_2 + rect_D_2;
+	rect_minus_B_2 = rect_B_2 + rect_C_2;
+	rect_2 = weight_2*(rect_minus_A_2 - rect_minus_B_2);
 		
 	//rect 3
-	rect_minus_A_3 = rect_A_3 - rect_B_3;
-	rect_minus_B_3 = rect_C_3 - rect_D_3;
-	rect_3 = weight_3*(rect_minus_A_3 + rect_minus_B_3);
+	rect_minus_A_3 = rect_A_3 - rect_D_3;
+	rect_minus_B_3 = rect_B_3 - rect_C_3;
+	rect_3 = weight_3*(rect_minus_A_3 - rect_minus_B_3);
 
 	//value
-	value = (rect_1 + rect_3) - rect_2;
+	value = rect_1 + rect_3 + rect_2;
 	haar =(value > threshold)? right_word:left_word;	
 	sum_haar = sum_haar + haar;
 end
