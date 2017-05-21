@@ -36,7 +36,7 @@ input [DATA_WIDTH_12-1:0] index_tree;
 input [DATA_WIDTH_12-1:0] index_classifier;
 input [DATA_WIDTH_12-1:0] index_database;
 input [DATA_WIDTH_12-1:0] data;
-input [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+input [DATA_WIDTH_16-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
 
 wire copy;
@@ -44,7 +44,6 @@ wire calculate;
 wire [DATA_WIDTH_12-1:0] w_index_stage_threshold;
 
 reg candidate;
-reg [DATA_WIDTH_12-1:0]sum_haar;
 reg [DATA_WIDTH_12-1:0]rect_A_1_index;
 reg [DATA_WIDTH_12-1:0]rect_B_1_index;
 reg [DATA_WIDTH_12-1:0]rect_C_1_index;
@@ -66,38 +65,38 @@ reg [DATA_WIDTH_12-1:0]right_word;
 reg [DATA_WIDTH_12-1:0]r_stage_threshold;
 reg [DATA_WIDTH_12-1:0]r_parent;
 reg [DATA_WIDTH_12-1:0]r_next;
-reg [DATA_WIDTH_12-1:0] haar;
+reg [DATA_WIDTH_16-1:0] haar;
+reg [DATA_WIDTH_16-1:0]sum_haar;
 
-
-reg [DATA_WIDTH_12-1:0] rect_A_1;
-reg [DATA_WIDTH_12-1:0] rect_B_1;
-reg [DATA_WIDTH_12-1:0] rect_C_1;
-reg [DATA_WIDTH_12-1:0] rect_D_1;
-reg [DATA_WIDTH_12-1:0] rect_A_2;
-reg [DATA_WIDTH_12-1:0] rect_B_2;
-reg [DATA_WIDTH_12-1:0] rect_C_2;
-reg [DATA_WIDTH_12-1:0] rect_D_2;
-reg [DATA_WIDTH_12-1:0] rect_A_3;
-reg [DATA_WIDTH_12-1:0] rect_B_3;
-reg [DATA_WIDTH_12-1:0] rect_C_3;
-reg [DATA_WIDTH_12-1:0] rect_D_3;
+reg [DATA_WIDTH_16-1:0] rect_A_1;
+reg [DATA_WIDTH_16-1:0] rect_B_1;
+reg [DATA_WIDTH_16-1:0] rect_C_1;
+reg [DATA_WIDTH_16-1:0] rect_D_1;
+reg [DATA_WIDTH_16-1:0] rect_A_2;
+reg [DATA_WIDTH_16-1:0] rect_B_2;
+reg [DATA_WIDTH_16-1:0] rect_C_2;
+reg [DATA_WIDTH_16-1:0] rect_D_2;
+reg [DATA_WIDTH_16-1:0] rect_A_3;
+reg [DATA_WIDTH_16-1:0] rect_B_3;
+reg [DATA_WIDTH_16-1:0] rect_C_3;
+reg [DATA_WIDTH_16-1:0] rect_D_3;
 
 
 /*--- Rect for block 1 -----*/
-reg [DATA_WIDTH_12-1:0] rect_minus_A_1;
-reg [DATA_WIDTH_12-1:0] rect_minus_B_1;
-reg [DATA_WIDTH_12-1:0] rect_1;
+reg [DATA_WIDTH_16-1:0] rect_minus_A_1;
+reg [DATA_WIDTH_16-1:0] rect_minus_B_1;
+reg [DATA_WIDTH_16-1:0] rect_1;
 /*--- Rect for block 2 -----*/
-reg [DATA_WIDTH_12-1:0] rect_minus_A_2;
-reg [DATA_WIDTH_12-1:0] rect_minus_B_2;
-reg [DATA_WIDTH_12-1:0] rect_2;
+reg [DATA_WIDTH_16-1:0] rect_minus_A_2;
+reg [DATA_WIDTH_16-1:0] rect_minus_B_2;
+reg [DATA_WIDTH_16-1:0] rect_2;
 /*--- Rect for block 3 -----*/
-reg [DATA_WIDTH_12-1:0] rect_minus_A_3;
-reg [DATA_WIDTH_12-1:0] rect_minus_B_3;
-reg [DATA_WIDTH_12-1:0] rect_3;
+reg [DATA_WIDTH_16-1:0] rect_minus_A_3;
+reg [DATA_WIDTH_16-1:0] rect_minus_B_3;
+reg [DATA_WIDTH_16-1:0] rect_3;
 
-reg [DATA_WIDTH_12-1:0] rect_1_3;
-reg [DATA_WIDTH_12-1:0] value;
+reg [DATA_WIDTH_16-1:0] rect_1_3;
+reg [DATA_WIDTH_16-1:0] value;
 
 integer k_haar;
 

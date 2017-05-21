@@ -35,7 +35,7 @@ reg init = 0;
 reg trig_reset = 0;
 reg [NUM_STATE-1:0] state = 0;
 reg [NUM_STATE-1:0] next_state;
-reg [DATA_WIDTH_12-1:0] pixel; // Pixel of the image
+reg [DATA_WIDTH_16-1:0] pixel; // Pixel of the image
 
 
 wire o_ready_recieve_pixel; 

@@ -7,8 +7,8 @@ parameter INTEGRAL_WIDTH =3,
 parameter FRAME_CAMERA_WIDTH =10
 )
 (
-	clk_os,
-	reset_os,
+	clk,
+	reset,
 	wen,
 	fifo_in,
 	fifo_reduction_sum,
@@ -21,20 +21,20 @@ parameter FRAME_CAMERA_WIDTH =10
 localparam ADDR_WIDTH = 12;
 
 /*--------------------IO port declaration---------------------------------*/
-input clk_os;
-input reset_os;
+input clk;
+input reset;
 input wen;
-input [DATA_WIDTH_12-1:0] fifo_in;
-input [DATA_WIDTH_12-1:0] fifo_reduction_sum;
+input [DATA_WIDTH_16-1:0] fifo_in;
+input [DATA_WIDTH_16-1:0] fifo_reduction_sum;
 output o_fill;
-output [DATA_WIDTH_12-1:0] o_fifo_data_out;
-output [DATA_WIDTH_12-1:0] o_row_integral[INTEGRAL_WIDTH-1:0];
+output [DATA_WIDTH_16-1:0] o_fifo_data_out;
+output [DATA_WIDTH_16-1:0] o_row_integral[INTEGRAL_WIDTH-1:0];
 /*-----------------------------------------------------------------------*/
 
 wire fifo_rdreq;
-wire [DATA_WIDTH_12-1:0] fifo_usedw;                    
-wire [DATA_WIDTH_12-1:0] fifo_data_out;        
-reg[DATA_WIDTH_12-1:0]row_integral[INTEGRAL_WIDTH-1:0];
+wire [DATA_WIDTH_16-1:0] fifo_usedw;                    
+wire [DATA_WIDTH_16-1:0] fifo_data_out;        
+reg[DATA_WIDTH_16-1:0]row_integral[INTEGRAL_WIDTH-1:0];
 
 /*--------------------Assignment declaration---------------------------------*/
 assign o_fifo_data_out = fifo_data_out;
@@ -52,12 +52,12 @@ endgenerate
 /*---------------------------------FIFO module ----------------------------*/
 fifo 
 #(
-.DATA_WIDTH(DATA_WIDTH_12),
+.DATA_WIDTH(DATA_WIDTH_16),
 .ADDR_WIDTH(ADDR_WIDTH)
 )
 row_fifo
 (
-	.clock(clk_os),
+	.clock(clk),
 	.data(fifo_in),
 	.rdreq(fifo_rdreq),
 	.wrreq(wen),
@@ -67,9 +67,9 @@ row_fifo
 /*-------------------------------------------------------------------------*/
 
 /*-------------------------Integral Image Single Row ----------------------*/
-always @(posedge clk_os or posedge reset_os)
+always @(posedge clk or posedge reset)
 begin	
-	if(reset_os)
+	if(reset)
 		row_integral[0]<=0;
 	else
 	begin
@@ -84,9 +84,9 @@ generate
 	genvar index;
 	for(index = 1; index<INTEGRAL_WIDTH; index = index +1)
 	begin
-		always @(posedge clk_os)
+		always @(posedge clk)
 		begin			
-			if(reset_os)
+			if(reset)
 				row_integral[index]<=0;
 			else
 			if(wen)

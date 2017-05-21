@@ -27,7 +27,7 @@ o_inspect_done
 input  clk;
 input  reset;
 input  enable;
-input  [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+input  [DATA_WIDTH_16-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 input  [NUM_STAGE-1:0]end_database;
 input  [NUM_STAGE-1:0]end_tree;
 input  [NUM_STAGE-1:0]end_single_classifier;

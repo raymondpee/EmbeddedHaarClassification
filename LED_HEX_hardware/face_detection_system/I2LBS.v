@@ -41,7 +41,7 @@ o_candidate
 input clk;
 input reset;
 input pixel_recieve;
-input [DATA_WIDTH_12-1:0] pixel;
+input [DATA_WIDTH_16-1:0] pixel;
 input [DATA_WIDTH_12-1:0] ori_x;
 input [DATA_WIDTH_12-1:0] ori_y;
 input [NUM_STAGES-1:0] end_database;
@@ -68,7 +68,7 @@ wire integral_image_ready;
 wire inspect_done;
 wire [DATA_WIDTH_12-1:0] resize_x;
 wire [DATA_WIDTH_12-1:0] resize_y;
-wire [DATA_WIDTH_12-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
+wire [DATA_WIDTH_16-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
 
 
 reg enable;
