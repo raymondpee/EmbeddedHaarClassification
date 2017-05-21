@@ -101,7 +101,7 @@ reg [DATA_WIDTH_16-1:0] value;
 integer k_haar;
 
 assign copy = enable && !end_all_classifier;
-assign calculate = enable && end_all_classifier;
+assign calculate = enable && end_single_classifier;
 assign o_candidate = candidate;
 
 always@(posedge clk)
@@ -189,9 +189,9 @@ begin
 				12:	rect_C_3_index <= data;
 				13:	rect_D_3_index <= data;
 				14:	weight_3 <= data;
-				15:	threshold <= data;
-				16:	left_word <= data;
-				17:	right_word <= data;
+				16:	threshold <= data;
+				17:	left_word <= data;
+				18:	right_word <= data;
 			endcase
 		end
 	end
