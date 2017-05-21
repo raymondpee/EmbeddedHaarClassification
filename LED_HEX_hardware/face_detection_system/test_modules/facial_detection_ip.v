@@ -6,7 +6,10 @@ pixel,
 o_ready_recieve_pixel,
 end_recieve_pixel,
 o_state_inspect,
-o_end_frame
+o_end_frame,
+o_frame_width,
+o_ori_x,
+o_ori_y
 );
 
 /*--------------------------------------------------------------------*/
@@ -56,6 +59,9 @@ input [DATA_WIDTH_12 -1:0] pixel;
 output o_ready_recieve_pixel;
 output o_state_inspect;
 output o_end_frame;
+output [DATA_WIDTH_12 -1:0] o_frame_width;
+output [DATA_WIDTH_12 -1:0] o_ori_x;
+output [DATA_WIDTH_12 -1:0] o_ori_y;
 
 wire all_database_end;
 wire reset_database;
@@ -108,6 +114,10 @@ assign global_database_request = database_request>0;
 assign o_state_inspect = state_inspect;
 assign o_end_frame = state_end_frame;
 assign o_ready_recieve_pixel = start_recieve;
+assign o_frame_width = FRAME_ORIGINAL_CAMERA_WIDTH;
+assign o_ori_x = ori_x;
+assign o_ori_y = ori_y;
+
 
 assign enable_pixel_request = pixel_request == 5'b11111;
 assign enable_candidate = candidate>0; 

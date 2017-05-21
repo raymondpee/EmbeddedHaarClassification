@@ -5,12 +5,13 @@ module test_face_detection_ip;
 reg clk = 0;
 always # 1 clk <= ~clk;
 
-localparam IMAGE_NAME = "image.mif";
+localparam IMAGE_NAME = "Image.mif";
 
 /*------------------------------ADAPTER FOR THE HARDWARE--------------------*/
 
 
 localparam DATA_WIDTH_12 = 12;
+localparam DATA_WIDTH_16 = 16;
 localparam MAX_VAL = 255;
 
 localparam NUM_STATE = 4;
@@ -19,11 +20,16 @@ localparam PIXEL_INPUT_START = 1;
 localparam PIXEL_INPUT_END = 2;
 localparam FRAME_END = 3;
 
-
+wire trig_lwhpcfpga_pixel_input;
 wire end_frame;
 wire ready_recieve_pixel_ip;
 wire end_recieve_pixel;
 wire is_init;
+wire [DATA_WIDTH_12 -1:0] frame_width;
+wire [DATA_WIDTH_12 -1:0] ori_x;
+wire [DATA_WIDTH_12 -1:0] ori_y;
+
+
 reg lwhpcfpga_pixel_input;
 reg init = 0;
 reg trig_reset = 0;
@@ -33,7 +39,7 @@ reg [DATA_WIDTH_12-1:0] pixel; // Pixel of the image
 
 
 wire o_ready_recieve_pixel; 
-
+wire[DATA_WIDTH_16-1:0] coordinate_index; 
 assign is_init = init == 1;
 assign o_ready_recieve_pixel = ready_recieve_pixel_ip;
 assign end_recieve_pixel = lwhpcfpga_pixel_input;
@@ -89,6 +95,12 @@ end
 //Pixel Input [Assume this is from the c language]
 
 assign coordinate_index = ori_x + frame_width* ori_y;
+
+always@(posedge trig_lwhpcfpga_pixel_input)
+begin
+	lwhpcfpga_pixel_input<=1;
+end
+
 image_container
 #(
 .FILE_NAME(IMAGE_NAME)
@@ -96,22 +108,12 @@ image_container
 image
 (
 .clk(clk),
+.reset(trig_reset),
 .enable(o_ready_recieve_pixel),
 .coordinate_index(coordinate_index),
-.o_pixel(pixel)
+.o_pixel(pixel),
+.o_lwphcfpga_input(trig_lwhpcfpga_pixel_input)
 );
-
-always @(posedge clk)
-begin
-	if(o_ready_recieve_pixel)
-	begin
-	  if(pixel == MAX_VAL)
-		pixel <= 0;
-	  else
-		pixel <= pixel + 1;
-	lwhpcfpga_pixel_input<=1;
-	end
-end
 
 
 facial_detection_ip
@@ -122,7 +124,10 @@ facial_detection_ip
 .pixel(pixel),
 .end_recieve_pixel(end_recieve_pixel),
 .o_ready_recieve_pixel(ready_recieve_pixel_ip),
-.o_end_frame(end_frame)
+.o_end_frame(end_frame),
+.o_frame_width(frame_width),
+.o_ori_x(ori_x),
+.o_ori_y(ori_y)
 );
 /*-----------------------------------------------------------------------*/
 
