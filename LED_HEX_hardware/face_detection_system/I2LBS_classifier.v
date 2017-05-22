@@ -39,13 +39,15 @@ input  [DATA_WIDTH_12-1:0] data [NUM_STAGE-1:0];
 output o_inspect_done;
 output o_candidate;
 
+wire pass;
 wire [NUM_STAGE-1:0] candidate;
 reg  reset_classifier;
 reg  inspect_done;
 reg  [DATA_WIDTH_12-1:0] count_stage;
 
 assign o_inspect_done = inspect_done;
-assign o_candidate = end_database[NUM_STAGE-1] && candidate[NUM_STAGE-1];
+assign o_candidate = pass;
+assign pass = candidate == 25'b1111111111111111111111111;
 
 always@(posedge clk)
 begin
@@ -72,7 +74,7 @@ always@(posedge clk)
 begin
 	if(end_database[count_stage])
 	begin
-		if(!candidate[count_stage])
+		if(!candidate[count_stage]||pass)
 		begin
 			inspect_done <=1;
 			reset_classifier<=1;
