@@ -32,7 +32,7 @@ localparam NUM_STATE = 3;
 localparam IDLE = 0;
 localparam FILL_FIFO_INTEGRAL = 1;
 localparam FILL_INTEGRAL = 2;
-
+ 
 wire ready;
 wire end_count_integral;
 wire[INTEGRAL_HEIGHT-1:0] fill;
@@ -42,6 +42,7 @@ wire [DATA_WIDTH_16-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
 wire [DATA_WIDTH_16-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
 
 reg count_integral;
+reg [INTEGRAL_HEIGHT-1:0] r_fill;
 reg integral_image_ready;
 reg [NUM_STATE-1:0] state;
 reg [NUM_STATE-1:0] next_state;
@@ -57,6 +58,7 @@ begin
 		next_state<=IDLE;
 		integral_image_ready <=0;
 		count_integral<=0;
+		r_fill<=0;
 	end
 	else
 		state<=next_state;
@@ -103,7 +105,7 @@ counter_integral_image_size
 .clk(clk),
 .reset(reset),
 .enable(count_integral),
-.max_size(2*INTEGRAL_WIDTH),
+.max_size(INTEGRAL_WIDTH),
 .end_count(end_count_integral),
 .ctr_out(integral_image_count)
 );
@@ -136,6 +138,12 @@ endgenerate
 
 
 /*------------------Row declaration-----------------------------------------*/
+
+always@(posedge fill[0])
+begin
+	r_fill[0] = 1;
+end
+
 row
 #(
 	.DATA_WIDTH_8(DATA_WIDTH_8),
@@ -159,7 +167,13 @@ haar_row_0
 generate
 	genvar index;	
 	for(index = 1;index <INTEGRAL_HEIGHT;index= index +1)
-	begin				
+	begin	
+		always@(posedge fill[index])
+		begin
+			r_fill[index] = 1;
+		end
+
+	
 		row
 		#(
 			.DATA_WIDTH_8(DATA_WIDTH_8),
@@ -172,7 +186,7 @@ generate
 		(
 			.clk(clk),
 			.reset(reset),
-			.wen(fill[index-1]),
+			.wen(r_fill[index-1] && wen),
 			.fifo_in(fifo_data_out[index-1]),
 			.fifo_reduction_sum(fifo_reduction_sum[index]),
 			.o_fill(fill[index]),
