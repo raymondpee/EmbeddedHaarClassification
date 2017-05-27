@@ -12,7 +12,7 @@ parameter FILE_STAGE_MEM = "memory.mif"
 (
 clk,
 reset,
-en,
+enable,
 o_index_tree,
 o_index_classifier,
 o_index_database,
@@ -27,7 +27,7 @@ localparam SIZE_STAGE = NUM_CLASSIFIERS_STAGE*NUM_PARAM_PER_CLASSIFIER + NUM_STA
 /*-----------------IO Port declaration -----------------*/
 input clk;
 input reset;
-input en;
+input enable;
 
 output o_end_database;
 output o_end_tree;
@@ -39,177 +39,51 @@ output [DATA_WIDTH_12-1:0] o_index_database;
 output [DATA_WIDTH_12-1:0]o_data;
 /*-------------------------------------------------------*/
 
-wire w_end_tree;
-wire w_end_fifoin_database;
-wire w_end_fifoout_database;
-wire w_end_single_classifier;
-wire w_end_stage_threshold;
-wire [DATA_WIDTH_12-1:0] w_index_fifoin_database;
-wire [DATA_WIDTH_12-1:0] w_index_fifoout_database;
-wire [DATA_WIDTH_12-1:0] w_index_classifier;
+wire end_trees;
+wire end_database;
+wire end_tree;
+wire [DATA_WIDTH_12-1:0] index_database;
+wire [DATA_WIDTH_12-1:0] index_tree;
 wire [DATA_WIDTH_12-1:0] w_index_tree;
 wire [DATA_WIDTH_12-1:0] w_index_stage_threshold;
 
 
-reg r_count_tree;
-reg r_count_database;
-reg r_rden_database;
-reg r_count_classifier;
-reg r_count_fifoout_database;
-reg r_count_stage_threshold;
-reg r_end_database;
+reg trig_count_tree;
+reg count_classifier;
+reg count_database;
 reg r_end_all_classifiers;
-reg reset_logic;
-reg reset_counter_tree;
-reg reset_counter_fifoout_database;
-reg reset_counter_classifier;
-reg reset_stage_database;
-reg reset_counter_stage_threshold;
-reg [DATA_WIDTH_12-1:0] r_data;
-reg [DATA_WIDTH_12-1:0] r_stage_threshold;
-reg [DATA_WIDTH_12-1:0] r_parent;
-reg [DATA_WIDTH_12-1:0] r_next;
+reg [DATA_WIDTH_12-1:0] data;
 
-assign o_data = r_data;
+assign o_data = data;
 assign o_index_tree = w_index_tree;
-assign o_index_classifier = w_index_classifier;
-assign o_index_database = w_index_fifoout_database;
-assign o_end_tree = w_end_tree;
-assign o_end_single_classifier = w_end_single_classifier;
-assign o_end_database = r_end_database;
-assign o_end_all_classifier = r_end_all_classifiers;
+assign o_index_classifier = index_tree;
+assign o_index_database = index_database;
+assign o_end_tree = end_trees;
+assign o_end_single_classifier = end_tree;
+assign o_end_database = end_database;
+assign o_end_all_classifier = end_trees;
 
 
-always@(posedge w_end_fifoout_database)r_end_database<=1;
-always@(posedge w_end_stage_threshold) r_count_stage_threshold<=0;
-
-always@(w_index_fifoout_database)
+always@(index_database)
 begin
-	if((w_index_fifoout_database + NUM_STAGE_THRESHOLD) == SIZE_STAGE)
+	if((index_database + NUM_STAGE_THRESHOLD) == SIZE_STAGE)
 	begin
 		r_end_all_classifiers =1;
-		r_count_stage_threshold = 1;
-	end
-end
-
-
-
-
-
-always@(posedge clk)
-begin
-	if(r_end_all_classifiers)
-	begin
-		if(w_end_stage_threshold == 0)
-		begin
-			case(w_index_stage_threshold)
-			0:r_stage_threshold<= r_data;
-			1:r_parent<= r_data;
-			2:r_next<= r_data;
-			endcase
-		end
 	end
 end
 
 always@(posedge reset)
 begin
-	r_stage_threshold<=0;
-	r_parent<=0;
-	r_next<=0;
-	r_end_database<=0;
-	r_count_classifier<=0;
-	r_count_fifoout_database<=0;
-	r_count_stage_threshold<=0;
+	count_classifier<=0;
+	count_database<=0;
 	r_end_all_classifiers <=0;
-	reset_logic<=1;
-	reset_counter_tree<=1;
-	reset_counter_stage_threshold<=1;
-	reset_counter_classifier<=1;
-	reset_counter_fifoout_database<=1;
-	reset_stage_database<=1;
 end
 
 always@(posedge clk)
 begin
-	if(reset_logic) reset_logic<=0;
-	if(reset_counter_tree)reset_counter_tree<=0;
-	if(reset_counter_fifoout_database)reset_counter_fifoout_database<=0;
-	if(reset_counter_classifier)reset_counter_classifier<=0;
-	if(reset_stage_database)reset_stage_database<=0;
-	if(reset_counter_stage_threshold)reset_counter_stage_threshold<=0;
-	if(r_count_tree) r_count_tree<=0;	
+	if(trig_count_tree) trig_count_tree<=0;	
 end
 
-
-always@(posedge clk)
-begin
-	if(reset_logic)
-	begin	
-		r_data<=DEFAULT_VALUE;
-		r_count_tree<=0;
-		r_count_database<=0;
-		r_rden_database<=0;
-	end
-	if(w_end_fifoout_database)
-	begin
-		r_rden_database<=0;
-		r_data<=DEFAULT_VALUE;
-		reset_logic<=1;
-		reset_counter_fifoout_database<=1;
-		reset_counter_classifier<=1;
-		reset_stage_database<=1;
-	end
-end
-
-always@(posedge en)
-begin
-	r_count_database <=1;
-	r_rden_database<=1;
-end
-
-
-always@(r_data)
-begin
-	if(r_data == DEFAULT_VALUE)
-	begin
-		r_count_classifier<=0;
-		r_count_fifoout_database<=0;
-	end
-	else
-	begin
-		if(r_end_database ||!en)
-		begin
-			r_count_classifier<=0;
-			r_count_fifoout_database<=0;
-		end
-		else
-		begin
-			r_count_classifier<=1;
-			r_count_fifoout_database<=1;
-		end
-	end
-end
-
-always@(w_end_tree,w_end_fifoin_database,w_end_single_classifier)
-begin
-	if(w_end_tree) r_count_tree<=0;
-	if(w_end_single_classifier) r_count_tree <= 1;
-	if(w_end_fifoin_database) r_count_database<=0;
-end
-
-counter
-#(
-.DATA_WIDTH(DATA_WIDTH_12)
-)
-counter_stage_threshold
-(
-.clk(clk),
-.reset(reset_counter_stage_threshold),
-.enable(r_count_stage_threshold),
-.ctr_out(w_index_stage_threshold),
-.max_size(NUM_STAGE_THRESHOLD-1),
-.end_count(w_end_stage_threshold)
-);
 
 counter
 #(
@@ -218,12 +92,18 @@ counter
 counter_tree
 (
 .clk(clk),
-.reset(reset_counter_tree),
-.enable(r_count_tree),
+.reset(reset),
+.enable(trig_count_tree),
 .ctr_out(w_index_tree),
 .max_size(NUM_CLASSIFIERS_STAGE-1),
-.end_count(w_end_tree)
+.end_count(end_trees)
 );
+
+always@(posedge end_tree)
+begin
+	if(!end_trees)
+		trig_count_tree <= 1;
+end
 
 counter
 #(
@@ -232,11 +112,11 @@ counter
 counter_classifier
 (
 .clk(clk),
-.reset(reset_counter_classifier),
-.enable(r_count_classifier),
-.ctr_out(w_index_classifier),
+.reset(reset),
+.enable(count_classifier),
+.ctr_out(index_tree),
 .max_size(NUM_PARAM_PER_CLASSIFIER-1),
-.end_count(w_end_single_classifier)
+.end_count(end_tree)
 );
 
 
@@ -244,16 +124,38 @@ counter
 #(
 .DATA_WIDTH(DATA_WIDTH_12)
 )
-counter_fifoout_database
+counter_database
 (
 .clk(clk),
-.reset(reset_counter_fifoout_database),
-.enable(r_count_fifoout_database),
-.ctr_out(w_index_fifoout_database),
+.reset(reset),
+.enable(count_database),
+.ctr_out(index_database),
 .max_size(SIZE_STAGE-1),
-.end_count(w_end_fifoout_database)
+.end_count(end_database)
 );
 
+
+always@(data)
+begin
+	if(data == DEFAULT_VALUE)
+	begin
+		count_classifier<=0;
+		count_database<=0;
+	end
+	else
+	begin
+		if(end_database)
+		begin
+			count_classifier<=0;
+			count_database<=0;
+		end
+		else
+		begin
+			count_classifier<=1;
+			count_database<=1;
+		end
+	end
+end
 
 stage_database
 #(
@@ -267,12 +169,10 @@ stage_database
 stage_database
 (
 .clk(clk),
-.reset(reset_stage_database),
-.ren_database_index(en),
-.ren_database(en),
-.o_end_count(w_end_fifoin_database),
-.o_data(r_data),
-.o_address(w_index_fifoin_database)
+.reset(reset),
+.ren_database_index(enable),
+.ren_database(enable),
+.o_data(data)
 );
 
 endmodule
