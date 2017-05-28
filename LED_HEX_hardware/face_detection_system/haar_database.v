@@ -11,7 +11,7 @@ parameter NUM_STAGES = 24
 (
 	clk,
 	reset,
-	en,
+	enable,
 	o_index_tree,
 	o_index_classifier,
 	o_index_database,
@@ -80,7 +80,7 @@ localparam NUM_CLASSIFIERS_STAGE25 = 200;
 /*--------------------IO port declaration---------------------------------*/
 input clk;
 input reset;
-input en;
+input enable;
 
 output o_end;
 output [NUM_STAGES-1:0]o_end_database;
@@ -115,7 +115,7 @@ stage_1
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[0]),
 .o_index_classifier(o_index_classifier[0]),
 .o_index_database(o_index_database[0]),
@@ -141,7 +141,7 @@ stage_2
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[1]),
 .o_index_classifier(o_index_classifier[1]),
 .o_index_database(o_index_database[1]),
@@ -167,7 +167,7 @@ stage_3
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[2]),
 .o_index_classifier(o_index_classifier[2]),
 .o_index_database(o_index_database[2]),
@@ -193,7 +193,7 @@ stage_4
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[3]),
 .o_index_classifier(o_index_classifier[3]),
 .o_index_database(o_index_database[3]),
@@ -219,7 +219,7 @@ stage_5
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[4]),
 .o_index_classifier(o_index_classifier[4]),
 .o_index_database(o_index_database[4]),
@@ -245,7 +245,7 @@ stage_6
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[5]),
 .o_index_classifier(o_index_classifier[5]),
 .o_index_database(o_index_database[5]),
@@ -271,7 +271,7 @@ stage_7
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[6]),
 .o_index_classifier(o_index_classifier[6]),
 .o_index_database(o_index_database[6]),
@@ -297,7 +297,7 @@ stage_8
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[7]),
 .o_index_classifier(o_index_classifier[7]),
 .o_index_database(o_index_database[7]),
@@ -323,7 +323,7 @@ stage_9
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[8]),
 .o_index_classifier(o_index_classifier[8]),
 .o_index_database(o_index_database[8]),
@@ -349,7 +349,7 @@ stage_10
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[9]),
 .o_index_classifier(o_index_classifier[9]),
 .o_index_database(o_index_database[9]),
@@ -375,7 +375,7 @@ stage_11
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[10]),
 .o_index_classifier(o_index_classifier[10]),
 .o_index_database(o_index_database[10]),
@@ -401,7 +401,7 @@ stage_12
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[11]),
 .o_index_classifier(o_index_classifier[11]),
 .o_index_database(o_index_database[11]),
@@ -427,7 +427,7 @@ stage_13
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[12]),
 .o_index_classifier(o_index_classifier[12]),
 .o_index_database(o_index_database[12]),
@@ -453,7 +453,7 @@ stage_14
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[13]),
 .o_index_classifier(o_index_classifier[13]),
 .o_index_database(o_index_database[13]),
@@ -479,7 +479,7 @@ stage_15
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[14]),
 .o_index_classifier(o_index_classifier[14]),
 .o_index_database(o_index_database[14]),
@@ -505,7 +505,7 @@ stage_16
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[15]),
 .o_index_classifier(o_index_classifier[15]),
 .o_index_database(o_index_database[15]),
@@ -531,7 +531,7 @@ stage_17
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[16]),
 .o_index_classifier(o_index_classifier[16]),
 .o_index_database(o_index_database[16]),
@@ -557,7 +557,7 @@ stage_18
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[17]),
 .o_index_classifier(o_index_classifier[17]),
 .o_index_database(o_index_database[17]),
@@ -583,7 +583,7 @@ stage_19
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[18]),
 .o_index_classifier(o_index_classifier[18]),
 .o_index_database(o_index_database[18]),
@@ -609,7 +609,7 @@ stage_20
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[19]),
 .o_index_classifier(o_index_classifier[19]),
 .o_index_database(o_index_database[19]),
@@ -635,7 +635,7 @@ stage_21
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[20]),
 .o_index_classifier(o_index_classifier[20]),
 .o_index_database(o_index_database[20]),
@@ -661,7 +661,7 @@ stage_22
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[21]),
 .o_index_classifier(o_index_classifier[21]),
 .o_index_database(o_index_database[21]),
@@ -687,7 +687,7 @@ stage_23
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[22]),
 .o_index_classifier(o_index_classifier[22]),
 .o_index_database(o_index_database[22]),
@@ -713,7 +713,7 @@ stage_24
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[23]),
 .o_index_classifier(o_index_classifier[23]),
 .o_index_database(o_index_database[23]),
@@ -739,7 +739,7 @@ stage_25
 (
 .clk(clk),
 .reset(reset),
-.en(en),
+.enable(enable),
 .o_index_tree(o_index_tree[24]),
 .o_index_classifier(o_index_classifier[24]),
 .o_index_database(o_index_database[24]),

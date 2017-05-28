@@ -466,7 +466,7 @@ haar_database
 (
 .clk(clk),
 .reset(reset_database),
-.en(global_database_request),
+.enable(global_database_request),
 .o_index_tree(index_tree),
 .o_index_classifier(index_classifier),
 .o_index_database(index_database),
