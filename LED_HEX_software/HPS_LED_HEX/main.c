@@ -24,9 +24,7 @@ void led_blink(void)
 {
 	int i=0;
 	alt_write_word(h2p_lw_hex_addr, 30 ); 
-	alt_write_word(h2p_lw_led_addr, 30 ); 
 	printf("%d",*h2p_lw_hex_addr);
-	printf("%d",*h2p_lw_led_addr);
 	/*
 	while(1){
 	printf("LED ON \r\n");

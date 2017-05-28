@@ -123,7 +123,7 @@ begin
 	else if (s_write)
 	begin
 		integer j;
-		write_data = s_writedata;
+		write_data = 56;
 		base_index = s_address;
 		base_index = base_index << 3;
 		for(j=0;j<8;j=j+1)
