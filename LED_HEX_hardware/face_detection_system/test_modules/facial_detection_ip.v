@@ -2,14 +2,22 @@ module facial_detection_ip
 (
 clk,
 reset,
-pixel,
-o_ready_recieve_pixel,
-end_recieve_pixel,
-o_state_inspect,
-o_end_frame,
 o_frame_width,
-o_ori_x,
-o_ori_y
+
+//Pixel//
+o_ready_recieve_pixel,
+start_recieve_pixel,
+pixel,
+end_recieve_pixel,
+
+//Result//
+enable_read_result,
+o_result_data,
+o_enable_read_result_end,
+o_result_end,
+
+// End Of Frame Buffer
+o_end_frame
 );
 
 /*--------------------------------------------------------------------*/
@@ -41,45 +49,37 @@ localparam DATA_WIDTH_8 = 8;   // Max value 255
 localparam DATA_WIDTH_12 = 12; // Max value 4095
 localparam DATA_WIDTH_16 = 16; // Max value 177777
 localparam ADDR_WIDTH = DATA_WIDTH_12;
-localparam NUM_STAGE_THRESHOLD = 3;
 localparam NUM_PARAM_PER_CLASSIFIER = 19;
 localparam INTEGRAL_WIDTH = INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT = INTEGRAL_LENGTH;
-localparam MAX_RESIZE = 2**(NUM_RESIZE-1);
-
-localparam RECIEVE_PIXEL = 0;
-localparam INSPECT = 1;
-localparam END_FRAME = 2;
-localparam NUM_STATE = 3;
 
 input clk;
 input reset;
+input start_recieve_pixel;
 input end_recieve_pixel;
 input [DATA_WIDTH_16 -1:0] pixel;
+input enable_read_result;
 output o_ready_recieve_pixel;
-output o_state_inspect;
+output o_enable_read_result_end;
+output o_result_end;
 output o_end_frame;
+output [DATA_WIDTH_12-1:0]  o_result_data;
 output [DATA_WIDTH_12 -1:0] o_frame_width;
-output [DATA_WIDTH_12 -1:0] o_ori_x;
-output [DATA_WIDTH_12 -1:0] o_ori_y;
 
 wire all_database_end;
 wire reset_database;
 wire global_pixel_request;
 wire global_database_request;
 
-reg state_recieve_pixel;
-wire state_inspect;
-wire state_end_frame;
-
-wire write_in_end;
-wire read_out_end;
+wire enable_write_result_end;
+wire enable_read_result_end;
+wire result_end;
 
 wire reset_i2lbs;
 wire end_recieve;
 wire enable_pixel_recieve;
-wire enable_pixel_request;
-wire enable_candidate;
+wire start_pixel_request;
+wire got_candidate;
 wire [NUM_RESIZE-1:0] candidate;
 wire [NUM_RESIZE-1:0] inspect_done;
 wire [NUM_RESIZE-1:0] integral_image_ready;
@@ -95,132 +95,79 @@ wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
 wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
 wire [DATA_WIDTH_12-1:0] data_out;
 
-reg reset_new_frame;
-reg write_in;
-reg read_out;
-reg start_recieve;
+reg enable_write_result;
+reg ready_recieve_pixel;
 reg end_recieve_coordinate;
 reg end_coordinate;
-reg [NUM_STATE-1:0] state;
-reg [NUM_STATE-1:0] next_state;
 reg [DATA_WIDTH_12 -1:0] ori_x;
 reg [DATA_WIDTH_12 -1:0] ori_y;
 
-assign state_inspect = state == INSPECT;
-assign state_end_frame = state == END_FRAME;
-
 assign global_database_request = database_request>0;
 
-assign o_state_inspect = state_inspect;
-assign o_end_frame = state_end_frame;
-assign o_ready_recieve_pixel = start_recieve;
+assign o_ready_recieve_pixel = ready_recieve_pixel;
 assign o_frame_width = FRAME_ORIGINAL_CAMERA_WIDTH;
-assign o_ori_x = ori_x;
-assign o_ori_y = ori_y;
+assign o_enable_read_result_end = enable_read_result_end;
+assign o_result_end = result_end;
+assign o_result_data = data_out;
+assign o_end_frame = end_coordinate;
 
-
-assign enable_pixel_request = pixel_request == 5'b11111;
-assign enable_candidate = candidate>0; 
+assign start_pixel_request = pixel_request == 5'b11111;
+assign got_candidate = candidate>0; 
 
 assign end_recieve = end_recieve_coordinate && end_recieve_pixel;
-assign reset_i2lbs = reset_new_frame || reset;
-assign reset_database = reset_new_frame|| enable_pixel_request || reset;
+assign reset_i2lbs =  reset;
+assign reset_database = start_pixel_request || reset;
 
-
-
-always@(posedge clk)
-begin
-	if(reset_new_frame)reset_new_frame<=0;
-end
 
 always@(posedge clk)
 begin
 	if(reset)
 	begin
-		write_in <=0;
-		read_out<=0;
-		state<=0;
-		next_state<=0;
+		enable_write_result <=0;
 		ori_x <= 0;
 		ori_y <= 0;	
-		start_recieve<=0;
+		ready_recieve_pixel<=0;
 		end_recieve_coordinate <=0;
 		end_coordinate<=0;
-		reset_new_frame<=1;
-	end
-	else
-	begin
-		state <=next_state;
 	end
 end
 
-always@(*)
-begin
-	next_state = state;
-	case(state)
-		RECIEVE_PIXEL:
-		begin
-			start_recieve = 1;
-			if(end_recieve)
-			begin	
-				start_recieve = 0;
-				next_state = INSPECT;
-			end
-		end
-		INSPECT:
-		begin
-			end_recieve_coordinate = 0;
-			if(enable_pixel_request)
-			begin
-				if(end_coordinate)
-				begin
-					start_recieve = 0;
-					next_state = END_FRAME;
-				end
-				else if(enable_candidate)
-				begin
-					write_in = 1;
-					if(write_in_end)
-					begin
-						write_in = 0;
-						start_recieve = 1;
-						next_state = RECIEVE_PIXEL;
-					end
-				end
-				else
-				begin
-					start_recieve =1;
-					next_state = RECIEVE_PIXEL;
-				end				
-			end
-		end
-		END_FRAME:
-		begin
-			read_out = 1;
-			if(read_out_end)
-			begin
-				read_out = 0;
-				reset_new_frame = 1;
-				next_state = RECIEVE_PIXEL;
-			end
-		end
-	endcase
 
+always@(posedge clk)
+begin
+	ready_recieve_pixel<=0;
+	if(start_pixel_request)
+	begin
+		if(got_candidate)
+		begin
+			enable_write_result <= 1;
+			if(enable_write_result_end)
+			begin
+				enable_write_result <= 0;
+				ready_recieve_pixel <= 1;
+			end
+		end
+		else
+		begin
+			ready_recieve_pixel <= 1;
+		end				
+	end
 end
 
 
 /*------------------------ COORDINATE ITERATION -------------------------*/
 always @(posedge clk)
-begin
-	if(start_recieve)
-	begin			
+begin	
+	end_recieve_coordinate <=0;	
+	if(start_recieve_pixel)
+	begin
 		if(ori_x == FRAME_ORIGINAL_CAMERA_WIDTH -1)
 		begin 
 			ori_x <= 0;
 			if(ori_y == FRAME_ORIGINAL_CAMERA_HEIGHT -1)
 			begin			
 				ori_y <= 0;   
-				end_coordinate<=1;
+				end_coordinate <= 1;
 			end
 			else
 			begin
@@ -231,44 +178,36 @@ begin
 		begin
 			ori_x <= ori_x + 1;
 		end
-		end_recieve_coordinate<=1;
+		end_recieve_coordinate <=1;
 	end
-	else
-		end_recieve_coordinate<=0;
 end
 /*-----------------------------------------------------------------------*/
 
 
 result
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
-.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
-.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
 .NUM_RESIZE(NUM_RESIZE)
 )
 result
 (
 .clk(clk),
 .reset(reset_i2lbs),
-.write_in(write_in),
-.o_write_in_end(write_in_end),
-.read_out(read_out),
-.o_read_out_end(read_out_end),
+.enable_write_result(enable_write_result),
+.o_enable_write_result_end(enable_write_result_end),
+.enable_read_result(enable_read_result),
+.o_enable_read_result_end(enable_read_result_end),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .candidate(candidate),
-.o_data_out(data_out)
+.o_data_out(data_out),
+.o_result_end(result_end)
 );
 
 I2LBS
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8), 
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT),
 .NUM_STAGES(NUM_STAGES),
-.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
 .FRAME_ORIGINAL_CAMERA_HEIGHT(FRAME_ORIGINAL_CAMERA_HEIGHT),
@@ -300,13 +239,9 @@ I2LBS_1
 
 I2LBS
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8), 
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT),
 .NUM_STAGES(NUM_STAGES),
-.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
 .FRAME_ORIGINAL_CAMERA_HEIGHT(FRAME_ORIGINAL_CAMERA_HEIGHT),
@@ -338,13 +273,9 @@ I2LBS_2
 
 I2LBS
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8), 
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT),
 .NUM_STAGES(NUM_STAGES),
-.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
 .FRAME_ORIGINAL_CAMERA_HEIGHT(FRAME_ORIGINAL_CAMERA_HEIGHT),
@@ -376,13 +307,9 @@ I2LBS_3
 
 I2LBS
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8), 
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT),
 .NUM_STAGES(NUM_STAGES),
-.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
 .FRAME_ORIGINAL_CAMERA_HEIGHT(FRAME_ORIGINAL_CAMERA_HEIGHT),
@@ -414,13 +341,9 @@ I2LBS_4
 
 I2LBS
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8), 
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT),
 .NUM_STAGES(NUM_STAGES),
-.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
 .FRAME_ORIGINAL_CAMERA_HEIGHT(FRAME_ORIGINAL_CAMERA_HEIGHT),
@@ -455,10 +378,6 @@ I2LBS_5
 haar_database
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
-.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
-.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
-.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
-.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .NUM_STAGES(NUM_STAGES)
 )

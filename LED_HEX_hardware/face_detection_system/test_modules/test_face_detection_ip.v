@@ -14,23 +14,29 @@ localparam DATA_WIDTH_12 = 12;
 localparam DATA_WIDTH_16 = 16;
 localparam MAX_VAL = 255;
 
-localparam NUM_STATE = 4;
+localparam NUM_STATE = 5;
 localparam RESET = 0;
-localparam PIXEL_INPUT_START = 1;
-localparam PIXEL_INPUT_END = 2;
-localparam FRAME_END = 3;
+localparam START_RECIEVE_PIXEL = 1;
+localparam END_RECIEVE_PIXEL = 2;
+localparam START_RECIEVE_RESULT = 3;
+localparam RECIEVE_RESULT = 4;
 
 wire trig_lwhpcfpga_pixel_input;
 wire end_frame;
-wire ready_recieve_pixel_ip;
-wire end_recieve_pixel;
+wire result_end;
+wire ready_recieve_pixel;
+
 wire is_init;
 wire [DATA_WIDTH_12 -1:0] frame_width;
 wire [DATA_WIDTH_12 -1:0] ori_x;
 wire [DATA_WIDTH_12 -1:0] ori_y;
+wire [DATA_WIDTH_12-1:0] data;
+wire start_recieve_pixel;
+wire end_recieve_pixel;
+wire enable_read_result_end;
 
+reg write;
 
-reg lwhpcfpga_pixel_input;
 reg init = 0;
 reg trig_reset = 0;
 reg [NUM_STATE-1:0] state = 0;
@@ -38,11 +44,12 @@ reg [NUM_STATE-1:0] next_state;
 reg [DATA_WIDTH_16-1:0] pixel; // Pixel of the image
 
 
-wire o_ready_recieve_pixel; 
-wire[DATA_WIDTH_16-1:0] coordinate_index; 
+reg enable_read_result;
+
 assign is_init = init == 1;
-assign o_ready_recieve_pixel = ready_recieve_pixel_ip;
-assign end_recieve_pixel = lwhpcfpga_pixel_input;
+assign start_recieve_pixel = state == START_RECIEVE_PIXEL;
+assign end_recieve_pixel = state == END_RECIEVE_PIXEL;
+assign enable_read_result = state == START_RECIEVE_RESULT;
 
 always@(posedge clk)
 begin
@@ -52,8 +59,9 @@ begin
 		state <=RESET;
 		next_state<=0;
 		pixel<=0;
+		write<=0;
+		enable_read_result<=0;
 		trig_reset <= 0;
-		lwhpcfpga_pixel_input<=0;
 	end
 	else
 	begin
@@ -70,41 +78,66 @@ begin
 	begin
 		if(!is_init || end_frame)
 			trig_reset=1;
-		if(ready_recieve_pixel_ip)	
-			next_state = PIXEL_INPUT_START;
+			next_state = START_RECIEVE_PIXEL;
 	end
-	PIXEL_INPUT_START:
+	START_RECIEVE_PIXEL:
 	begin
-		if(end_recieve_pixel)
-			next_state = PIXEL_INPUT_END;
+		if(write)
+		begin
+			next_state = END_RECIEVE_PIXEL;
+		end
 		if(end_frame)
-			next_state = RESET;
+		begin
+			next_state = RECIEVE_RESULT;
+		end
 	end
-	PIXEL_INPUT_END:
+	END_RECIEVE_PIXEL:
 	begin
-		lwhpcfpga_pixel_input<=0;
-		if(ready_recieve_pixel_ip)	
-			next_state = PIXEL_INPUT_START;
+		if(ready_recieve_pixel)
+		begin
+			next_state = START_RECIEVE_PIXEL;
+		end
 		if(end_frame)
-			next_state = RESET;
+		begin
+			next_state = RECIEVE_RESULT;
+		end
 	end
+	RECIEVE_RESULT:
+	begin
+		enable_read_result<=0;
+		if(write)
+		begin
+			enable_read_result<=1;
+		end
+		if(result_end)
+		begin
+			next_state = RESET;
+		end
+	end	
 	endcase
 end
 
 
+/*---------------------------------------------------*/
 //Pixel Input [Assume this is from the c language]
 always @(posedge clk)
 begin
-    if(o_ready_recieve_pixel)
+	write<=0;
+    if(state == START_RECIEVE_PIXEL)
     begin
       if(pixel == MAX_VAL)
         pixel <= 0;
       else
         pixel <= pixel + 1;
-    lwhpcfpga_pixel_input<=1;
+		write<=1;
     end
+	if(state == RECIEVE_RESULT)
+	begin
+		write<=1;
+	end
 end
 
+/*---------------------------------------------------*/
 
 
 facial_detection_ip
@@ -112,13 +145,20 @@ facial_detection_ip
 (
 .clk(clk),
 .reset(trig_reset),
+.o_frame_width(frame_width),
+
+//Pixel//
+.o_ready_recieve_pixel(ready_recieve_pixel),
+.start_recieve_pixel(start_recieve_pixel),
 .pixel(pixel),
 .end_recieve_pixel(end_recieve_pixel),
-.o_ready_recieve_pixel(ready_recieve_pixel_ip),
-.o_end_frame(end_frame),
-.o_frame_width(frame_width),
-.o_ori_x(ori_x),
-.o_ori_y(ori_y)
+
+//Result//
+.enable_read_result(enable_read_result),
+.o_result_data(data),
+.o_enable_read_result_end(enable_read_result_end),
+.o_result_end(result_end),
+.o_end_frame(end_frame)
 );
 /*-----------------------------------------------------------------------*/
 

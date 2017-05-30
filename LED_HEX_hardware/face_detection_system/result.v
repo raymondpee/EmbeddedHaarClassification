@@ -8,96 +8,98 @@ parameter NUM_RESIZE = 5
 (
 	clk,
 	reset,
-	write_in,
-	o_write_in_end,
-	read_out,
-	o_read_out_end,
+	// Enable/Disable read write //
+	enable_write_result,
+	o_enable_write_result_end,
+	enable_read_result,
+	o_enable_read_result_end,
+	//Data in//
 	ori_x,
 	ori_y,
 	candidate,
-	o_data_out
+	//Data Out//
+	o_data_out,
+	o_result_end
 );
 
 input clk;
 input reset;
-input write_in;
-input read_out;
+input enable_write_result;
+input enable_read_result;
 
 input [DATA_WIDTH_12-1:0] ori_x;
 input [DATA_WIDTH_12-1:0] ori_y;
 input [NUM_RESIZE-1:0] candidate;
 
-output o_write_in_end;
-output o_read_out_end;
+output o_enable_write_result_end;
+output o_enable_read_result_end;
+output o_result_end;
 output o_data_out;
 
 localparam NUM_VARIABLE = 3;
 
 wire result_size;
-wire write_in_end;
-wire read_out_end;
+wire enable_write_result_end;
+wire enable_read_result_end;
+
 wire [DATA_WIDTH_12-1:0] index_read_out;
-wire [DATA_WIDTH_12-1:0] index_write_in;
+wire [DATA_WIDTH_12-1:0] index_enable_write_result;
 wire [DATA_WIDTH_12-1:0] data_out;
 
-reg trig_write_in_end;
-reg trig_read_out_end;
+reg result_end;
 reg [DATA_WIDTH_12-1:0] data_in;
 
 
-assign o_write_in_end = trig_write_in_end;
-assign o_read_out_end = trig_read_out_end;
+assign o_enable_write_result_end = enable_write_result_end;
+assign o_enable_read_result_end = enable_read_result_end;
 assign o_data_out = data_out;
+assign o_result_end = result_end;
 
 //Set trigger signal and reset 
 always@(posedge clk)
 begin
-	if(reset || trig_write_in_end)
-		trig_write_in_end<=0;
-	if(reset || trig_read_out_end)
-		trig_read_out_end<=0;
+	if(reset)
+	begin
+		result_end<=0;
+	end
 end
 
 always@(posedge clk)
 begin
-	if(write_in)
+	if(enable_write_result)
 	begin
-		case(index_write_in)
+		case(index_enable_write_result)
 			0: data_in <= ori_x;
 			1: data_in <= ori_y;
-			2: 
-			begin
-				data_in <= candidate;
-				trig_write_in_end<=1;
-			end
+			2: data_in <= candidate;
 			default: data_in <= ori_x;
 		endcase
 	end
 end
 
-always@(posedge clk)
+
+
+always@(result_size)
 begin
-	if(read_out)
+	if(result_size == 0)
 	begin
-		if(result_size == 0)
-			trig_read_out_end<=1;
+		result_end =1;
 	end
 end
-
 
 //Set write in count state
 counter 
 #(
 .DATA_WIDTH(DATA_WIDTH_12)
 )
-counter_write_in
+counter_enable_write_result
 (
   .clk(clk),
   .reset(reset),
-  .enable(write_in),
+  .enable(enable_write_result),
   .max_size(NUM_VARIABLE),
-  .end_count(write_in_end),
-  .ctr_out(index_write_in)
+  .end_count(enable_write_result_end),
+  .ctr_out(index_enable_write_result)
 );
 
 //Set read out count state
@@ -105,13 +107,13 @@ counter
 #(
 .DATA_WIDTH(DATA_WIDTH_12)
 )
-counter_read_out
+counter_enable_read_result
 (
   .clk(clk),
   .reset(reset),
-  .enable(read_out),
-  .max_size(result_size),
-  .end_count(read_out_end),
+  .enable(enable_read_result),
+  .max_size(NUM_VARIABLE),
+  .end_count(enable_read_result_end),
   .ctr_out(index_read_out)
 );
 
@@ -125,8 +127,8 @@ row_fifo
 (
 	.clock(clk),
 	.data(data_in),
-	.rdreq(read_out),
-	.wrreq(write_in),
+	.rdreq(enable_read_result),
+	.wrreq(enable_write_result),
 	.q(data_out),
 	.usedw(result_size)	
 );
