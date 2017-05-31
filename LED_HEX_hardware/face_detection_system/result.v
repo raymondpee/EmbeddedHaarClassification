@@ -9,64 +9,76 @@ parameter NUM_RESIZE = 5
 	clk,
 	reset,
 	// Enable/Disable read write //
-	enable_write_result,
-	o_enable_write_result_end,
-	enable_read_result,
-	o_enable_read_result_end,
+	write_result,
+	o_write_result_end,
+	read_result,
+	o_read_result_end,
 	//Data in//
 	ori_x,
 	ori_y,
 	candidate,
 	//Data Out//
-	o_data_out,
-	o_result_end
+	o_result,
+	o_empty
 );
 
-input clk;
-input reset;
-input enable_write_result;
-input enable_read_result;
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
+input 							clk;
+input 							reset;
 
-input [DATA_WIDTH_12-1:0] ori_x;
-input [DATA_WIDTH_12-1:0] ori_y;
-input [NUM_RESIZE-1:0] candidate;
+input 							write_result;
+input 	[DATA_WIDTH_12-1:0] 	ori_x;
+input 	[DATA_WIDTH_12-1:0] 	ori_y;
+input 	[NUM_RESIZE-1:0] 		candidate;
+output 							o_write_result_end;
 
-output o_enable_write_result_end;
-output o_enable_read_result_end;
-output o_result_end;
-output o_data_out;
-
-localparam NUM_VARIABLE = 3;
-
-wire result_size;
-wire enable_write_result_end;
-wire enable_read_result_end;
-
-wire [DATA_WIDTH_12-1:0] index_read_out;
-wire [DATA_WIDTH_12-1:0] index_enable_write_result;
-wire [DATA_WIDTH_12-1:0] data_out;
-
-reg result_end;
-reg [DATA_WIDTH_12-1:0] data_in;
+input 							read_result;
+output 							o_result;
+output 							o_read_result_end;
+output 							o_empty;
 
 
-assign o_enable_write_result_end = enable_write_result_end;
-assign o_enable_read_result_end = enable_read_result_end;
-assign o_data_out = data_out;
-assign o_result_end = result_end;
 
-//Set trigger signal and reset 
+/*****************************************************************************
+ *                             Internal Wire/Register                        *
+ *****************************************************************************/
+localparam 						NUM_VARIABLE = 3;
+wire 							result_size;
+wire 							write_result_end;
+wire 							read_result_end;
+wire 	[DATA_WIDTH_12-1:0] 	index_read_out;
+wire 	[DATA_WIDTH_12-1:0] 	index_enable_write_result;
+wire 	[DATA_WIDTH_12-1:0] 	data_out;
+
+reg 							result_empty;
+reg 	[DATA_WIDTH_12-1:0] 	data_in;
+
+ /*****************************************************************************
+ *                            Combinational logic                             *
+ *****************************************************************************/
+assign o_write_result_end = write_result_end;
+assign o_read_result_end = read_result_end;
+assign o_result = data_out;
+assign o_empty = result_empty;
+
+
+/*****************************************************************************
+ *                            Sequence logic                                 *
+ *****************************************************************************/ 
 always@(posedge clk)
 begin
 	if(reset)
 	begin
-		result_end<=0;
+		result_empty<=0;
+		data_in<=0;
 	end
 end
 
 always@(posedge clk)
 begin
-	if(enable_write_result)
+	if(write_result)
 	begin
 		case(index_enable_write_result)
 			0: data_in <= ori_x;
@@ -78,16 +90,20 @@ begin
 end
 
 
-
 always@(result_size)
 begin
 	if(result_size == 0)
 	begin
-		result_end =1;
+		result_empty =1;
 	end
 end
 
-//Set write in count state
+
+
+ /*****************************************************************************
+ *                                   Modules                                  *
+ *****************************************************************************/ 
+//=== Write In Count
 counter 
 #(
 .DATA_WIDTH(DATA_WIDTH_12)
@@ -96,13 +112,13 @@ counter_enable_write_result
 (
   .clk(clk),
   .reset(reset),
-  .enable(enable_write_result),
+  .enable(write_result),
   .max_size(NUM_VARIABLE),
-  .end_count(enable_write_result_end),
+  .end_count(write_result_end),
   .ctr_out(index_enable_write_result)
 );
 
-//Set read out count state
+//=== Read Out Count
 counter 
 #(
 .DATA_WIDTH(DATA_WIDTH_12)
@@ -111,13 +127,13 @@ counter_enable_read_result
 (
   .clk(clk),
   .reset(reset),
-  .enable(enable_read_result),
+  .enable(read_result),
   .max_size(NUM_VARIABLE),
-  .end_count(enable_read_result_end),
+  .end_count(read_result_end),
   .ctr_out(index_read_out)
 );
 
-
+//=== Database
 fifo 
 #(
 .DATA_WIDTH(DATA_WIDTH_12),
@@ -127,8 +143,8 @@ row_fifo
 (
 	.clock(clk),
 	.data(data_in),
-	.rdreq(enable_read_result),
-	.wrreq(enable_write_result),
+	.rdreq(read_result),
+	.wrreq(write_result),
 	.q(data_out),
 	.usedw(result_size)	
 );

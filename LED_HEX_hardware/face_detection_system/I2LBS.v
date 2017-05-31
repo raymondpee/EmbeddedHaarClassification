@@ -19,7 +19,7 @@ reset,
 pixel,
 ori_x,
 ori_y,
-pixel_recieve,
+enable_recieve_pixel,
 index_tree,
 index_classifier,
 index_database,
@@ -40,7 +40,7 @@ o_candidate
 /*--------------------IO port declaration---------------------------------*/
 input clk;
 input reset;
-input pixel_recieve;
+input enable_recieve_pixel;
 input [DATA_WIDTH_16-1:0] pixel;
 input [DATA_WIDTH_12-1:0] ori_x;
 input [DATA_WIDTH_12-1:0] ori_y;
@@ -115,7 +115,7 @@ begin
 		begin
 			pixel_request = 1;
 			database_request = 0;
-			enable_memory = pixel_recieve && reach;
+			enable_memory = enable_recieve_pixel && reach;
 			if(reach && integral_image_ready)
 			begin
 				next_state = INSPECT;
@@ -145,7 +145,7 @@ begin
 		REQUEST_RECIEVE: 
 		begin
 			pixel_request = 1;
-			enable_memory = pixel_recieve && reach;
+			enable_memory = enable_recieve_pixel && reach;
 			database_request = 0;
 			if(enable_memory)
 			begin

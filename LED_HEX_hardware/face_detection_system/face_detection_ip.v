@@ -19,24 +19,24 @@ SEG7
 /*****************************************************************************
  *                           Parameter Declarations                          *
  *****************************************************************************/
-//Bridge
+//===== Bridge
 parameter	SEG7_NUM		=   8;
 parameter	ADDR_WIDTH		=	3;		
 parameter	DEFAULT_ACTIVE  =   1;
 parameter	LOW_ACTIVE  	=   1;
 
-//Data Width
+//===== Data Width
 localparam DATA_WIDTH_8			= 8;
 localparam DATA_WIDTH_12 		= 12;
 localparam DATA_WIDTH_16 		= 16;
 
-// State
-localparam START_RECIEVE_PIXEL 	= 0;
-localparam END_RECIEVE_PIXEL 	= 1;
-localparam START_RECIEVE_RESULT = 2;
-localparam RECIEVE_RESULT 		= 3;
-localparam NUM_STATE 			= 4;
+//===== State
+localparam WAIT 				= 0;
+localparam RECIEVE_PIXEL 		= 1;
+localparam RECIEVE_RESULT 		= 2;
+localparam NUM_STATE 			= 3;
 
+//===== Linux State
 localparam LINUX_CALL_RESET 		= 900;
 localparam LINUX_START_SEND_PIXEL 	= 901;
 localparam LINUX_END_SEND_PIXEL 	= 902;
@@ -53,7 +53,6 @@ input						s_write;
 input	[7:0]				s_writedata;
 input						s_reset;
 
-
 //===== Interface to export
  // s1
 output	[(SEG7_NUM*8-1):0]  SEG7;
@@ -68,7 +67,7 @@ wire 							result_end;
 wire 							fpga_ready_recieve_pixel;
 
 reg 							trig_reset;
-reg 							enable_read_result; 
+reg 							recieve_result; 
 reg 	[NUM_STATE-1:0] 		state;
 
 
@@ -81,9 +80,10 @@ reg		[7:0]					result;				//Read To Linux
 
 
 /*****************************************************************************
- *                            Sequence logic (BRIDGE)                        *
- *****************************************************************************/
+ *                            Sequence logic                                 *
+ *****************************************************************************/ 
  
+//===== Bridge IO Logic
 always @ (negedge s_clk)
 begin
 	trig_reset = 0;
@@ -124,62 +124,52 @@ begin
 	end	
 end
  
- /*****************************************************************************
- *                            Combinational logic (BRIDGE)                    *
- *****************************************************************************/
-assign SEG7 = (LOW_ACTIVE)?~reg_file:reg_file;
-assign s_readdata = read_data;
-
-
-/*****************************************************************************
- *                            Sequence logic                                 *
- *****************************************************************************/ 
+//===== Reset 
 always@(posedge s_clk)
 begin
 	if(s_reset || trig_reset)
 	begin
-		init <=1;
 		linux_start_send_pixel<=0;
 		linux_end_send_pixel<=0;
-		state <=END_RECIEVE_PIXEL;
+		state <=WAIT;
 		pixel<=0;
 		write<=0;
-		enable_read_result<=0;
+		recieve_result<=0;
 	end
 end
 
-
+//===== Finite State Machine 
 always@(posedge s_clk)
 begin
 	case (state)
-	END_RECIEVE_PIXEL:
+	WAIT:
 	begin
 		if(fpga_ready_recieve_pixel && linux_end_send_pixel)
 		begin
-			state <= START_RECIEVE_PIXEL;
+			state <= RECIEVE_PIXEL;
 		end
 		if(frame_end)
 		begin
 			state <= RECIEVE_RESULT;
 		end
 	end
-	START_RECIEVE_PIXEL:
+	RECIEVE_PIXEL:
 	begin
 		if(recieve_pixel_end)
 		begin
-			state <= END_RECIEVE_PIXEL;
+			state <= WAIT;
 		end
 	end
 	RECIEVE_RESULT:
 	begin
-		enable_read_result<=0;
+		recieve_result<=0;
 		if(write)
 		begin
-			enable_read_result<=1;
+			recieve_result<=1;
 		end
 		if(result_end)
 		begin
-			state = END_RECIEVE_PIXEL;
+			state = WAIT;
 		end
 	end	
 	endcase
@@ -196,14 +186,13 @@ face_detection
 .reset(trig_reset)
 
 //Pixel//
-.o_ready_recieve_pixel(fpga_ready_recieve_pixel),
+.o_fpga_ready_recieve_pixel(fpga_ready_recieve_pixel),
 .recieve_pixel(recieve_pixel),
 .o_recieve_pixel_end(recieve_pixel_end),
 .pixel(pixel),
-.end_recieve_pixel(end_recieve_pixel),
 
 //Result//
-.enable_read_result(enable_read_result),
+.recieve_result(recieve_result),
 .o_result_data(data),
 .o_enable_read_result_end(enable_read_result_end),
 .o_result_end(result_end),
@@ -215,9 +204,8 @@ face_detection
  /*****************************************************************************
  *                            Combinational logic                             *
  *****************************************************************************/
-assign is_init = init == 1;
-assign recieve_pixel = state == START_RECIEVE_PIXEL;
-assign end_recieve_pixel = state == END_RECIEVE_PIXEL;
-assign enable_read_result = state == START_RECIEVE_RESULT;
+assign s_readdata = read_data;
+assign recieve_pixel = state == RECIEVE_PIXEL;
+assign recieve_result = state == RECIEVE_RESULT;
 endmodule
 

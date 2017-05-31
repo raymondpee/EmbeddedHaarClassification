@@ -1,4 +1,4 @@
-module haar_database
+module database
 #(
 parameter ADDR_WIDTH = 12,
 parameter DATA_WIDTH_8 = 8,   // Max value 255
@@ -100,7 +100,7 @@ assign o_end = o_end_database[0] && o_end_database[1] && o_end_database[2] && o_
 				&& o_end_database[15] && o_end_database[16] && o_end_database[17] && o_end_database[18] && o_end_database[19]
 				&& o_end_database[20] && o_end_database[21] && o_end_database[22] && o_end_database[23] && o_end_database[24];
   
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE1),
@@ -123,7 +123,7 @@ stage_1
 .o_data(o_data[0])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE2),
@@ -146,7 +146,7 @@ stage_2
 .o_data(o_data[1])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE3),
@@ -169,7 +169,7 @@ stage_3
 .o_data(o_data[2])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE4),
@@ -192,7 +192,7 @@ stage_4
 .o_data(o_data[3])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE5),
@@ -215,7 +215,7 @@ stage_5
 .o_data(o_data[4])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE6),
@@ -238,7 +238,7 @@ stage_6
 .o_data(o_data[5])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE7),
@@ -261,7 +261,7 @@ stage_7
 .o_data(o_data[6])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE8),
@@ -284,7 +284,7 @@ stage_8
 .o_data(o_data[7])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE9),
@@ -307,7 +307,7 @@ stage_9
 .o_data(o_data[8])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE10),
@@ -330,7 +330,7 @@ stage_10
 .o_data(o_data[9])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE11),
@@ -353,7 +353,7 @@ stage_11
 .o_data(o_data[10])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE12),
@@ -376,7 +376,7 @@ stage_12
 .o_data(o_data[11])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE13),
@@ -399,7 +399,7 @@ stage_13
 .o_data(o_data[12])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE14),
@@ -422,7 +422,7 @@ stage_14
 .o_data(o_data[13])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE15),
@@ -445,7 +445,7 @@ stage_15
 .o_data(o_data[14])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE16),
@@ -468,7 +468,7 @@ stage_16
 .o_data(o_data[15])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE17),
@@ -491,7 +491,7 @@ stage_17
 .o_data(o_data[16])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE18),
@@ -514,7 +514,7 @@ stage_18
 .o_data(o_data[17])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE19),
@@ -537,7 +537,7 @@ stage_19
 .o_data(o_data[18])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE20),
@@ -560,7 +560,7 @@ stage_20
 .o_data(o_data[19])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE21),
@@ -583,7 +583,7 @@ stage_21
 .o_data(o_data[20])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE22),
@@ -606,7 +606,7 @@ stage_22
 .o_data(o_data[21])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE23),
@@ -629,7 +629,7 @@ stage_23
 .o_data(o_data[22])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE24),
@@ -652,7 +652,7 @@ stage_24
 .o_data(o_data[23])
 );
 
-fifo_stage_database
+database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE25),
