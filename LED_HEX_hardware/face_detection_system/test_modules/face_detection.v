@@ -1,4 +1,4 @@
-module facial_detection_ip
+module face_detection
 (
 clk,
 reset,
@@ -6,9 +6,9 @@ o_frame_width,
 
 //Pixel//
 o_ready_recieve_pixel,
-start_recieve_pixel,
+recieve_pixel,
+o_recieve_pixel_end,
 pixel,
-end_recieve_pixel,
 
 //Result//
 enable_read_result,
@@ -16,6 +16,8 @@ o_result_data,
 o_enable_read_result_end,
 o_result_end,
 
+// End Of Frame Buffer
+o_frame_end
 );
 
 /*--------------------------------------------------------------------*/
@@ -51,67 +53,73 @@ localparam NUM_PARAM_PER_CLASSIFIER = 19;
 localparam INTEGRAL_WIDTH = INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT = INTEGRAL_LENGTH;
 
-input clk;
-input reset;
-input start_recieve_pixel;
-input end_recieve_pixel;
-input [DATA_WIDTH_16 -1:0] pixel;
-input enable_read_result;
-output o_ready_recieve_pixel;
-output o_enable_read_result_end;
-output o_result_end;
-output [DATA_WIDTH_12-1:0]  o_result_data;
-output [DATA_WIDTH_12 -1:0] o_frame_width;
+input 							clk;
+input 							reset;
+input 							enable_read_result;
+input 	[DATA_WIDTH_16 -1:0] 	pixel;
+output 							o_recieve_pixel_end;
+output 							o_ready_recieve_pixel;
+output 							o_enable_read_result_end;
+output 							o_result_end;
+output 							o_frame_end;
+output 	[DATA_WIDTH_12-1:0]  	o_result_data;
+output 	[DATA_WIDTH_12 -1:0] 	o_frame_width;
 
-wire all_database_end;
-wire reset_database;
-wire global_pixel_request;
-wire global_database_request;
 
-wire enable_write_result_end;
-wire enable_read_result_end;
-wire result_end;
+/*****************************************************************************
+ *                             Internal Wire/Register                        *
+ *****************************************************************************/
+wire 							all_database_end;
+wire 							reset_database;
+wire 							global_pixel_request;
+wire 							global_database_request;
+wire 							enable_write_result_end;
+wire 							enable_read_result_end;
+wire 							result_end;
+wire 							pixel_recieve;
+wire 							enable_pixel_recieve;
+wire 							start_pixel_request;
+wire 							got_candidate;
+wire 	[NUM_RESIZE-1:0] 		candidate;
+wire 	[NUM_RESIZE-1:0] 		inspect_done;
+wire 	[NUM_RESIZE-1:0] 		integral_image_ready;
+wire 	[NUM_RESIZE-1:0] 		pixel_request;
+wire 	[NUM_RESIZE-1:0] 		database_request;
+wire 	[NUM_STAGES-1:0] 		end_database;
+wire 	[NUM_STAGES-1:0] 		end_tree;
+wire 	[NUM_STAGES-1:0] 		end_single_classifier;
+wire 	[NUM_STAGES-1:0] 		end_all_classifier;
+wire 	[DATA_WIDTH_12-1:0] 	index_tree[NUM_STAGES-1:0];
+wire 	[DATA_WIDTH_12-1:0] 	index_classifier[NUM_STAGES-1:0];
+wire 	[DATA_WIDTH_12-1:0] 	index_database[NUM_STAGES-1:0];
+wire 	[DATA_WIDTH_12-1:0] 	data[NUM_STAGES-1:0]; 
+wire 	[DATA_WIDTH_12-1:0] 	data_out;
 
-wire reset_i2lbs;
-wire end_recieve;
-wire enable_pixel_recieve;
-wire start_pixel_request;
-wire got_candidate;
-wire [NUM_RESIZE-1:0] candidate;
-wire [NUM_RESIZE-1:0] inspect_done;
-wire [NUM_RESIZE-1:0] integral_image_ready;
-wire [NUM_RESIZE-1:0] pixel_request;
-wire [NUM_RESIZE-1:0] database_request;
-wire [NUM_STAGES-1:0] end_database;
-wire [NUM_STAGES-1:0] end_tree;
-wire [NUM_STAGES-1:0] end_single_classifier;
-wire [NUM_STAGES-1:0] end_all_classifier;
-wire [DATA_WIDTH_12-1:0] index_tree[NUM_STAGES-1:0];
-wire [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES-1:0];
-wire [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
-wire [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
-wire [DATA_WIDTH_12-1:0] data_out;
 
 reg enable_write_result;
 reg ready_recieve_pixel;
-reg end_recieve_coordinate;
+reg recieve_coordinate;
 reg end_coordinate;
 reg [DATA_WIDTH_12 -1:0] ori_x;
 reg [DATA_WIDTH_12 -1:0] ori_y;
 
-assign global_database_request = database_request>0;
 
+
+ /*****************************************************************************
+ *                            Combinational logic                             *
+ *****************************************************************************/
+
+assign global_database_request = database_request>0;
+assign o_recieve_pixel_end = pixel_recieve;
 assign o_ready_recieve_pixel = ready_recieve_pixel;
 assign o_frame_width = FRAME_ORIGINAL_CAMERA_WIDTH;
 assign o_enable_read_result_end = enable_read_result_end;
 assign o_result_end = result_end;
 assign o_result_data = data_out;
-
+assign o_frame_end = end_coordinate;
 assign start_pixel_request = pixel_request == 5'b11111;
 assign got_candidate = candidate>0; 
-
-assign end_recieve = end_recieve_coordinate && end_recieve_pixel;
-assign reset_i2lbs =  reset;
+assign pixel_recieve = recieve_coordinate && recieve_pixel;
 assign reset_database = start_pixel_request || reset;
 
 
@@ -123,7 +131,7 @@ begin
 		ori_x <= 0;
 		ori_y <= 0;	
 		ready_recieve_pixel<=0;
-		end_recieve_coordinate <=0;
+		recieve_coordinate <=0;
 		end_coordinate<=0;
 	end
 end
@@ -154,8 +162,8 @@ end
 /*------------------------ COORDINATE ITERATION -------------------------*/
 always @(posedge clk)
 begin	
-	end_recieve_coordinate <=0;	
-	if(start_recieve_pixel)
+	recieve_coordinate <=0;	
+	if(recieve_pixel)
 	begin
 		if(ori_x == FRAME_ORIGINAL_CAMERA_WIDTH -1)
 		begin 
@@ -174,7 +182,7 @@ begin
 		begin
 			ori_x <= ori_x + 1;
 		end
-		end_recieve_coordinate <=1;
+		recieve_coordinate <=1;
 	end
 end
 /*-----------------------------------------------------------------------*/
@@ -187,7 +195,7 @@ result
 result
 (
 .clk(clk),
-.reset(reset_i2lbs),
+.reset(reset),
 .enable_write_result(enable_write_result),
 .o_enable_write_result_end(enable_write_result_end),
 .enable_read_result(enable_read_result),
@@ -213,9 +221,9 @@ I2LBS
 I2LBS_1
 (
 .clk(clk),
-.reset(reset_i2lbs),
+.reset(reset),
 .pixel(pixel),
-.pixel_recieve(end_recieve),
+.pixel_recieve(pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -247,9 +255,9 @@ I2LBS
 I2LBS_2
 (
 .clk(clk),
-.reset(reset_i2lbs),
+.reset(reset),
 .pixel(pixel),
-.pixel_recieve(end_recieve),
+.pixel_recieve(pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -281,9 +289,9 @@ I2LBS
 I2LBS_3
 (
 .clk(clk),
-.reset(reset_i2lbs),
+.reset(reset),
 .pixel(pixel),
-.pixel_recieve(end_recieve),
+.pixel_recieve(pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -315,9 +323,9 @@ I2LBS
 I2LBS_4
 (
 .clk(clk),
-.reset(reset_i2lbs),
+.reset(reset),
 .pixel(pixel),
-.pixel_recieve(end_recieve),
+.pixel_recieve(pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
@@ -349,9 +357,9 @@ I2LBS
 I2LBS_5
 (
 .clk(clk),
-.reset(reset_i2lbs),
+.reset(reset),
 .pixel(pixel),
-.pixel_recieve(end_recieve),
+.pixel_recieve(pixel_recieve),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),

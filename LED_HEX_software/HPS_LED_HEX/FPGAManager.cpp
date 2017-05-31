@@ -2,12 +2,12 @@
 
 FPGAManager::FPGAManager()
 {
-	STATE_RESET = 0;
-	STATE_SEND_PIXEL_START = 1;
-	STATE_SEND_PIXEL_END = 2;
-	STATE_RECIEVE_RESULT_START = 3;
-	STATE_RECIEVE_RESULT_END = 4;
-	STATE_END = 5;
+	STATE_RESET = 900;
+	STATE_SEND_PIXEL_START = 901;
+	STATE_SEND_PIXEL_END = 902;
+	STATE_RECIEVE_RESULT_START = 903;
+	STATE_RECIEVE_RESULT_END = 904;
+	STATE_END = 905;
 }
 
 
@@ -61,14 +61,9 @@ vector<ResultData> ReadResultsFromFPGA()
 
 void FPGAManager::WritePixelToFPGA(int pixel)
 {
-	while(1)
-	{
-		if(GetIsStateStartSendPixel())
-		{
-			WriteToFPGA(pixel);
-			return;
-		}
-	}
+	WriteToFPGA(STATE_SEND_PIXEL_START);
+	WriteToFPGA(pixel);
+	WriteToFPGA(STATE_SEND_PIXEL_END);
 }
 
 

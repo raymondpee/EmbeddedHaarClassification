@@ -21,15 +21,11 @@ localparam END_RECIEVE_PIXEL = 2;
 localparam START_RECIEVE_RESULT = 3;
 localparam RECIEVE_RESULT = 4;
 
-wire trig_lwhpcfpga_pixel_input;
 wire end_frame;
 wire result_end;
 wire ready_recieve_pixel;
 
 wire is_init;
-wire [DATA_WIDTH_12 -1:0] frame_width;
-wire [DATA_WIDTH_12 -1:0] ori_x;
-wire [DATA_WIDTH_12 -1:0] ori_y;
 wire [DATA_WIDTH_12-1:0] data;
 wire start_recieve_pixel;
 wire end_recieve_pixel;
@@ -42,8 +38,6 @@ reg trig_reset = 0;
 reg [NUM_STATE-1:0] state = 0;
 reg [NUM_STATE-1:0] next_state;
 reg [DATA_WIDTH_16-1:0] pixel; // Pixel of the image
-
-
 reg enable_read_result;
 
 assign is_init = init == 1;
@@ -144,8 +138,7 @@ facial_detection_ip
 facial_detection_ip
 (
 .clk(clk),
-.reset(trig_reset),
-.o_frame_width(frame_width),
+.reset(trig_reset)
 
 //Pixel//
 .o_ready_recieve_pixel(ready_recieve_pixel),
