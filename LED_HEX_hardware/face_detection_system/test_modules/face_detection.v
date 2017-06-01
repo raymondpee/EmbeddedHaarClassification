@@ -2,7 +2,6 @@ module face_detection
 (
 clk,
 reset,
-o_frame_width,
 
 //Pixel//
 recieve_pixel,
@@ -11,9 +10,8 @@ o_recieve_pixel_end,
 pixel,
 
 //Result//
-read_result,
+send_result,
 o_result_data,
-o_read_result_end,
 o_result_end,
 
 // End Of Frame Buffer
@@ -53,8 +51,6 @@ localparam INTEGRAL_HEIGHT 			= INTEGRAL_LENGTH;
 
 input 							clk;
 input 							reset;
-
-output 	[DATA_WIDTH_12 -1:0] 	o_frame_width;
 output 							o_frame_end;
 
 //===== Pixel IO
@@ -64,9 +60,8 @@ output 							o_recieve_pixel_end;
 output 							o_fpga_ready_recieve_pixel;
 
 //===== Result IO
-input 							read_result;
+input 							send_result;
 output 	[DATA_WIDTH_12-1:0]  	o_result_data;
-output 							o_read_result_end;
 output 							o_result_end;
 
 
@@ -81,7 +76,6 @@ wire 							reset_database;
 wire 							global_pixel_request;
 wire 							global_database_request;
 wire 							write_result_end;
-wire 							read_result_end;
 wire 							result_empty;
 wire 							enable_recieve_pixel;
 wire 							request_pixel;
@@ -115,14 +109,13 @@ reg 	[DATA_WIDTH_12 -1:0] 	ori_y;
  *                            Combinational logic                             *
  *****************************************************************************/
 
-assign global_database_request = database_request>0;
 assign o_recieve_pixel_end = enable_recieve_pixel;
 assign o_fpga_ready_recieve_pixel = fpga_ready_recieve_pixel;
-assign o_frame_width = FRAME_ORIGINAL_CAMERA_WIDTH;
-assign o_read_result_end = read_result_end;
 assign o_result_end = result_empty;
 assign o_result_data = data_out;
 assign o_frame_end = end_coordinate;
+
+assign global_database_request = database_request>0;
 assign request_pixel = pixel_request == 5'b11111;
 assign got_candidate = candidate>0; 
 assign enable_recieve_pixel = recieve_coordinate && recieve_pixel;
@@ -217,9 +210,8 @@ result
 .o_write_result_end(write_result_end),
 
 //=== Read Result
-.read_result(read_result),
+.read_result(send_result),
 .o_result(data_out),
-.o_read_result_end(read_result_end),
 .o_empty(result_empty)
 );
 

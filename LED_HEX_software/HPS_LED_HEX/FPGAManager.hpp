@@ -15,9 +15,13 @@
 class FPGAManager
 {
 	private:
-		int STATE_RESET;
-		int STATE_SEND_PIXEL_START;
-		int STATE_SEND_PIXEL_END;
+		int LINUX_CALL_FPGA_RESET;
+		int LINUX_START_SEND_PIXEL;
+		int LINUX_END_SEND_PIXEL;
+		
+		int FPGA_READY_RECIEVE_PIXEL;
+		int FPGA_END_RECIEVE_PIXEL;
+		
 		int STATE_RECIEVE_RESULT_START;
 		int STATE_RECIEVE_RESULT_END;
 		int STATE_END;
@@ -28,11 +32,12 @@ class FPGAManager
 	
 	private:
 		void WriteToFPGA(unsigned long value){m_h2p_lw_hex_addr = value;}
+		void WaitFPGA(int nanosecond);
 		unsigned long ReadFromFPGA(){return *m_h2p_lw_hex_addr;}
-		bool GetIsStateReset(){return ReadFromFPGA() == STATE_RESET;}
-		bool GetIsStateStartSendPixel(){return ReadFromFPGA() == STATE_SEND_PIXEL_START;}
-		bool GetIsStateFinishSendPixel(){return ReadFromFPGA() == STATE_SEND_PIXEL_END;}
-		bool GetIsStateRecieveResult(){return ReadFromFPGA() == STATE_RECIEVE_RESULT;}
+		bool GetIsStateReset(){return ReadFromFPGA() == FPGA_RESET;}
+		bool GetIsStateStartSendPixel(){return ReadFromFPGA() == LINUX_START_SEND_PIXEL;}
+		bool GetIsStateFinishSendPixel(){return ReadFromFPGA() == LINUX_END_SEND_PIXEL;}
+		bool GetIsStateStartRecieveResult(){return ReadFromFPGA() == STATE_RECIEVE_RESULT_START;}
 		
 	public:
 		FPGAManager();

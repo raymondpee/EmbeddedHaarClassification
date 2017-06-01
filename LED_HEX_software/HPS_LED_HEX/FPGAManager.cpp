@@ -1,15 +1,32 @@
 #include "FPGAManager.hpp"
+#include <time.h>
 
 FPGAManager::FPGAManager()
 {
-	STATE_RESET = 900;
-	STATE_SEND_PIXEL_START = 901;
-	STATE_SEND_PIXEL_END = 902;
-	STATE_RECIEVE_RESULT_START = 903;
-	STATE_RECIEVE_RESULT_END = 904;
+	LINUX_CALL_FPGA_RESET = 0;
+	
+	LINUX_START_SEND_PIXEL = 1;
+	LINUX_STOP_SEND_PIXEL = 2;
+	FPGA_READY_RECIEVE_PIXEL = 11;
+	FPGA_END_RECIEVE_PIXEL = 12;
+	
+	LINUX_START_WAIT_RECIEVE_RESULT = 3;
+	LINUX_END_WAIT_RECIEVE_RESULT = 4;
+	FPGA_START_SEND_RESULT = 13;
+	FPGA_STOP_SEND_RESULT = 14;
+
+	
+	
 	STATE_END = 905;
 }
 
+void FPGAManager::WaitFPGA(int nanosecond)
+{
+	struct timespec req, rem;
+	req.tv_sec = 0;                         /* Must be Non-Negative */
+    req.tv_nsec = nanosecond;    /* Must be in range of 0 to 999999999 */
+	nanosleep(&req , &rem);
+}
 
 int FPGAManager::ConnectBridge()
 {
@@ -35,22 +52,27 @@ int FPGAManager::ConnectBridge()
 
 void FPGAManager::ResetFPGASystem()
 {
-	WriteToFPGA(STATE_RESET);
+	WriteToFPGA(FPGA_RESET);
 }
 
 
 vector<ResultData> ReadResultsFromFPGA()
 {
+	int delay_nanosecond = 2;
 	vector<ResultData>results;
 	do
 	{		
-		const int DONE = 1;
+		WriteToFPGA(STATE_RECIEVE_RESULT_START);
+		WaitFPGA(delay_nanosecond);
 		int x = ReadFromFPGA();
-		WriteToFPGA(DONE);
+		WriteToFPGA(STATE_RECIEVE_RESULT_START);
+		WaitFPGA(delay_nanosecond);
 		int y = ReadFromFPGA();
-		WriteToFPGA(DONE);
+		WriteToFPGA(STATE_RECIEVE_RESULT_START);
+		WaitFPGA(delay_nanosecond);
 		int scale = ReadFromFPGA();
-		WriteToFPGA(DONE);
+		WriteToFPGA(STATE_RECIEVE_RESULT_END);
+		WaitFPGA(delay_nanosecond);
 		ResultData result(x,y,scale);
 		results.push_back(result);
 	}
@@ -61,9 +83,14 @@ vector<ResultData> ReadResultsFromFPGA()
 
 void FPGAManager::WritePixelToFPGA(int pixel)
 {
-	WriteToFPGA(STATE_SEND_PIXEL_START);
+	int delay_nanosecond = 2;
+	while(!GetIsStateStartSendPixel()){WaitFPGA(delay_nanosecond);}
+	WriteToFPGA(LINUX_START_SEND_PIXEL);
+	WaitFPGA(delay_nanosecond);
 	WriteToFPGA(pixel);
-	WriteToFPGA(STATE_SEND_PIXEL_END);
+	WaitFPGA(delay_nanosecond);
+	WriteToFPGA(LINUX_END_SEND_PIXEL);
+	WaitFPGA(delay_nanosecond);
 }
 
 

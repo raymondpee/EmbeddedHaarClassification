@@ -12,7 +12,6 @@ parameter NUM_RESIZE = 5
 	write_result,
 	o_write_result_end,
 	read_result,
-	o_read_result_end,
 	//Data in//
 	ori_x,
 	ori_y,
@@ -36,7 +35,6 @@ output 							o_write_result_end;
 
 input 							read_result;
 output 							o_result;
-output 							o_read_result_end;
 output 							o_empty;
 
 
@@ -47,7 +45,6 @@ output 							o_empty;
 localparam 						NUM_VARIABLE = 3;
 wire 							result_size;
 wire 							write_result_end;
-wire 							read_result_end;
 wire 	[DATA_WIDTH_12-1:0] 	index_read_out;
 wire 	[DATA_WIDTH_12-1:0] 	index_enable_write_result;
 wire 	[DATA_WIDTH_12-1:0] 	data_out;
@@ -59,7 +56,6 @@ reg 	[DATA_WIDTH_12-1:0] 	data_in;
  *                            Combinational logic                             *
  *****************************************************************************/
 assign o_write_result_end = write_result_end;
-assign o_read_result_end = read_result_end;
 assign o_result = data_out;
 assign o_empty = result_empty;
 
@@ -99,7 +95,6 @@ begin
 end
 
 
-
  /*****************************************************************************
  *                                   Modules                                  *
  *****************************************************************************/ 
@@ -116,21 +111,6 @@ counter_enable_write_result
   .max_size(NUM_VARIABLE),
   .end_count(write_result_end),
   .ctr_out(index_enable_write_result)
-);
-
-//=== Read Out Count
-counter 
-#(
-.DATA_WIDTH(DATA_WIDTH_12)
-)
-counter_enable_read_result
-(
-  .clk(clk),
-  .reset(reset),
-  .enable(read_result),
-  .max_size(NUM_VARIABLE),
-  .end_count(read_result_end),
-  .ctr_out(index_read_out)
 );
 
 //=== Database

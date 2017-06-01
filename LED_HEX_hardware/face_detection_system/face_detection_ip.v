@@ -30,16 +30,20 @@ localparam DATA_WIDTH_8			= 8;
 localparam DATA_WIDTH_12 		= 12;
 localparam DATA_WIDTH_16 		= 16;
 
-//===== State
-localparam WAIT 				= 0;
-localparam RECIEVE_PIXEL 		= 1;
-localparam RECIEVE_RESULT 		= 2;
-localparam NUM_STATE 			= 3;
 
-//===== Linux State
-localparam LINUX_CALL_RESET 		= 900;
-localparam LINUX_START_SEND_PIXEL 	= 901;
-localparam LINUX_END_SEND_PIXEL 	= 902;
+localparam LINUX_CALL_FPGA_RESET 	= 0;
+
+//=== Pixel
+localparam LINUX_START_SEND_PIXEL 			= 1;
+localparam LINUX_STOP_SEND_PIXEL 			= 2;
+localparam FPGA_START_RECIEVE_PIXEL 		= 11;
+localparam FPGA_STOP_RECIEVE_PIXEL   		= 12;
+
+//=== Result
+localparam LINUX_START_RECIEVE_RESULT  		= 3;
+localparam LINUX_STOP_RECIEVE_RESULT 		= 4;
+localparam FPGA_START_SEND_RESULT			= 13;
+localparam FPGA_STOP_SEND_RESULT			= 14;
 
 /*****************************************************************************
  *                             Port Declarations                             *
@@ -60,70 +64,84 @@ output	[(SEG7_NUM*8-1):0]  SEG7;
 /*****************************************************************************
  *                             Internal Wire/Register                        *
  *****************************************************************************/
+wire							end_recieve_pixel;
+wire 							end_frame;
+wire 							end_result;
 wire							recieve_pixel;
-wire							recieve_pixel_end;
-wire 							frame_end;
-wire 							result_end;
 wire 							fpga_ready_recieve_pixel;
 
 reg 							trig_reset;
-reg 							recieve_result; 
-reg 	[NUM_STATE-1:0] 		state;
-
-
-// Bridge
+reg 							send_result; 
 reg								linux_start_send_pixel;
 reg 							linux_end_send_pixel;
-reg		[7:0]					pixel;				//Write From Linux
-reg     [7:0]					read_data;
-reg		[7:0]					result;				//Read To Linux
+
+reg		[DATA_WIDTH_8-1:0]		pixel;				
+reg     [DATA_WIDTH_8-1:0]		read_data;
+reg		[DATA_WIDTH_8-1:0]		write_data;
+reg		[DATA_WIDTH_8-1:0]		result_data;				
 
 
 /*****************************************************************************
  *                            Sequence logic                                 *
  *****************************************************************************/ 
- 
-//===== Bridge IO Logic
-always @ (negedge s_clk)
+
+//===== Get data from LINUX to FPGA
+always@(negedge s_clk)
 begin
-	trig_reset = 0;
 	if (s_write)
 	begin
 		if(s_writedata == LINUX_CALL_RESET)
 		begin
-			trig_reset = 1;
+			trig_reset <= 1;
 		end
-		if(s_writedata == LINUX_START_SEND_PIXEL)
+		else if(s_writedata == LINUX_START_SEND_PIXEL)
 		begin
-			linux_end_send_pixel = 0;
-			linux_start_send_pixel = 1;
+			linux_end_send_pixel <= 0;
+			linux_start_send_pixel <= 1;
+			pixel <= s_writedata;
 		end
-		if(linux_start_send_pixel)
+		else if(s_writedata == LINUX_STOP_SEND_PIXEL)
 		begin
-			pixel = s_writedata;
+			linux_end_send_pixel <= 1;
+			linux_start_send_pixel <= 0;
 		end
-		if(s_writedata == LINUX_END_SEND_PIXEL)
+		else if(s_writedata == LINUX_START_RECIEVE_RESULT)
 		begin
-			linux_end_send_pixel = 1;
-			linux_start_send_pixel = 0;
+			send_result <= 1;
+		end
+		else if(s_writedata == LINUX_STOP_RECIEVE_RESULT)
+		begin
+			send_result <= 0;
+		end	
+	end
+	trig_reset = 0;
+end
+
+
+//===== State declaration from FPGA to LINUX
+always@(negedge s_clk)
+begin
+	if(s_read)
+	begin
+		if(fpga_ready_recieve_pixel)
+		begin
+			read_data <= FPGA_START_RECIEVE_PIXEL;
+		end
+		else if(end_recieve_pixel)
+		begin
+			read_data <= FPGA_STOP_RECIEVE_PIXEL;
+		end
+		else if(send_result)
+		begin
+			read_data <= result_data;
+		end
+		else 
+		begin
+			read_data <= 0;
 		end
 	end
-	else if (s_read)
-	begin
-		if(linux_start_send_pixel)
-		begin
-			if(fpga_ready_recieve_pixel)
-				read_data = LINUX_START_SEND_PIXEL;
-			else
-				read_data = 0;
-		end
-		else
-		begin
-			read_data = 0;
-		end
-	end	
 end
- 
+
 //===== Reset 
 always@(posedge s_clk)
 begin
@@ -131,50 +149,11 @@ begin
 	begin
 		linux_start_send_pixel<=0;
 		linux_end_send_pixel<=0;
-		state <=WAIT;
 		pixel<=0;
 		write<=0;
-		recieve_result<=0;
+		send_result<=0;
 	end
 end
-
-//===== Finite State Machine 
-always@(posedge s_clk)
-begin
-	case (state)
-	WAIT:
-	begin
-		if(fpga_ready_recieve_pixel && linux_end_send_pixel)
-		begin
-			state <= RECIEVE_PIXEL;
-		end
-		if(frame_end)
-		begin
-			state <= RECIEVE_RESULT;
-		end
-	end
-	RECIEVE_PIXEL:
-	begin
-		if(recieve_pixel_end)
-		begin
-			state <= WAIT;
-		end
-	end
-	RECIEVE_RESULT:
-	begin
-		recieve_result<=0;
-		if(write)
-		begin
-			recieve_result<=1;
-		end
-		if(result_end)
-		begin
-			state = WAIT;
-		end
-	end	
-	endcase
-end
- 
 
  /*****************************************************************************
  *                                   Modules                                  *
@@ -183,20 +162,19 @@ face_detection
 face_detection
 (
 .clk(clk),
-.reset(trig_reset)
+.reset(trig_reset),
 
 //Pixel//
 .o_fpga_ready_recieve_pixel(fpga_ready_recieve_pixel),
 .recieve_pixel(recieve_pixel),
-.o_recieve_pixel_end(recieve_pixel_end),
+.o_recieve_pixel_end(end_recieve_pixel),
 .pixel(pixel),
 
 //Result//
-.recieve_result(recieve_result),
-.o_result_data(data),
-.o_enable_read_result_end(enable_read_result_end),
-.o_result_end(result_end),
-.o_frame_end(frame_end)
+.send_result(send_result),
+.o_result_data(result_data),
+.o_result_end(end_result),
+.o_frame_end(end_frame)
 );
  
  
@@ -205,7 +183,6 @@ face_detection
  *                            Combinational logic                             *
  *****************************************************************************/
 assign s_readdata = read_data;
-assign recieve_pixel = state == RECIEVE_PIXEL;
-assign recieve_result = state == RECIEVE_RESULT;
+assign recieve_pixel = fpga_ready_recieve_pixel && linux_end_send_pixel;
 endmodule
 
