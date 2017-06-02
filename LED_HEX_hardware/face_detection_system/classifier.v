@@ -1,4 +1,4 @@
-module fifo_stage_classifier
+module classifier
 #(
 parameter DATA_WIDTH_8 = 8,
 parameter DATA_WIDTH_12 = 12,

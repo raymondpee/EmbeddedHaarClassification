@@ -31,7 +31,7 @@ localparam DATA_WIDTH_12 		= 12;
 localparam DATA_WIDTH_16 		= 16;
 
 
-localparam LINUX_CALL_FPGA_RESET 	= 0;
+localparam FPGA_IDLE					 	= 10;
 
 //=== Pixel
 localparam LINUX_START_SEND_PIXEL 			= 1;
@@ -44,6 +44,8 @@ localparam LINUX_START_RECIEVE_RESULT  		= 3;
 localparam LINUX_STOP_RECIEVE_RESULT 		= 4;
 localparam FPGA_START_SEND_RESULT			= 13;
 localparam FPGA_STOP_SEND_RESULT			= 14;
+
+localparam LINUX_CALL_FPGA_RESET 	= 5;
 
 /*****************************************************************************
  *                             Port Declarations                             *
@@ -81,6 +83,13 @@ reg		[DATA_WIDTH_8-1:0]		write_data;
 reg		[DATA_WIDTH_8-1:0]		result_data;				
 
 
+ /*****************************************************************************
+ *                            Combinational logic                             *
+ *****************************************************************************/
+assign s_readdata = read_data;
+assign recieve_pixel = fpga_ready_recieve_pixel && linux_end_send_pixel;
+
+
 /*****************************************************************************
  *                            Sequence logic                                 *
  *****************************************************************************/ 
@@ -90,7 +99,7 @@ always@(negedge s_clk)
 begin
 	if (s_write)
 	begin
-		if(s_writedata == LINUX_CALL_RESET)
+		if(s_writedata == LINUX_CALL_FPGA_RESET)
 		begin
 			trig_reset <= 1;
 		end
@@ -137,7 +146,7 @@ begin
 		end
 		else 
 		begin
-			read_data <= 0;
+			read_data <= FPGA_IDLE;
 		end
 	end
 end
@@ -150,7 +159,6 @@ begin
 		linux_start_send_pixel<=0;
 		linux_end_send_pixel<=0;
 		pixel<=0;
-		write<=0;
 		send_result<=0;
 	end
 end
@@ -178,11 +186,5 @@ face_detection
 );
  
  
- 
- /*****************************************************************************
- *                            Combinational logic                             *
- *****************************************************************************/
-assign s_readdata = read_data;
-assign recieve_pixel = fpga_ready_recieve_pixel && linux_end_send_pixel;
 endmodule
 

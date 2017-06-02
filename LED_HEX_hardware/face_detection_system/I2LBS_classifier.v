@@ -24,6 +24,9 @@ o_candidate,
 o_inspect_done
 );
 
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
 input  clk;
 input  reset;
 input  enable;
@@ -39,16 +42,30 @@ input  [DATA_WIDTH_12-1:0] data [NUM_STAGE-1:0];
 output o_inspect_done;
 output o_candidate;
 
+
+/*****************************************************************************
+ *                             Internal Wire/Register                        *
+ *****************************************************************************/
+
 wire pass;
 wire [NUM_STAGE-1:0] candidate;
 reg  reset_classifier;
 reg  inspect_done;
 reg  [DATA_WIDTH_12-1:0] count_stage;
 
+
+/*****************************************************************************
+*                            Combinational logic                             *
+*****************************************************************************/
+
 assign o_inspect_done = inspect_done;
 assign o_candidate = pass;
 assign pass = candidate == 25'b1111111111111111111111111;
 
+
+/*****************************************************************************
+ *                            Sequence logic                                 *
+ *****************************************************************************/ 
 always@(posedge clk)
 begin
 	if(reset)
@@ -86,11 +103,16 @@ begin
 	end
 end
 
+
+ /*****************************************************************************
+ *                                   Modules                                  *
+ *****************************************************************************/ 
+
 generate
 genvar index;
 for(index = 0; index<NUM_STAGE; index = index +1)
 begin
-	fifo_stage_classifier
+	classifier
 	#(
 	.DATA_WIDTH_8(DATA_WIDTH_8),
 	.DATA_WIDTH_12(DATA_WIDTH_12),
@@ -98,7 +120,7 @@ begin
 	.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 	.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
 	)
-	fifo_stage_classifier
+	classifier
 	(
 	.clk(clk),
 	.reset(reset_classifier),

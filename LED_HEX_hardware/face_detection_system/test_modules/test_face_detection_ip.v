@@ -2,157 +2,96 @@
 `timescale 1 ns / 1 ns  //Assume our clock frequency is 100MHz
 module test_face_detection_ip;
 
+
+
+localparam FRAME_ORIGINAL_CAMERA_WIDTH 		= 800;
+localparam FRAME_ORIGINAL_CAMERA_HEIGHT		= 600;
+
+/*****************************************************************************
+ *                             Internal Wire/Register                        *
+ *****************************************************************************/
 reg clk = 0;
-always # 1 clk <= ~clk;
-
-localparam IMAGE_NAME = "Image.mif";
-
-/*------------------------------ADAPTER FOR THE HARDWARE--------------------*/
-
-
-localparam DATA_WIDTH_12 = 12;
-localparam DATA_WIDTH_16 = 16;
-localparam MAX_VAL = 255;
-
-localparam NUM_STATE = 5;
-localparam RESET = 0;
-localparam START_RECIEVE_PIXEL = 1;
-localparam END_RECIEVE_PIXEL = 2;
-localparam START_RECIEVE_RESULT = 3;
-localparam RECIEVE_RESULT = 4;
-
-wire end_frame;
-wire result_end;
-wire ready_recieve_pixel;
-
-wire is_init;
-wire [DATA_WIDTH_12-1:0] data;
-wire start_recieve_pixel;
-wire end_recieve_pixel;
-wire enable_read_result_end;
-
+reg reset;
+reg read;
 reg write;
+reg end_coordinate;
+reg [7:0] pixel;
+reg [7:0] readdata;
+reg [7:0] writedata;
+reg [11:0] ori_x;
+reg [11:0] ori_y;
 
-reg init = 0;
-reg trig_reset = 0;
-reg [NUM_STATE-1:0] state = 0;
-reg [NUM_STATE-1:0] next_state;
-reg [DATA_WIDTH_16-1:0] pixel; // Pixel of the image
-reg enable_read_result;
 
-assign is_init = init == 1;
-assign start_recieve_pixel = state == START_RECIEVE_PIXEL;
-assign end_recieve_pixel = state == END_RECIEVE_PIXEL;
-assign enable_read_result = state == START_RECIEVE_RESULT;
-
+/*****************************************************************************
+ *                            Sequence logic                                 *
+ *****************************************************************************/ 
+initial
+begin
+	#1 reset = 1;
+	#1 reset = 0;
+end
+ 
+always # 1 clk <= ~clk;
+ 
 always@(posedge clk)
 begin
-	if(trig_reset)
+	if(reset)
 	begin
-		init <=1;
-		state <=RESET;
-		next_state<=0;
-		pixel<=0;
-		write<=0;
-		enable_read_result<=0;
-		trig_reset <= 0;
-	end
-	else
-	begin
-		state<= next_state;	
+		read		<=1;
+		write		<=0;
+		readdata	<=0;
+		writedata	<=0;
+		pixel		<=0;
+		end_coordinate <=0;
 	end
 end
+ 
 
-
-always@(*)
-begin
-	next_state = state;
-	case (state)
-	RESET:
-	begin
-		if(!is_init || end_frame)
-			trig_reset=1;
-			next_state = START_RECIEVE_PIXEL;
-	end
-	START_RECIEVE_PIXEL:
-	begin
-		if(write)
-		begin
-			next_state = END_RECIEVE_PIXEL;
-		end
-		if(end_frame)
-		begin
-			next_state = RECIEVE_RESULT;
-		end
-	end
-	END_RECIEVE_PIXEL:
-	begin
-		if(ready_recieve_pixel)
-		begin
-			next_state = START_RECIEVE_PIXEL;
-		end
-		if(end_frame)
-		begin
-			next_state = RECIEVE_RESULT;
-		end
-	end
-	RECIEVE_RESULT:
-	begin
-		enable_read_result<=0;
-		if(write)
-		begin
-			enable_read_result<=1;
-		end
-		if(result_end)
-		begin
-			next_state = RESET;
-		end
-	end	
-	endcase
-end
-
-
-/*---------------------------------------------------*/
-//Pixel Input [Assume this is from the c language]
 always @(posedge clk)
 begin
 	write<=0;
-    if(state == START_RECIEVE_PIXEL)
-    begin
-      if(pixel == MAX_VAL)
-        pixel <= 0;
-      else
-        pixel <= pixel + 1;
-		write<=1;
-    end
-	if(state == RECIEVE_RESULT)
+	//== Pixel Input
+	if(pixel == 255)
 	begin
+		pixel <= 0;
+	end
+	else
+	begin
+		pixel <= pixel + 1;
 		write<=1;
+	end
+	
+	//===== Coordinate Iterator
+	if(ori_x == FRAME_ORIGINAL_CAMERA_WIDTH -1)
+	begin 
+		ori_x <= 0;
+		if(ori_y == FRAME_ORIGINAL_CAMERA_HEIGHT -1)
+		begin			
+			ori_y <= 0;   
+			end_coordinate <= 1;
+		end
+		else
+		begin
+			ori_y <= ori_y + 1;
+		end
+	end
+	else
+	begin
+		ori_x <= ori_x + 1;
 	end
 end
 
-/*---------------------------------------------------*/
 
 
-facial_detection_ip
-facial_detection_ip
-(
-.clk(clk),
-.reset(trig_reset)
-
-//Pixel//
-.o_ready_recieve_pixel(ready_recieve_pixel),
-.start_recieve_pixel(start_recieve_pixel),
-.pixel(pixel),
-.end_recieve_pixel(end_recieve_pixel),
-
-//Result//
-.enable_read_result(enable_read_result),
-.o_result_data(data),
-.o_enable_read_result_end(enable_read_result_end),
-.o_result_end(result_end),
-.o_end_frame(end_frame)
+face_detection_ip
+face_detection_ip
+(	
+.s_clk(clk),
+.s_read(read),
+.s_readdata(readdata),
+.s_write(write),
+.s_writedata(writedata),
+.s_reset(reset)
 );
-/*-----------------------------------------------------------------------*/
 
 endmodule
