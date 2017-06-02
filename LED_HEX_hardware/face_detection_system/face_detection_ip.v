@@ -31,6 +31,9 @@ localparam DATA_WIDTH_12 		= 12;
 localparam DATA_WIDTH_16 		= 16;
 
 
+
+//=== System Call
+localparam LINUX_CALL_FPGA_RESET 			= 5;
 localparam FPGA_IDLE					 	= 10;
 
 //=== Pixel
@@ -44,8 +47,9 @@ localparam LINUX_START_RECIEVE_RESULT  		= 3;
 localparam LINUX_STOP_RECIEVE_RESULT 		= 4;
 localparam FPGA_START_SEND_RESULT			= 13;
 localparam FPGA_STOP_SEND_RESULT			= 14;
+localparam FPGA_FINISH_RESULT				= 15;
 
-localparam LINUX_CALL_FPGA_RESET 	= 5;
+
 
 /*****************************************************************************
  *                             Port Declarations                             *
@@ -139,6 +143,10 @@ begin
 		else if(end_recieve_pixel)
 		begin
 			read_data <= FPGA_STOP_RECIEVE_PIXEL;
+		end
+		else if(end_result)
+		begin
+			read_data <= FPGA_FINISH_RESULT;
 		end
 		else if(send_result)
 		begin

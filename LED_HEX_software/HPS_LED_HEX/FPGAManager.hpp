@@ -7,6 +7,7 @@
 #include "socal/alt_gpio.h"
 #include "hps_0.h"
 #include "ResultData.hpp"
+#include "FPGA_CONST.H"
 
 #define HW_REGS_BASE ( ALT_STM_OFST )
 #define HW_REGS_SPAN ( 0x04000000 )
@@ -15,18 +16,6 @@
 class FPGAManager
 {
 	private:
-		int LINUX_CALL_FPGA_RESET;
-		int LINUX_START_SEND_PIXEL;
-		int LINUX_END_SEND_PIXEL;
-		
-		int FPGA_READY_RECIEVE_PIXEL;
-		int FPGA_END_RECIEVE_PIXEL;
-		
-		int STATE_RECIEVE_RESULT_START;
-		int STATE_RECIEVE_RESULT_END;
-		int STATE_END;
-	
-	private:
 		volatile unsigned long *m_h2p_lw_hex_addr;
 		int m_fd;
 	
@@ -34,11 +23,11 @@ class FPGAManager
 		void WriteToFPGA(unsigned long value){m_h2p_lw_hex_addr = value;}
 		void WaitFPGA(int nanosecond);
 		unsigned long ReadFromFPGA(){return *m_h2p_lw_hex_addr;}
-		bool GetIsStateReset(){return ReadFromFPGA() == FPGA_RESET;}
-		bool GetIsStateStartSendPixel(){return ReadFromFPGA() == LINUX_START_SEND_PIXEL;}
-		bool GetIsStateFinishSendPixel(){return ReadFromFPGA() == LINUX_END_SEND_PIXEL;}
-		bool GetIsStateStartRecieveResult(){return ReadFromFPGA() == STATE_RECIEVE_RESULT_START;}
-		
+		bool GetIsFPGAIdle(){return ReadFromFPGA() == FPGA_IDLE;}
+		bool GetIsFPGAReadyRecievePixel(){return ReadFromFPGA() == FPGA_START_RECIEVE_PIXEL;}
+		bool GetIsFPGAStopRecievePixel(){return ReadFromFPGA() == FPGA_STOP_RECIEVE_PIXEL;}
+		bool GetIsFPGAStartSendResult(){return ReadFromFPGA() == FPGA_START_SEND_RESULT;}
+		bool GetIsFPGAFinishSendAllResult(){return ReadFromFPGA() == FPGA_FINISH_RESULT;}
 	public:
 		FPGAManager();
 	

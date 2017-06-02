@@ -3,21 +3,8 @@
 
 FPGAManager::FPGAManager()
 {
-	LINUX_CALL_FPGA_RESET = 0;
-	
-	LINUX_START_SEND_PIXEL = 1;
-	LINUX_STOP_SEND_PIXEL = 2;
-	FPGA_READY_RECIEVE_PIXEL = 11;
-	FPGA_END_RECIEVE_PIXEL = 12;
-	
-	LINUX_START_WAIT_RECIEVE_RESULT = 3;
-	LINUX_END_WAIT_RECIEVE_RESULT = 4;
-	FPGA_START_SEND_RESULT = 13;
-	FPGA_STOP_SEND_RESULT = 14;
-
-	
-	
-	STATE_END = 905;
+	*m_h2p_lw_hex_addr = NULL;
+	m_fd = 0;
 }
 
 void FPGAManager::WaitFPGA(int nanosecond)
@@ -62,21 +49,21 @@ vector<ResultData> ReadResultsFromFPGA()
 	vector<ResultData>results;
 	do
 	{		
-		WriteToFPGA(STATE_RECIEVE_RESULT_START);
+		WriteToFPGA(LINUX_START_RECIEVE_RESULT);
 		WaitFPGA(delay_nanosecond);
 		int x = ReadFromFPGA();
-		WriteToFPGA(STATE_RECIEVE_RESULT_START);
+		WriteToFPGA(LINUX_START_RECIEVE_RESULT);
 		WaitFPGA(delay_nanosecond);
 		int y = ReadFromFPGA();
-		WriteToFPGA(STATE_RECIEVE_RESULT_START);
+		WriteToFPGA(LINUX_START_RECIEVE_RESULT);
 		WaitFPGA(delay_nanosecond);
 		int scale = ReadFromFPGA();
-		WriteToFPGA(STATE_RECIEVE_RESULT_END);
+		WriteToFPGA(LINUX_STOP_RECIEVE_RESULT);
 		WaitFPGA(delay_nanosecond);
 		ResultData result(x,y,scale);
 		results.push_back(result);
 	}
-	while(GetIsStateRecieveResult());
+	while(GetIsFPGAFinishSendAllResult());
 	return results;
 }
 
@@ -84,7 +71,7 @@ vector<ResultData> ReadResultsFromFPGA()
 void FPGAManager::WritePixelToFPGA(int pixel)
 {
 	int delay_nanosecond = 2;
-	while(!GetIsStateStartSendPixel()){WaitFPGA(delay_nanosecond);}
+	while(!GetIsFPGAReadyRecievePixel()){WaitFPGA(delay_nanosecond);}
 	WriteToFPGA(LINUX_START_SEND_PIXEL);
 	WaitFPGA(delay_nanosecond);
 	WriteToFPGA(pixel);
