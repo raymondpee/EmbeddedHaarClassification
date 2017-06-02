@@ -7,11 +7,15 @@
 #include "socal/alt_gpio.h"
 #include "hps_0.h"
 #include "ResultData.hpp"
-#include "FPGA_CONST.H"
+#include "FPGA_CONST.h"
+#include <iostream>
+#include <vector>
 
 #define HW_REGS_BASE ( ALT_STM_OFST )
 #define HW_REGS_SPAN ( 0x04000000 )
 #define HW_REGS_MASK ( HW_REGS_SPAN - 1 )
+
+using namespace std;
 
 class FPGAManager
 {
@@ -20,7 +24,7 @@ class FPGAManager
 		int m_fd;
 	
 	private:
-		void WriteToFPGA(unsigned long value){m_h2p_lw_hex_addr = value;}
+		void WriteToFPGA(unsigned long value){*m_h2p_lw_hex_addr = value;}
 		void WaitFPGA(int nanosecond);
 		unsigned long ReadFromFPGA(){return *m_h2p_lw_hex_addr;}
 		bool GetIsFPGAIdle(){return ReadFromFPGA() == FPGA_IDLE;}
@@ -34,12 +38,13 @@ class FPGAManager
 	public:
 		void StartFPGASystem();
 		void WritePixelToFPGA(int pixel);
+		void ResetFPGASystem();
 		vector<ResultData> ReadResultsFromFPGA();
 	
 	public:
 		int ConnectBridge();
 		int DisconnectBridge();
-		unsigned long * GetFPGABridgeMemory(){return m_h2p_lw_hex_addr;}
+		volatile unsigned long * GetFPGABridgeMemory(){return m_h2p_lw_hex_addr;}
 };
 
 #endif

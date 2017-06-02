@@ -1,15 +1,14 @@
 #
-TARGET = HPS_LED_HEX
-
+TARGET = face_detection
 #
 ALT_DEVICE_FAMILY ?= soc_cv_av
 SOCEDS_DEST_ROOT = /mnt/c/intelFPGA/16.1/embedded/
 SOCEDS_ROOT ?= $(SOCEDS_DEST_ROOT)
 HWLIBS_ROOT = $(SOCEDS_ROOT)/ip/altera/hps/altera_hps/hwlib
 CROSS_COMPILE = arm-linux-gnueabihf-
-CFLAGS = -g -Wall   -D$(ALT_DEVICE_FAMILY) -I$(HWLIBS_ROOT)/include/$(ALT_DEVICE_FAMILY)   -I$(HWLIBS_ROOT)/include/
+CFLAGS = -g -Wall -std=gnu++11  -D$(ALT_DEVICE_FAMILY) -I$(HWLIBS_ROOT)/include/$(ALT_DEVICE_FAMILY) -I$(HWLIBS_ROOT)/include/soc_cv_av
 LDFLAGS =  -g -Wall 
-CC = $(CROSS_COMPILE)gcc
+CC = $(CROSS_COMPILE)g++
 ARCH= arm
 #LDFLAGS =  -g -Wall  -Iteraisc_pcie_qsys.so -ldl
 #-ldl must be placed after the file calling lpxxxx funciton
@@ -17,10 +16,10 @@ ARCH= arm
 
 build: $(TARGET)
 #-lmpeg2 --> link libmpeg2.a (lib___.a)
-$(TARGET): main.o seg7.o led.o
-	$(CC) $(LDFLAGS)   $^ -o $@  -lpthread -lrt
+$(TARGET): main.cpp FPGAManager.cpp ImageClass.cpp ResultData.cpp 
+	$(CC) $(LDFLAGS)  $^ -o $@  -lpthread -lrt
 #	$(CC) $(LDFLAGS)  $^ -o $@  -ldl -lmpeg2  -lmpeg2convert -lpthread
-%.o : %.c
+%.o : %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean

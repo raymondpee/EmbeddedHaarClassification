@@ -5,6 +5,7 @@
 #include "ResultData.hpp"
 #include <vector>
 
+
 #define DEBUG_MODE 0
 using namespace std;
 
@@ -16,8 +17,8 @@ int main(int argc, char* argv[])
 	ImageClass imgSrc(imgFileName);
 	ImageClass imgDst(imgFileName);
 	unsigned char* srcData = imgSrc.GetData();
-	int width = srcData.GetWidth();
-	int height = srcData.GetHeight();
+	int width = imgSrc.GetWidth();
+	int height = imgSrc.GetHeight();
 	int size = width*height;
 	
 	FPGAManager fpgaManager;
