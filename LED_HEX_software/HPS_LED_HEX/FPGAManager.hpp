@@ -1,10 +1,17 @@
 #ifndef FPGA_MANAGER_HPP
 #define FPGA_MANAGER_HPP
 
-#include "hwlib.h"
-#include "socal/socal.h"
-#include "socal/hps.h"
-#include "socal/alt_gpio.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <time.h>
+#include <sys/mman.h>
+#include <stdbool.h>
+#include <hwlib.h>
+#include <socal/socal.h>
+#include <socal/hps.h>
+#include <socal/alt_gpio.h>
 #include "hps_0.h"
 #include "ResultData.hpp"
 #include "FPGA_CONST.h"
@@ -20,6 +27,7 @@ using namespace std;
 class FPGAManager
 {
 	private:
+		void* m_virtual_base;
 		volatile unsigned long *m_h2p_lw_hex_addr;
 		int m_fd;
 	
