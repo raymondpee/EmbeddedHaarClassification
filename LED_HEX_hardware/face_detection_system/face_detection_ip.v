@@ -58,9 +58,9 @@ localparam FPGA_FINISH_RESULT				= 15;
 input						s_clk;
 input	[(ADDR_WIDTH-1):0]	s_address;
 input						s_read;
-output	[7:0]				s_readdata;
+output	[DATA_WIDTH_12:0]	s_readdata;
 input						s_write;
-input	[7:0]				s_writedata;
+input	[DATA_WIDTH_12:0]	s_writedata;
 input						s_reset;
 
 //===== Interface to export
@@ -75,16 +75,22 @@ wire 							end_frame;
 wire 							end_result;
 wire							recieve_pixel;
 wire 							fpga_ready_recieve_pixel;
+wire							fpga_ready_send_result;
+wire 							reset;
 
+reg 							fpga_recieve_pixel;
+reg								stop_send_result;
+reg								result_sent;
+reg 							notify_send_result;
 reg 							trig_reset;
-reg 							send_result; 
+reg 							trig_send_result; 
 reg								linux_start_send_pixel;
 reg 							linux_end_send_pixel;
 
-reg		[DATA_WIDTH_8-1:0]		pixel;				
-reg     [DATA_WIDTH_8-1:0]		read_data;
-reg		[DATA_WIDTH_8-1:0]		write_data;
-reg		[DATA_WIDTH_8-1:0]		result_data;				
+reg		[DATA_WIDTH_16-1:0]		pixel;				
+reg     [DATA_WIDTH_12-1:0]		read_data;
+reg		[DATA_WIDTH_12-1:0]		write_data;
+reg		[DATA_WIDTH_12-1:0]		result_data;				
 
 
  /*****************************************************************************
@@ -92,7 +98,7 @@ reg		[DATA_WIDTH_8-1:0]		result_data;
  *****************************************************************************/
 assign s_readdata = read_data;
 assign recieve_pixel = fpga_ready_recieve_pixel && linux_end_send_pixel;
-
+assign reset = s_reset || trig_reset;
 
 /*****************************************************************************
  *                            Sequence logic                                 *
@@ -101,33 +107,40 @@ assign recieve_pixel = fpga_ready_recieve_pixel && linux_end_send_pixel;
 //===== Get data from LINUX to FPGA
 always@(negedge s_clk)
 begin
+	trig_send_result				<= 0;
+	trig_reset 						<= 0;
 	if (s_write)
 	begin
 		if(s_writedata == LINUX_CALL_FPGA_RESET)
 		begin
-			trig_reset <= 1;
+			trig_reset 				<= 1;
 		end
 		else if(s_writedata == LINUX_START_SEND_PIXEL)
 		begin
-			linux_end_send_pixel <= 0;
-			linux_start_send_pixel <= 1;
-			pixel <= s_writedata;
+			linux_end_send_pixel 	<= 0;
+			linux_start_send_pixel 	<= 1;
+			fpga_recieve_pixel		<= 1;			
 		end
-		else if(s_writedata == LINUX_STOP_SEND_PIXEL)
+		else if(fpga_recieve_pixel)
 		begin
-			linux_end_send_pixel <= 1;
-			linux_start_send_pixel <= 0;
+			pixel 					<= s_writedata;
+			fpga_recieve_pixel		<= 0;
+		end
+		else if(s_writedata == LINUX_STOP_SEND_PIXEL && !fpga_recieve_pixel)
+		begin
+			linux_end_send_pixel 	<= 1;
+			linux_start_send_pixel 	<= 0;
 		end
 		else if(s_writedata == LINUX_START_RECIEVE_RESULT)
 		begin
-			send_result <= 1;
+			trig_send_result 		<= 1;
+			notify_send_result 		<= 1;
 		end
 		else if(s_writedata == LINUX_STOP_RECIEVE_RESULT)
 		begin
-			send_result <= 0;
-		end	
+			stop_send_result		<= 1;
+		end
 	end
-	trig_reset = 0;
 end
 
 
@@ -138,36 +151,53 @@ begin
 	begin
 		if(fpga_ready_recieve_pixel)
 		begin
-			read_data <= FPGA_START_RECIEVE_PIXEL;
+			read_data 				<= FPGA_START_RECIEVE_PIXEL;
 		end
 		else if(end_recieve_pixel)
 		begin
-			read_data <= FPGA_STOP_RECIEVE_PIXEL;
+			read_data 				<= FPGA_STOP_RECIEVE_PIXEL;
 		end
 		else if(end_result)
 		begin
-			read_data <= FPGA_FINISH_RESULT;
+			read_data 				<= FPGA_FINISH_RESULT;
 		end
-		else if(send_result)
+		else if(fpga_ready_send_result)
 		begin
-			read_data <= result_data;
-		end
-		else 
-		begin
-			read_data <= FPGA_IDLE;
+			if(notify_send_result)
+			begin
+				read_data			<= FPGA_START_SEND_RESULT;
+				notify_send_result	<= 0;
+			end
+			else if(result_sent && stop_send_result)
+			begin
+				read_data 			<= FPGA_STOP_SEND_RESULT;
+				result_sent 		<= 0;
+				stop_send_result	<= 0;
+			end
+			else
+			begin
+				read_data 			<= result_data;
+				result_sent			<= 1;
+			end
 		end
 	end
 end
 
+
 //===== Reset 
 always@(posedge s_clk)
 begin
-	if(s_reset || trig_reset)
+	if(reset)
 	begin
-		linux_start_send_pixel<=0;
-		linux_end_send_pixel<=0;
-		pixel<=0;
-		send_result<=0;
+		trig_reset 				<= 0;
+		notify_send_result		<= 0;
+		result_sent				<= 0;
+		linux_start_send_pixel	<= 0;
+		linux_end_send_pixel	<= 0;
+		pixel					<= 0;
+		trig_send_result		<= 0;
+		stop_send_result		<= 0;
+		fpga_recieve_pixel		<= 0;
 	end
 end
 
@@ -177,8 +207,8 @@ end
 face_detection
 face_detection
 (
-.clk(clk),
-.reset(trig_reset),
+.clk(s_clk),
+.reset(reset),
 
 //Pixel//
 .o_fpga_ready_recieve_pixel(fpga_ready_recieve_pixel),
@@ -187,10 +217,11 @@ face_detection
 .pixel(pixel),
 
 //Result//
-.send_result(send_result),
+.trig_send_result(trig_send_result),
+.result_sent(result_sent),
 .o_result_data(result_data),
 .o_result_end(end_result),
-.o_frame_end(end_frame)
+.o_fpga_ready_send_result(fpga_ready_send_result)
 );
  
  

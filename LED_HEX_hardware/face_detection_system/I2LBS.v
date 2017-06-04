@@ -30,38 +30,47 @@ end_tree,
 end_database,
 o_pixel_request,
 o_database_request,
-o_resize_x,
-o_resize_y,
 o_inspect_done,
 o_integral_image_ready,
 o_candidate
 );
 
-/*--------------------IO port declaration---------------------------------*/
-input clk;
-input reset;
-input enable_recieve_pixel;
-input [DATA_WIDTH_16-1:0] pixel;
-input [DATA_WIDTH_12-1:0] ori_x;
-input [DATA_WIDTH_12-1:0] ori_y;
-input [NUM_STAGES-1:0] end_database;
-input [NUM_STAGES-1:0] end_tree;
-input [NUM_STAGES-1:0] end_single_classifier;
-input [NUM_STAGES-1:0] end_all_classifier;
-input [DATA_WIDTH_12-1:0] index_tree[NUM_STAGES-1:0];
-input [DATA_WIDTH_12-1:0] index_classifier[NUM_STAGES-1:0];
-input [DATA_WIDTH_12-1:0] index_database[NUM_STAGES-1:0];
-input [DATA_WIDTH_12-1:0] data[NUM_STAGES-1:0]; 
-output o_candidate;
-output o_pixel_request;
-output o_database_request;
-output o_inspect_done;
-output o_integral_image_ready;
-output [DATA_WIDTH_12-1:0] o_resize_x;
-output [DATA_WIDTH_12-1:0] o_resize_y;
-/*-----------------------------------------------------------------------*/
+/*****************************************************************************
+ *                           Parameter Declarations                          *
+ *****************************************************************************/
+localparam IDLE = 0;
+localparam REQUEST_RECIEVE = 1;
+localparam INSPECT = 2;
 
 
+
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
+input 						clk;
+input 						reset;
+input 						enable_recieve_pixel;
+input [DATA_WIDTH_16-1:0] 	pixel;
+input [DATA_WIDTH_12-1:0] 	ori_x;
+input [DATA_WIDTH_12-1:0] 	ori_y;
+input [NUM_STAGES-1:0] 		end_database;
+input [NUM_STAGES-1:0] 		end_tree;
+input [NUM_STAGES-1:0] 		end_single_classifier;
+input [NUM_STAGES-1:0] 		end_all_classifier;
+input [DATA_WIDTH_12-1:0] 	index_tree[NUM_STAGES-1:0];
+input [DATA_WIDTH_12-1:0] 	index_classifier[NUM_STAGES-1:0];
+input [DATA_WIDTH_12-1:0] 	index_database[NUM_STAGES-1:0];
+input [DATA_WIDTH_16-1:0] 	data[NUM_STAGES-1:0]; 
+output 						o_candidate;
+output 						o_pixel_request;
+output 						o_database_request;
+output 						o_inspect_done;
+output 						o_integral_image_ready;
+
+
+/*****************************************************************************
+ *                             Internal Wire/Register                        *
+ *****************************************************************************/
 wire reach;
 wire w_candidate;
 wire integral_image_ready;
@@ -69,7 +78,6 @@ wire inspect_done;
 wire [DATA_WIDTH_12-1:0] resize_x;
 wire [DATA_WIDTH_12-1:0] resize_y;
 wire [DATA_WIDTH_16-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
-
 
 reg enable;
 reg candidate;
@@ -79,18 +87,20 @@ reg enable_memory;
 reg[NUM_STAGES-1:0] state;
 reg[NUM_STAGES-1:0] next_state;
 
-localparam IDLE = 0;
-localparam REQUEST_RECIEVE = 1;
-localparam INSPECT = 2;
 
+ /*****************************************************************************
+ *                            Combinational logic                             *
+ *****************************************************************************/
 assign o_candidate = candidate;
-assign o_resize_x = resize_x;
-assign o_resize_y = resize_y;
 assign o_pixel_request = pixel_request;
 assign o_database_request = database_request;
 assign o_inspect_done = inspect_done;
 assign o_integral_image_ready = integral_image_ready;
 
+
+/*****************************************************************************
+ *                            Sequence logic                                 *
+ *****************************************************************************/ 
 always@(posedge clk)
 begin
 	if(reset)
@@ -166,11 +176,12 @@ begin
 end
 
 
+ /*****************************************************************************
+ *                                   Modules                                  *
+ *****************************************************************************/ 
+
 I2LBS_memory 
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8),
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT),
 .FRAME_CAMERA_WIDTH(FRAME_RESIZE_CAMERA_WIDTH),
@@ -189,9 +200,6 @@ I2LBS_memory
 
 I2LBS_classifier
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8),
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
 .NUM_STAGE(NUM_STAGES),
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 .INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
@@ -216,9 +224,6 @@ I2LBS_classifier
 
 resize
 #(
-.DATA_WIDTH_8(DATA_WIDTH_8),
-.DATA_WIDTH_12(DATA_WIDTH_12),
-.DATA_WIDTH_16(DATA_WIDTH_16),
 .FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
 .FRAME_ORIGINAL_CAMERA_HEIGHT(FRAME_ORIGINAL_CAMERA_HEIGHT),
 .FRAME_RESIZE_CAMERA_WIDTH(FRAME_RESIZE_CAMERA_WIDTH),

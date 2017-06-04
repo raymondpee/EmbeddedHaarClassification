@@ -90,7 +90,7 @@ output [NUM_STAGES-1:0]o_end_all_classifier;
 output [DATA_WIDTH_12-1:0] o_index_tree[NUM_STAGES-1:0];
 output [DATA_WIDTH_12-1:0] o_index_classifier[NUM_STAGES-1:0];
 output [DATA_WIDTH_12-1:0] o_index_database[NUM_STAGES-1:0];
-output [DATA_WIDTH_12-1:0] o_data[NUM_STAGES-1:0];
+output [DATA_WIDTH_16-1:0] o_data[NUM_STAGES-1:0];
 /*-----------------------------------------------------------------------*/
 
   

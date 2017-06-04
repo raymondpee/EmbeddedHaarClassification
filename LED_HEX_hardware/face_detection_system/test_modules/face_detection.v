@@ -10,12 +10,11 @@ o_recieve_pixel_end,
 pixel,
 
 //Result//
-send_result,
+trig_send_result,
+result_sent,
 o_result_data,
 o_result_end,
-
-// End Of Frame Buffer
-o_frame_end
+o_fpga_ready_send_result
 );
 
 /*****************************************************************************
@@ -51,7 +50,7 @@ localparam INTEGRAL_HEIGHT 			= INTEGRAL_LENGTH;
 
 input 							clk;
 input 							reset;
-output 							o_frame_end;
+
 
 //===== Pixel IO
 input 	[DATA_WIDTH_16 -1:0] 	pixel;
@@ -60,9 +59,11 @@ output 							o_recieve_pixel_end;
 output 							o_fpga_ready_recieve_pixel;
 
 //===== Result IO
-input 							send_result;
+input 							result_sent;
+input 							trig_send_result;
 output 	[DATA_WIDTH_12-1:0]  	o_result_data;
 output 							o_result_end;
+output 							o_fpga_ready_send_result;
 
 
 
@@ -92,9 +93,9 @@ wire 	[NUM_STAGES-1:0] 		end_all_classifier;
 wire 	[DATA_WIDTH_12-1:0] 	index_tree[NUM_STAGES-1:0];
 wire 	[DATA_WIDTH_12-1:0] 	index_classifier[NUM_STAGES-1:0];
 wire 	[DATA_WIDTH_12-1:0] 	index_database[NUM_STAGES-1:0];
-wire 	[DATA_WIDTH_12-1:0] 	data[NUM_STAGES-1:0]; 
+wire 	[DATA_WIDTH_16-1:0] 	data[NUM_STAGES-1:0]; 
 wire 	[DATA_WIDTH_12-1:0] 	data_out;
-
+wire							fpga_ready_send_result;
 
 reg 							write_result;
 reg 							fpga_ready_recieve_pixel;
@@ -113,7 +114,7 @@ assign o_recieve_pixel_end = enable_recieve_pixel;
 assign o_fpga_ready_recieve_pixel = fpga_ready_recieve_pixel;
 assign o_result_end = result_empty;
 assign o_result_data = data_out;
-assign o_frame_end = end_coordinate;
+assign o_fpga_ready_send_result = fpga_ready_send_result&& !result_empty;
 
 assign global_database_request = database_request>0;
 assign request_pixel = pixel_request == 5'b11111;
@@ -210,8 +211,10 @@ result
 .o_write_result_end(write_result_end),
 
 //=== Read Result
-.read_result(send_result),
+.trig_send_result(trig_send_result),
 .o_result(data_out),
+.o_ready_send_result(fpga_ready_send_result),
+.result_sent(result_sent),
 .o_empty(result_empty)
 );
 

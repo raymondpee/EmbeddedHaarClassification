@@ -37,7 +37,7 @@ output 							o_end_all_classifier;
 output 	[DATA_WIDTH_12-1:0]		o_index_tree;
 output 	[DATA_WIDTH_12-1:0] 	o_index_classifier;
 output 	[DATA_WIDTH_12-1:0] 	o_index_database;
-output 	[DATA_WIDTH_12-1:0]		o_data;
+output 	[DATA_WIDTH_16-1:0]		o_data;
 
 
 
@@ -65,7 +65,7 @@ wire 	[DATA_WIDTH_12-1:0] 	w_index_stage_threshold;
 reg 							trig_count_tree;
 reg 							count_classifier;
 reg 							count_database;
-reg 	[DATA_WIDTH_12-1:0] 	data;
+reg 	[DATA_WIDTH_16-1:0] 	data;
 
 
  /*****************************************************************************
@@ -171,9 +171,6 @@ counter_database
 database_stage_memory
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
-.DATA_WIDTH_8(DATA_WIDTH_8),   // Max value 255
-.DATA_WIDTH_12(DATA_WIDTH_12), // Max value 4095
-.DATA_WIDTH_16(DATA_WIDTH_16), // Max value 177777
 .FILE_STAGE_MEM(FILE_STAGE_MEM),
 .SIZE_STAGE(SIZE_STAGE)
 )

@@ -19,20 +19,18 @@ parameter SIZE_STAGE = 10
 /*****************************************************************************
  *                             Port Declarations                             *
  *****************************************************************************/
-input clk;
-input reset;
-input ren_database_index;
-input ren_database;
-output [DATA_WIDTH_16-1:0] o_data;
+input 						clk;
+input 						reset;
+input 						ren_database_index;
+input 						ren_database;
+output [DATA_WIDTH_16-1:0] 	o_data;
 
 /*****************************************************************************
  *                             Internal Wire/Register                        *
  *****************************************************************************/
-wire [ADDR_WIDTH-1:0] w_address; 
-wire [DATA_WIDTH_12-1:0] w_rom_data;
+wire [DATA_WIDTH_16-1:0] 		data;
+wire [DATA_WIDTH_16-1:0] 		address; 
 
-reg [ADDR_WIDTH-1:0] address; 
-reg [DATA_WIDTH_12-1:0] data;
 
 /*****************************************************************************
  *                            Combinational logic                             *
@@ -40,14 +38,6 @@ reg [DATA_WIDTH_12-1:0] data;
 assign o_data = data;
 assign o_address = address;
 
-/*****************************************************************************
- *                            Sequence logic                                 *
- *****************************************************************************/ 
-always @(posedge reset)
-begin
-	data<=0;
-	address<=0;
-end
 
 /*****************************************************************************
 *                                   Modules                                  *
@@ -69,7 +59,7 @@ counter_database_index
 
 rom 
 #(
-.ADDR_WIDTH(ADDR_WIDTH), 
+.ADDR_WIDTH(DATA_WIDTH_16), 
 .DATA_WIDTH(DATA_WIDTH_16),
 .MEMORY_FILE(FILE_STAGE_MEM)
 )

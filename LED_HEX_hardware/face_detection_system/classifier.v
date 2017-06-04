@@ -39,7 +39,7 @@ input end_all_classifier;
 input [DATA_WIDTH_12-1:0] index_tree;
 input [DATA_WIDTH_12-1:0] index_classifier;
 input [DATA_WIDTH_12-1:0] index_database;
-input [DATA_WIDTH_12-1:0] data;
+input [DATA_WIDTH_16-1:0] data;
 input [DATA_WIDTH_16-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
 
@@ -49,7 +49,7 @@ output o_candidate;
  *****************************************************************************/
 wire copy;
 wire calculate;
-wire [DATA_WIDTH_12-1:0] w_index_stage_threshold;
+wire [DATA_WIDTH_12-1:0] index_stage_threshold;
 
 reg candidate;
 reg [DATA_WIDTH_12-1:0]rect_A_1_index;
@@ -70,9 +70,9 @@ reg [DATA_WIDTH_12-1:0]weight_3;
 reg [DATA_WIDTH_12-1:0]threshold;
 reg [DATA_WIDTH_12-1:0]left_word;
 reg [DATA_WIDTH_12-1:0]right_word;
-reg [DATA_WIDTH_12-1:0]r_stage_threshold;
-reg [DATA_WIDTH_12-1:0]r_parent;
-reg [DATA_WIDTH_12-1:0]r_next;
+reg [DATA_WIDTH_16-1:0]r_stage_threshold;
+reg [DATA_WIDTH_16-1:0]r_parent;
+reg [DATA_WIDTH_16-1:0]r_next;
 reg [DATA_WIDTH_16-1:0] haar;
 reg [DATA_WIDTH_16-1:0]sum_haar;
 
@@ -123,7 +123,7 @@ always@(posedge clk)
 begin
 	if(end_all_classifier)
 	begin
-		case(w_index_stage_threshold)
+		case(index_stage_threshold)
 		0:r_stage_threshold<= data;
 		1:r_parent<= data;
 		2:r_next<= data;
@@ -257,6 +257,7 @@ end
 /*****************************************************************************
 *                                   Modules                                  *
 *****************************************************************************/ 
+localparam MAX_SIZE = 3;
 
 counter
 #(
@@ -267,9 +268,9 @@ counter_stage_threshold
 .clk(clk),
 .reset(reset),
 .enable(end_all_classifier),
-.ctr_out(w_index_stage_threshold),
-.max_size(NUM_STAGE_THRESHOLD-1),
-.end_count(w_end_stage_threshold)
+.ctr_out(index_stage_threshold),
+.max_size(MAX_SIZE),
+.end_count(end_count)
 );
 
 

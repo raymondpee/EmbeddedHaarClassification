@@ -14,29 +14,37 @@ parameter FRAME_CAMERA_WIDTH =10
 	fifo_reduction_sum,
 	o_fill,
 	o_fifo_data_out,
-	o_row_integral,
+	o_row_integral
 );
 
 // Take note that this addr width is required for the frame camera width
 localparam ADDR_WIDTH = 12;
 
-/*--------------------IO port declaration---------------------------------*/
-input clk;
-input reset;
-input wen;
-input [DATA_WIDTH_16-1:0] fifo_in;
-input [DATA_WIDTH_16-1:0] fifo_reduction_sum;
-output o_fill;
-output [DATA_WIDTH_16-1:0] o_fifo_data_out;
-output [DATA_WIDTH_16-1:0] o_row_integral[INTEGRAL_WIDTH-1:0];
-/*-----------------------------------------------------------------------*/
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
+input 						clk;
+input 						reset;
+input 						wen;
+input  [DATA_WIDTH_16-1:0] 	fifo_in;
+input  [DATA_WIDTH_16-1:0] 	fifo_reduction_sum;
+output 						o_fill;
+output [DATA_WIDTH_16-1:0] 	o_fifo_data_out;
+output [DATA_WIDTH_16-1:0] 	o_row_integral[INTEGRAL_WIDTH-1:0];
+
+
+/*****************************************************************************
+ *                             Internal Wire/Register                        *
+ *****************************************************************************/
 
 wire fifo_rdreq;
 wire [DATA_WIDTH_16-1:0] fifo_usedw;                    
 wire [DATA_WIDTH_16-1:0] fifo_data_out;        
 reg[DATA_WIDTH_16-1:0]row_integral[INTEGRAL_WIDTH-1:0];
 
-/*--------------------Assignment declaration---------------------------------*/
+ /*****************************************************************************
+ *                            Combinational logic                             *
+ *****************************************************************************/
 assign o_fifo_data_out = fifo_data_out;
 assign fifo_rdreq = (fifo_usedw == FRAME_CAMERA_WIDTH) ? 1:0;
 assign o_fill = fifo_rdreq;
@@ -47,26 +55,12 @@ generate
 		assign o_row_integral[index_integral] = row_integral[index_integral];
 	end
 endgenerate
-/*-------------------------------------------------------------------------*/
 
-/*---------------------------------FIFO module ----------------------------*/
-fifo 
-#(
-.DATA_WIDTH(DATA_WIDTH_16),
-.ADDR_WIDTH(ADDR_WIDTH)
-)
-row_fifo
-(
-	.clock(clk),
-	.data(fifo_in),
-	.rdreq(fifo_rdreq),
-	.wrreq(wen),
-	.q(fifo_data_out),
-	.usedw(fifo_usedw)	
-);
-/*-------------------------------------------------------------------------*/
 
-/*-------------------------Integral Image Single Row ----------------------*/
+
+/*****************************************************************************
+ *                            Sequence logic                                 *
+ *****************************************************************************/ 
 always @(posedge clk or posedge reset)
 begin	
 	if(reset)
@@ -96,6 +90,26 @@ generate
 		end
 	end
 endgenerate
-/*-------------------------------------------------------------------------*/
+
+	
+/*****************************************************************************
+ *                                   Modules                                  *
+ *****************************************************************************/ 
+fifo 
+#(
+.DATA_WIDTH(DATA_WIDTH_16),
+.ADDR_WIDTH(ADDR_WIDTH)
+)
+row_fifo
+(
+	.clock(clk),
+	.data(fifo_in),
+	.rdreq(fifo_rdreq),
+	.wrreq(wen),
+	.q(fifo_data_out),
+	.usedw(fifo_usedw)	,
+	.empty(empty),
+	.full(full)
+);
 	
 endmodule

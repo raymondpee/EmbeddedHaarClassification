@@ -38,7 +38,7 @@ input  [NUM_STAGE-1:0]end_all_classifier;
 input  [DATA_WIDTH_12-1:0] index_tree[NUM_STAGE-1:0];
 input  [DATA_WIDTH_12-1:0] index_classifier [NUM_STAGE-1:0];
 input  [DATA_WIDTH_12-1:0] index_database [NUM_STAGE-1:0];
-input  [DATA_WIDTH_12-1:0] data [NUM_STAGE-1:0];
+input  [DATA_WIDTH_16-1:0] data [NUM_STAGE-1:0];
 output o_inspect_done;
 output o_candidate;
 
@@ -114,9 +114,6 @@ for(index = 0; index<NUM_STAGE; index = index +1)
 begin
 	classifier
 	#(
-	.DATA_WIDTH_8(DATA_WIDTH_8),
-	.DATA_WIDTH_12(DATA_WIDTH_12),
-	.DATA_WIDTH_16(DATA_WIDTH_16),
 	.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 	.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
 	)

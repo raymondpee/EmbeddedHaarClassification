@@ -16,39 +16,83 @@ wen,
 o_integral_image,
 o_integral_image_ready
 );
-/*--------------------IO port declaration---------------------------------*/
-input clk;
-input reset;
-input wen;
-input [DATA_WIDTH_16-1:0] pixel;
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
+input 							clk;
+input 							reset;
+input 							wen;
+input 	[DATA_WIDTH_16-1:0] 	pixel;
 
-output o_integral_image_ready;
-output [DATA_WIDTH_16-1:0] o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
-/*-----------------------------------------------------------------------*/
+output 							o_integral_image_ready;
+output 	[DATA_WIDTH_16-1:0] 	o_integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 
+
+/*****************************************************************************
+ *                           Parameter Declarations                          *
+ *****************************************************************************/
 localparam TOTAL_SIZE_COUNT = (FRAME_CAMERA_WIDTH*INTEGRAL_HEIGHT) + 2*INTEGRAL_WIDTH;
-
 localparam NUM_STATE = 3;
 localparam IDLE = 0;
 localparam FILL_FIFO_INTEGRAL = 1;
 localparam FILL_INTEGRAL = 2;
  
-wire ready;
-wire end_count_integral;
-wire[INTEGRAL_HEIGHT-1:0] fill;
-wire [DATA_WIDTH_12-1:0] integral_image_count;
-wire [DATA_WIDTH_16-1:0] fifo_data_out [INTEGRAL_HEIGHT-1:0];
-wire [DATA_WIDTH_16-1:0] fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
-wire [DATA_WIDTH_16-1:0] row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
+ 
+ /*****************************************************************************
+ *                             Internal Wire/Register                        *
+ *****************************************************************************/
 
-reg count_integral;
-reg [INTEGRAL_HEIGHT-1:0] r_fill;
-reg integral_image_ready;
-reg [NUM_STATE-1:0] state;
-reg [NUM_STATE-1:0] next_state;
+wire 						ready;
+wire 						end_count_integral;
+wire [INTEGRAL_HEIGHT-1:0] 	fill;
+wire [DATA_WIDTH_12-1:0] 	integral_image_count;
+wire [DATA_WIDTH_16-1:0] 	fifo_data_out [INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_16-1:0] 	fifo_reduction_sum [INTEGRAL_HEIGHT-1:0];
+wire [DATA_WIDTH_16-1:0] 	row_integral[INTEGRAL_WIDTH-1:0][INTEGRAL_HEIGHT-1:0];
 
+reg 						count_integral;
+reg 						integral_image_ready;
+reg [INTEGRAL_HEIGHT-1:0] 	r_fill;
+reg [NUM_STATE-1:0] 		state;
+reg [NUM_STATE-1:0] 		next_state;
+
+
+
+
+ /*****************************************************************************
+ *                            Combinational logic                             *
+ *****************************************************************************/
 assign ready = fill[INTEGRAL_HEIGHT-1];
 assign o_integral_image_ready = integral_image_ready;
+
+ //=== Reduction Sum declaration
+assign fifo_reduction_sum[INTEGRAL_HEIGHT-1] = 0;
+generate
+	genvar index_reduction;	
+	for(index_reduction = 0;index_reduction <INTEGRAL_HEIGHT-1;index_reduction= index_reduction +1)
+	begin				
+		assign fifo_reduction_sum[index_reduction] = fifo_reduction_sum[index_reduction+1] +fifo_data_out[index_reduction+1];
+	end
+endgenerate
+
+
+//=== Integral Image Wire Declaration
+generate
+	genvar index_integral_y;	
+	for(index_integral_y = 0;index_integral_y <INTEGRAL_HEIGHT;index_integral_y= index_integral_y +1)
+	begin	
+		genvar index_integral_x;	
+		for(index_integral_x = 0;index_integral_x <INTEGRAL_WIDTH;index_integral_x= index_integral_x +1)
+		begin
+			assign o_integral_image[index_integral_x+INTEGRAL_WIDTH*index_integral_y] = row_integral[index_integral_y][index_integral_x];
+		end
+	end
+endgenerate
+
+
+/*****************************************************************************
+ *                            Sequence logic                                 *
+ *****************************************************************************/ 
 
 always@(posedge clk)
 begin
@@ -95,6 +139,15 @@ begin
 	endcase
 end
 
+always@(posedge fill[0])
+begin
+	r_fill[0] = 1;
+end
+
+
+/*****************************************************************************
+ *                                   Modules                                  *
+ *****************************************************************************/ 
 
 counter 
 #(
@@ -110,45 +163,9 @@ counter_integral_image_size
 .ctr_out(integral_image_count)
 );
 
-
-/*----------------Reduction Sum declaration---------------------------------*/
-assign fifo_reduction_sum[INTEGRAL_HEIGHT-1] = 0;
-generate
-	genvar index_reduction;	
-	for(index_reduction = 0;index_reduction <INTEGRAL_HEIGHT-1;index_reduction= index_reduction +1)
-	begin				
-		assign fifo_reduction_sum[index_reduction] = fifo_reduction_sum[index_reduction+1] +fifo_data_out[index_reduction+1];
-	end
-endgenerate
-/*-----------------------------------------------------------------------*/
-
-/*---------------Integral Image Wire Declaration--------------------------*/
-generate
-	genvar index_integral_y;	
-	for(index_integral_y = 0;index_integral_y <INTEGRAL_HEIGHT;index_integral_y= index_integral_y +1)
-	begin	
-		genvar index_integral_x;	
-		for(index_integral_x = 0;index_integral_x <INTEGRAL_WIDTH;index_integral_x= index_integral_x +1)
-		begin
-			assign o_integral_image[index_integral_x+INTEGRAL_WIDTH*index_integral_y] = row_integral[index_integral_y][index_integral_x];
-		end
-	end
-endgenerate
-/*-----------------------------------------------------------------------*/
-
-
-/*------------------Row declaration-----------------------------------------*/
-
-always@(posedge fill[0])
-begin
-	r_fill[0] = 1;
-end
-
+//=== Row declaration
 row
 #(
-	.DATA_WIDTH_8(DATA_WIDTH_8),
-	.DATA_WIDTH_12(DATA_WIDTH_12),
-	.DATA_WIDTH_16(DATA_WIDTH_16),
 	.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 	.FRAME_CAMERA_WIDTH(FRAME_CAMERA_WIDTH)
 )
@@ -176,9 +193,6 @@ generate
 	
 		row
 		#(
-			.DATA_WIDTH_8(DATA_WIDTH_8),
-			.DATA_WIDTH_12(DATA_WIDTH_12),
-			.DATA_WIDTH_16(DATA_WIDTH_16),
 			.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
 			.FRAME_CAMERA_WIDTH(FRAME_CAMERA_WIDTH)
 		)
@@ -195,7 +209,4 @@ generate
 		);	
 	end
 endgenerate
-/*-----------------------------------------------------------------------*/
-
-
 endmodule
