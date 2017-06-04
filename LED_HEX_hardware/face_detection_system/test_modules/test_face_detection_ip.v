@@ -44,6 +44,9 @@ reg write;
 reg recieve_result;
 reg [DATA_WIDTH_8-1:0] state;
 reg end_coordinate;
+reg prepare_pixel;
+reg pixel_ready;
+reg pixel_sent;
 reg [7:0] pixel;
 reg [DATA_WIDTH_12:0] writedata;
 reg [DATA_WIDTH_12:0] ori_x;
@@ -74,6 +77,9 @@ always@(posedge clk)
 begin
 	if(reset)
 	begin
+		ori_x			<= 0;
+		ori_y			<= 0;
+		result_data		<= 0;
 		state			<= 0;
 		read			<= 1;
 		write			<= 0;
@@ -81,6 +87,9 @@ begin
 		pixel			<= 0;
 		end_coordinate 	<= 0;
 		recieve_result	<= 0;
+		prepare_pixel	<= 0;
+		pixel_ready		<= 0;
+		pixel_sent		<= 0;
 	end
 end
 
@@ -103,20 +112,30 @@ begin
 			writedata 	<= LINUX_START_RECIEVE_RESULT;
 			state		<= LINUX_START_RECIEVE_RESULT;
 		end
-		else if(write &&readdata == FPGA_START_RECIEVE_PIXEL)
+		else if(readdata == FPGA_START_RECIEVE_PIXEL)
 		begin
-			write		<= 1;
-			writedata	<= LINUX_START_SEND_PIXEL;
-			state 		<= LINUX_START_SEND_PIXEL;
+			prepare_pixel 	<= 1;
+			write			<= 1;
+			writedata		<= LINUX_START_SEND_PIXEL;
+			state 			<= LINUX_START_SEND_PIXEL;
 		end
 	end
 	LINUX_START_SEND_PIXEL:
 	begin
-		if(readdata == FPGA_STOP_RECIEVE_PIXEL)
+		if(pixel_sent && readdata == FPGA_START_RECIEVE_PIXEL)
 		begin
+			pixel_sent	<= 0;
 			write		<= 1;
 			writedata 	<= LINUX_STOP_SEND_PIXEL;
 			state 		<= LINUX_STOP_SEND_PIXEL;			
+		end
+		else if(pixel_ready)
+		begin
+			pixel_sent		<= 1;
+			pixel_ready		<= 0;
+			prepare_pixel 	<= 0;
+			write			<= 1;
+			writedata		<= pixel;
 		end
 	end
 	LINUX_START_RECIEVE_RESULT:
@@ -151,8 +170,7 @@ end
 
 always @(posedge clk)
 begin
-	write<=0;
-	if(state == LINUX_START_SEND_PIXEL)
+	if(prepare_pixel)
 	begin
 		//== Pixel Input
 		if(pixel == 255)
@@ -182,7 +200,8 @@ begin
 		begin
 			ori_x <= ori_x + 1;
 		end
-		write<=1;
+		prepare_pixel<=0;
+		pixel_ready  <=1;
 	end
 end
 

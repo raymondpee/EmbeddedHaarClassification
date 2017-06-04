@@ -119,7 +119,7 @@ assign o_fpga_ready_send_result = fpga_ready_send_result&& !result_empty;
 assign global_database_request = database_request>0;
 assign request_pixel = pixel_request == 5'b11111;
 assign got_candidate = candidate>0; 
-assign enable_recieve_pixel = recieve_coordinate && recieve_pixel;
+assign enable_recieve_pixel = recieve_coordinate;
 assign reset_database = request_pixel || reset;
 
 
@@ -143,7 +143,6 @@ end
 
 always@(posedge clk)
 begin
-	fpga_ready_recieve_pixel<=0;
 	if(request_pixel)
 	begin
 		if(got_candidate)
@@ -159,6 +158,10 @@ begin
 		begin
 			fpga_ready_recieve_pixel <= 1;
 		end				
+	end
+	else if(recieve_pixel)
+	begin
+		fpga_ready_recieve_pixel <=0;
 	end
 end
 

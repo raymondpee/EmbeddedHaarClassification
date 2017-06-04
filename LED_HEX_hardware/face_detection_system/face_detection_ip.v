@@ -105,7 +105,7 @@ assign reset = s_reset || trig_reset;
  *****************************************************************************/ 
 
 //===== Get data from LINUX to FPGA
-always@(negedge s_clk)
+always@(posedge s_clk)
 begin
 	trig_send_result				<= 0;
 	trig_reset 						<= 0;
@@ -145,7 +145,7 @@ end
 
 
 //===== State declaration from FPGA to LINUX
-always@(negedge s_clk)
+always@(posedge s_clk)
 begin
 	if(s_read)
 	begin

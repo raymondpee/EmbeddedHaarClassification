@@ -84,9 +84,8 @@ reg candidate;
 reg pixel_request;
 reg database_request;
 reg enable_memory;
-reg[NUM_STAGES-1:0] state;
-reg[NUM_STAGES-1:0] next_state;
-
+reg[2:0] state;
+reg[2:0] next_state;
 
  /*****************************************************************************
  *                            Combinational logic                             *
@@ -105,71 +104,64 @@ always@(posedge clk)
 begin
 	if(reset)
 	begin
-		enable <=0;
-		candidate<=0;
-		enable_memory<=0;
-		pixel_request<=0;
-		database_request<=0;
-		state<= IDLE;
-		next_state<=IDLE;
+		enable 				<= 0;
+		candidate			<= 0;
+		enable_memory		<= 0;
+		pixel_request		<= 0;
+		database_request	<= 0;
+		state				<= IDLE;
+		next_state 			<= IDLE;
 	end
 	else
-		state<= next_state;
+	begin
+		state <= next_state;
+	end
 end
 
 always@(*)
 begin
-	next_state = state;
 	case(state)
 		IDLE: 
 		begin
-			pixel_request = 1;
-			database_request = 0;
-			enable_memory = enable_recieve_pixel && reach;
+			pixel_request 		= 1;
+			database_request 	= 0;
+			enable_memory 		= enable_recieve_pixel && reach;
 			if(reach && integral_image_ready)
 			begin
-				next_state = INSPECT;
-			end
-			else
-			begin
-				next_state = IDLE;
+				next_state 		= INSPECT;
 			end
 		end
 		INSPECT: 
 		begin
-			pixel_request = 0;
-			enable_memory = 0;
-			database_request = 1;
+			pixel_request 		= 0;
+			enable_memory 		= 0;
+			database_request 	= 1;
 			if(inspect_done)
 			begin
-				next_state = REQUEST_RECIEVE;
-				candidate = w_candidate;
-				enable = 0;
+				next_state 		= REQUEST_RECIEVE;
+				candidate 		= w_candidate;
+				enable 			= 0;
 			end
 			else
 			begin
-				next_state = INSPECT;
-				enable =1;
+				next_state 		= INSPECT;
+				enable 			= 1;
 			end
 		end
 		REQUEST_RECIEVE: 
 		begin
-			pixel_request = 1;
-			enable_memory = enable_recieve_pixel && reach;
-			database_request = 0;
+			pixel_request 		= 1;
+			enable_memory 		= enable_recieve_pixel && reach;
+			database_request 	= 0;
 			if(enable_memory)
 			begin
-				candidate = 0;
-				next_state = INSPECT;
+				candidate 		= 0;
+				next_state 		= INSPECT;
 			end
 			else
 			begin
-				next_state = REQUEST_RECIEVE;
+				next_state 		= REQUEST_RECIEVE;
 			end
-		end
-		default:
-		begin
-			next_state = IDLE;
 		end
 	endcase
 
@@ -231,7 +223,8 @@ resize
 )
 resize
 (
-.clk_os(clk_os),
+.clk(clk),
+.reset(reset),
 .ori_x(ori_x),
 .ori_y(ori_y),
 .o_resize_x(resize_x),
