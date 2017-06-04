@@ -33,6 +33,7 @@ localparam DATA_WIDTH_16 		= 16;
 
 
 //=== System Call
+localparam LINUX_IDLE 						= 0;
 localparam LINUX_CALL_FPGA_RESET 			= 5;
 localparam FPGA_IDLE					 	= 10;
 
@@ -87,6 +88,7 @@ reg 							trig_send_result;
 reg								linux_start_send_pixel;
 reg 							linux_end_send_pixel;
 
+reg		[11:0]					state;
 reg		[DATA_WIDTH_16-1:0]		pixel;				
 reg     [DATA_WIDTH_12-1:0]		read_data;
 reg		[DATA_WIDTH_12-1:0]		write_data;
@@ -103,43 +105,75 @@ assign reset = s_reset || trig_reset;
 /*****************************************************************************
  *                            Sequence logic                                 *
  *****************************************************************************/ 
-
-//===== Get data from LINUX to FPGA
+//== Finite State Machine
 always@(posedge s_clk)
 begin
 	trig_send_result				<= 0;
 	trig_reset 						<= 0;
+	case(state)
+		LINUX_IDLE:
+		begin
+			if(write_data == LINUX_CALL_FPGA_RESET)
+			begin
+				trig_reset		<=1;
+				state 			<= LINUX_STOP_SEND_PIXEL;
+			end			
+		end
+		LINUX_STOP_SEND_PIXEL:
+		begin
+			if(write_data == LINUX_START_SEND_PIXEL)
+			begin
+				linux_end_send_pixel 	<= 0;
+				linux_start_send_pixel 	<= 1;
+				fpga_recieve_pixel		<= 1;	
+				state 					<= LINUX_START_SEND_PIXEL;
+			end
+			else if(write_data == LINUX_START_RECIEVE_RESULT)
+			begin
+				trig_send_result 		<= 1;
+				notify_send_result 		<= 1;
+				state					<= LINUX_START_RECIEVE_RESULT;
+			end
+		end	
+		LINUX_START_SEND_PIXEL:
+		begin
+			if(fpga_recieve_pixel)
+			begin
+				pixel 					<= write_data;
+				fpga_recieve_pixel		<= 0;
+				linux_end_send_pixel 	<= 1;
+				linux_start_send_pixel 	<= 0;
+				state 					<= LINUX_STOP_SEND_PIXEL;
+			end
+		end
+		LINUX_START_RECIEVE_RESULT:
+		begin
+			if(write_data == LINUX_STOP_RECIEVE_RESULT)
+			begin
+				stop_send_result		<= 1;
+				state					<= LINUX_STOP_RECIEVE_RESULT;
+			end
+		end
+		LINUX_STOP_RECIEVE_RESULT:
+		begin
+			if(write_data == LINUX_START_RECIEVE_RESULT)
+			begin
+				trig_send_result 		<= 1;
+				notify_send_result 		<= 1;
+				state					<= LINUX_START_RECIEVE_RESULT;
+			end
+		end
+	endcase
+end
+ 
+ 
+ 
+//===== Get data from LINUX to FPGA
+always@(posedge s_clk)
+begin
 	if (s_write)
 	begin
-		if(s_writedata == LINUX_CALL_FPGA_RESET)
-		begin
-			trig_reset 				<= 1;
-		end
-		else if(s_writedata == LINUX_START_SEND_PIXEL)
-		begin
-			linux_end_send_pixel 	<= 0;
-			linux_start_send_pixel 	<= 1;
-			fpga_recieve_pixel		<= 1;			
-		end
-		else if(fpga_recieve_pixel)
-		begin
-			pixel 					<= s_writedata;
-			fpga_recieve_pixel		<= 0;
-		end
-		else if(s_writedata == LINUX_STOP_SEND_PIXEL && !fpga_recieve_pixel)
-		begin
-			linux_end_send_pixel 	<= 1;
-			linux_start_send_pixel 	<= 0;
-		end
-		else if(s_writedata == LINUX_START_RECIEVE_RESULT)
-		begin
-			trig_send_result 		<= 1;
-			notify_send_result 		<= 1;
-		end
-		else if(s_writedata == LINUX_STOP_RECIEVE_RESULT)
-		begin
-			stop_send_result		<= 1;
-		end
+		write_data = s_writedata;
 	end
 end
 
@@ -187,9 +221,13 @@ end
 //===== Reset 
 always@(posedge s_clk)
 begin
-	if(reset)
+	if(s_reset)
 	begin
+		state					<= 0;
 		trig_reset 				<= 0;
+	end
+	if(trig_reset)
+	begin
 		notify_send_result		<= 0;
 		result_sent				<= 0;
 		linux_start_send_pixel	<= 0;
