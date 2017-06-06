@@ -112,12 +112,16 @@ begin
 			writedata 	<= LINUX_START_RECIEVE_RESULT;
 			state		<= LINUX_START_RECIEVE_RESULT;
 		end
-		else if(readdata == FPGA_START_RECIEVE_PIXEL)
-		begin
-			prepare_pixel 	<= 1;
+		else if(readdata == FPGA_START_RECIEVE_PIXEL && pixel_ready)
+		begin			
+			pixel_ready		<= 0;
 			write			<= 1;
 			writedata		<= LINUX_START_SEND_PIXEL;
 			state 			<= LINUX_START_SEND_PIXEL;
+		end
+		else if(!pixel_ready)
+		begin
+			prepare_pixel 	<= 1;
 		end
 	end
 	LINUX_START_SEND_PIXEL:
@@ -129,10 +133,9 @@ begin
 			writedata 	<= LINUX_STOP_SEND_PIXEL;
 			state 		<= LINUX_STOP_SEND_PIXEL;			
 		end
-		else if(pixel_ready)
+		else
 		begin
-			pixel_sent		<= 1;
-			pixel_ready		<= 0;
+			pixel_sent		<= 1;			
 			prepare_pixel 	<= 0;
 			write			<= 1;
 			writedata		<= pixel;

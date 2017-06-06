@@ -78,6 +78,7 @@ wire							recieve_pixel;
 wire 							fpga_ready_recieve_pixel;
 wire							fpga_ready_send_result;
 wire 							reset;
+wire							frame_end;
 
 reg 							fpga_recieve_pixel;
 reg								stop_send_result;
@@ -125,10 +126,9 @@ begin
 			begin
 				linux_end_send_pixel 	<= 0;
 				linux_start_send_pixel 	<= 1;
-				fpga_recieve_pixel		<= 1;	
 				state 					<= LINUX_START_SEND_PIXEL;
 			end
-			else if(write_data == LINUX_START_RECIEVE_RESULT)
+			else if(frame_end && write_data == LINUX_START_RECIEVE_RESULT)
 			begin
 				trig_send_result 		<= 1;
 				notify_send_result 		<= 1;
@@ -137,18 +137,22 @@ begin
 		end	
 		LINUX_START_SEND_PIXEL:
 		begin
-			if(fpga_recieve_pixel)
+			if(write_data == LINUX_STOP_SEND_PIXEL && fpga_recieve_pixel)
 			begin
-				pixel 					<= write_data;
 				fpga_recieve_pixel		<= 0;
 				linux_end_send_pixel 	<= 1;
 				linux_start_send_pixel 	<= 0;
 				state 					<= LINUX_STOP_SEND_PIXEL;
 			end
+			else
+			begin
+				pixel 					<= write_data;
+				fpga_recieve_pixel		<= 1;
+			end
 		end
 		LINUX_START_RECIEVE_RESULT:
 		begin
-			if(write_data == LINUX_STOP_RECIEVE_RESULT)
+			if(frame_end &&  write_data == LINUX_STOP_RECIEVE_RESULT)
 			begin
 				stop_send_result		<= 1;
 				state					<= LINUX_STOP_RECIEVE_RESULT;
@@ -156,7 +160,7 @@ begin
 		end
 		LINUX_STOP_RECIEVE_RESULT:
 		begin
-			if(write_data == LINUX_START_RECIEVE_RESULT)
+			if(frame_end && write_data == LINUX_START_RECIEVE_RESULT)
 			begin
 				trig_send_result 		<= 1;
 				notify_send_result 		<= 1;
@@ -247,6 +251,7 @@ face_detection
 (
 .clk(s_clk),
 .reset(reset),
+.o_frame_end(frame_end),
 
 //Pixel//
 .o_fpga_ready_recieve_pixel(fpga_ready_recieve_pixel),

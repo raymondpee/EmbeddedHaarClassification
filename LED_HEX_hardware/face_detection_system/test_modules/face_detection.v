@@ -2,6 +2,7 @@ module face_detection
 (
 clk,
 reset,
+o_frame_end,
 
 //Pixel//
 recieve_pixel,
@@ -65,6 +66,7 @@ output 	[DATA_WIDTH_12-1:0]  	o_result_data;
 output 							o_result_end;
 output 							o_fpga_ready_send_result;
 
+output							o_frame_end;
 
 
 
@@ -115,6 +117,7 @@ assign o_fpga_ready_recieve_pixel = fpga_ready_recieve_pixel;
 assign o_result_end = result_empty;
 assign o_result_data = data_out;
 assign o_fpga_ready_send_result = fpga_ready_send_result&& !result_empty;
+assign o_frame_end = end_coordinate;
 
 assign global_database_request = database_request>0;
 assign request_pixel = pixel_request == 5'b11111;
