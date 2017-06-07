@@ -102,6 +102,7 @@ assign o_integral_image_ready = integral_image_ready;
  *****************************************************************************/ 
 always@(posedge clk)
 begin
+	enable_memory<=0;
 	if(reset)
 	begin
 		enable 				<= 0;
@@ -112,55 +113,61 @@ begin
 		state				<= IDLE;
 		next_state 			<= IDLE;
 	end
+end
+
+
+always@(posedge enable_recieve_pixel)
+begin
+	if(reach && state!=INSPECT)
+	begin
+		enable_memory<=1;
+	end
 	else
 	begin
-		state <= next_state;
+		enable_memory<=0;
 	end
 end
 
-always@(*)
-begin
+always@(posedge clk)
+begin	
 	case(state)
 		IDLE: 
 		begin
-			pixel_request 		= 1;
-			database_request 	= 0;
-			enable_memory 		= enable_recieve_pixel && reach;
+			pixel_request 		<= 1;
+			database_request 	<= 0;		
 			if(reach && integral_image_ready)
 			begin
-				next_state 		= INSPECT;
+				state 			<= INSPECT;
 			end
 		end
 		INSPECT: 
 		begin
-			pixel_request 		= 0;
-			enable_memory 		= 0;
-			database_request 	= 1;
+			pixel_request 		<= 0;
+			database_request 	<= 1;
 			if(inspect_done)
 			begin
-				next_state 		= REQUEST_RECIEVE;
-				candidate 		= w_candidate;
-				enable 			= 0;
+				state 			<= REQUEST_RECIEVE;
+				candidate 		<= w_candidate;
+				enable 			<= 0;
 			end
 			else
 			begin
-				next_state 		= INSPECT;
-				enable 			= 1;
+				state 			<= INSPECT;
+				enable 			<= 1;
 			end
 		end
 		REQUEST_RECIEVE: 
 		begin
-			pixel_request 		= 1;
-			enable_memory 		= enable_recieve_pixel && reach;
-			database_request 	= 0;
+			pixel_request 		<= 1;
+			database_request 	<= 0;
 			if(enable_memory)
 			begin
-				candidate 		= 0;
-				next_state 		= INSPECT;
+				candidate 		<= 0;
+				state 			<= INSPECT;
 			end
 			else
 			begin
-				next_state 		= REQUEST_RECIEVE;
+				state 			<= REQUEST_RECIEVE;
 			end
 		end
 	endcase
