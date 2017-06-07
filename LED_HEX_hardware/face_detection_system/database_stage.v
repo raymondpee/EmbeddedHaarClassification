@@ -13,14 +13,18 @@ parameter FILE_STAGE_MEM = "memory.mif"
 clk,
 reset,
 enable,
+
+//== Data
+o_data,
+
+//== Index
 o_index_tree,
-o_index_classifier,
-o_index_database,
-o_end_database,
-o_end_single_classifier,
-o_end_all_classifier,
-o_end_tree,
-o_data	
+o_index_leaf,
+
+//== End Flag
+o_end_leafs,
+o_end_trees,
+o_end_database	
 );
 
 /*****************************************************************************
@@ -31,12 +35,10 @@ input 							reset;
 input 							enable;
 
 output 							o_end_database;
-output 							o_end_tree;
-output 							o_end_single_classifier;
-output 							o_end_all_classifier;
+output 							o_end_trees;
+output 							o_end_leafs;
 output 	[DATA_WIDTH_12-1:0]		o_index_tree;
-output 	[DATA_WIDTH_12-1:0] 	o_index_classifier;
-output 	[DATA_WIDTH_12-1:0] 	o_index_database;
+output 	[DATA_WIDTH_12-1:0] 	o_index_leaf;
 output 	[DATA_WIDTH_16-1:0]		o_data;
 
 
@@ -55,41 +57,35 @@ localparam SIZE_STAGE = NUM_CLASSIFIERS_STAGE*NUM_PARAM_PER_CLASSIFIER + NUM_STA
  *****************************************************************************/
 wire 							end_trees;
 wire 							end_database;
-wire 							end_tree;
+wire 							end_leafs;
 wire 	[DATA_WIDTH_12-1:0] 	index_database;
+wire 	[DATA_WIDTH_12-1:0] 	index_leaf;
 wire 	[DATA_WIDTH_12-1:0] 	index_tree;
-wire 	[DATA_WIDTH_12-1:0] 	w_index_tree;
-wire 	[DATA_WIDTH_12-1:0] 	w_index_stage_threshold;
-
 
 reg 							trig_count_tree;
-reg 							count_classifier;
-reg 							count_database;
+reg 							count_leaf;
 reg 	[DATA_WIDTH_16-1:0] 	data;
 
 
  /*****************************************************************************
  *                            Combinational logic                             *
  *****************************************************************************/
-assign o_data = data;
-assign o_index_tree = w_index_tree;
-assign o_index_classifier = index_tree;
-assign o_index_database = index_database;
-assign o_end_tree = end_trees;
-assign o_end_single_classifier = end_tree;
-assign o_end_database = end_database;
-assign o_end_all_classifier = end_trees;
+assign o_data 				= data;
+assign o_index_tree 		= index_tree;
+assign o_index_leaf 		= index_leaf;
+assign o_end_trees 			= end_trees;
+assign o_end_leafs 			= end_leafs;
+assign o_end_database 		= end_database;
 
 /*****************************************************************************
  *                            Sequence logic                                 *
  *****************************************************************************/ 
 always@(posedge reset)
 begin
-	count_classifier<=0;
-	count_database<=0;
+	count_leaf<=0;
 end
 
-always@(posedge end_tree)
+always@(posedge end_leafs)
 begin
 	if(!end_trees)
 		trig_count_tree <= 1;
@@ -97,27 +93,24 @@ end
 
 always@(posedge clk)
 begin
-	if(trig_count_tree) trig_count_tree<=0;	
+	trig_count_tree<=0;	
 end
 
 always@(data)
 begin
 	if(data == DEFAULT_VALUE)
 	begin
-		count_classifier<=0;
-		count_database<=0;
+		count_leaf<=0;
 	end
 	else
 	begin
 		if(end_database)
 		begin
-			count_classifier<=0;
-			count_database<=0;
+			count_leaf<=0;
 		end
 		else
 		begin
-			count_classifier<=1;
-			count_database<=1;
+			count_leaf<=1;
 		end
 	end
 end
@@ -135,7 +128,7 @@ counter_tree
 .clk(clk),
 .reset(reset),
 .enable(trig_count_tree),
-.ctr_out(w_index_tree),
+.ctr_out(index_tree),
 .max_size(NUM_CLASSIFIERS_STAGE-1),
 .end_count(end_trees)
 );
@@ -148,10 +141,10 @@ counter_classifier
 (
 .clk(clk),
 .reset(reset),
-.enable(count_classifier),
-.ctr_out(index_tree),
+.enable(count_leaf),
+.ctr_out(index_leaf),
 .max_size(NUM_PARAM_PER_CLASSIFIER-1),
-.end_count(end_tree)
+.end_count(end_leafs)
 );
 
 counter
@@ -162,7 +155,7 @@ counter_database
 (
 .clk(clk),
 .reset(reset),
-.enable(count_database),
+.enable(count_leaf),
 .ctr_out(index_database),
 .max_size(SIZE_STAGE-1),
 .end_count(end_database)

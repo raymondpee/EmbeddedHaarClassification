@@ -21,12 +21,10 @@ ori_x,
 ori_y,
 enable_recieve_pixel,
 index_tree,
-index_classifier,
-index_database,
+index_leaf,
 data,
-end_single_classifier,
-end_all_classifier,
-end_tree,
+end_leafs,
+end_trees,
 end_database,
 o_pixel_request,
 o_database_request,
@@ -53,14 +51,19 @@ input 						enable_recieve_pixel;
 input [DATA_WIDTH_16-1:0] 	pixel;
 input [DATA_WIDTH_12-1:0] 	ori_x;
 input [DATA_WIDTH_12-1:0] 	ori_y;
+
+//== End Flag
 input [NUM_STAGES-1:0] 		end_database;
-input [NUM_STAGES-1:0] 		end_tree;
-input [NUM_STAGES-1:0] 		end_single_classifier;
-input [NUM_STAGES-1:0] 		end_all_classifier;
-input [DATA_WIDTH_12-1:0] 	index_tree[NUM_STAGES-1:0];
-input [DATA_WIDTH_12-1:0] 	index_classifier[NUM_STAGES-1:0];
-input [DATA_WIDTH_12-1:0] 	index_database[NUM_STAGES-1:0];
-input [DATA_WIDTH_16-1:0] 	data[NUM_STAGES-1:0]; 
+input [NUM_STAGES-1:0] 		end_trees;
+input [NUM_STAGES-1:0] 		end_leafs;
+
+
+//== Index Flag
+input [DATA_WIDTH_12-1:0] 	index_tree	[NUM_STAGES-1:0];
+input [DATA_WIDTH_12-1:0] 	index_leaf	[NUM_STAGES-1:0];
+input [DATA_WIDTH_16-1:0] 	data		[NUM_STAGES-1:0]; 
+
+
 output 						o_candidate;
 output 						o_pixel_request;
 output 						o_database_request;
@@ -210,12 +213,10 @@ I2LBS_classifier
 .enable(enable),
 .integral_image(integral_image),
 .end_database(end_database),
-.end_tree(end_tree),
-.end_single_classifier(end_single_classifier),
-.end_all_classifier(end_all_classifier),
+.end_trees(end_trees),
+.end_leafs(end_leafs),
 .index_tree(index_tree),
-.index_classifier(index_classifier),
-.index_database(index_database),
+.index_leaf(index_leaf),
 .data(data),
 .o_inspect_done(inspect_done),
 .o_candidate(w_candidate)

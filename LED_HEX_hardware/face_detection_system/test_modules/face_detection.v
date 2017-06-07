@@ -65,7 +65,6 @@ input 							trig_send_result;
 output 	[DATA_WIDTH_12-1:0]  	o_result_data;
 output 							o_result_end;
 output 							o_fpga_ready_send_result;
-
 output							o_frame_end;
 
 
@@ -74,38 +73,45 @@ output							o_frame_end;
 /*****************************************************************************
  *                             Internal Wire/Register                        *
  *****************************************************************************/
-wire 							all_database_end;
-wire 							reset_database;
-wire 							global_pixel_request;
-wire 							global_database_request;
-wire 							write_result_end;
-wire 							result_empty;
-wire 							enable_recieve_pixel;
-wire 							request_pixel;
-wire 							got_candidate;
-wire 	[NUM_RESIZE-1:0] 		candidate;
-wire 	[NUM_RESIZE-1:0] 		inspect_done;
+//== Integral Image
 wire 	[NUM_RESIZE-1:0] 		integral_image_ready;
-wire 	[NUM_RESIZE-1:0] 		pixel_request;
-wire 	[NUM_RESIZE-1:0] 		database_request;
-wire 	[NUM_STAGES-1:0] 		end_database;
-wire 	[NUM_STAGES-1:0] 		end_tree;
-wire 	[NUM_STAGES-1:0] 		end_single_classifier;
-wire 	[NUM_STAGES-1:0] 		end_all_classifier;
-wire 	[DATA_WIDTH_12-1:0] 	index_tree[NUM_STAGES-1:0];
-wire 	[DATA_WIDTH_12-1:0] 	index_classifier[NUM_STAGES-1:0];
-wire 	[DATA_WIDTH_12-1:0] 	index_database[NUM_STAGES-1:0];
-wire 	[DATA_WIDTH_16-1:0] 	data[NUM_STAGES-1:0]; 
-wire 	[DATA_WIDTH_12-1:0] 	data_out;
-wire							fpga_ready_send_result;
 
-reg 							write_result;
-reg 							fpga_ready_recieve_pixel;
+//== Coordinate
 reg 							recieve_coordinate;
 reg 							end_coordinate;
 reg 	[DATA_WIDTH_12 -1:0] 	ori_x;
 reg 	[DATA_WIDTH_12 -1:0] 	ori_y;
 
+//== Pixel
+wire 							fpga_request_pixel;
+wire 							enable_recieve_pixel;
+wire 	[NUM_RESIZE-1:0] 		pixel_request;
+
+reg 							fpga_ready_recieve_pixel;
+
+//== Result
+wire							fpga_ready_send_result;
+wire 							result_empty;
+wire 							write_result_end;
+wire 	[DATA_WIDTH_12-1:0] 	data_out;
+
+reg 							write_result;
+
+//== Database
+wire 							fpga_request_database;
+wire 							reset_database;
+wire 	[NUM_RESIZE-1:0] 		database_request;
+wire 	[NUM_STAGES-1:0] 		end_leafs;
+wire 	[NUM_STAGES-1:0] 		end_trees;
+wire 	[NUM_STAGES-1:0] 		end_database;
+wire 	[DATA_WIDTH_16-1:0] 	data					[NUM_STAGES-1:0]; 
+wire 	[DATA_WIDTH_12-1:0] 	index_tree				[NUM_STAGES-1:0];
+wire 	[DATA_WIDTH_12-1:0] 	index_leaf				[NUM_STAGES-1:0];
+
+//== Candidate
+wire 							fpga_got_candidate;
+wire 	[NUM_RESIZE-1:0] 		candidate;
+wire 	[NUM_RESIZE-1:0] 		inspect_done;
 
 
  /*****************************************************************************
@@ -119,11 +125,11 @@ assign o_result_data = data_out;
 assign o_fpga_ready_send_result = fpga_ready_send_result&& !result_empty;
 assign o_frame_end = end_coordinate;
 
-assign global_database_request = database_request>0;
-assign request_pixel = pixel_request == 5'b11111;
-assign got_candidate = candidate>0; 
+assign fpga_request_database = database_request>0;
+assign fpga_request_pixel = pixel_request == 5'b11111;
+assign fpga_got_candidate = candidate>0; 
 assign enable_recieve_pixel = recieve_coordinate;
-assign reset_database = request_pixel || reset;
+assign reset_database = fpga_request_pixel || reset;
 
 
 /*****************************************************************************
@@ -146,9 +152,9 @@ end
 
 always@(posedge clk)
 begin
-	if(request_pixel)
+	if(fpga_request_pixel)
 	begin
-		if(got_candidate)
+		if(fpga_got_candidate)
 		begin
 			write_result <= 1;
 			if(write_result_end)
@@ -235,16 +241,18 @@ database
 (
 .clk(clk),
 .reset(reset_database),
-.enable(global_database_request),
+.enable(fpga_request_database),
 
+//== Index
+.o_index_leaf(index_leaf),
 .o_index_tree(index_tree),
-.o_index_classifier(index_classifier),
-.o_index_database(index_database),
+
+//== Data
 .o_data(data),	
-.o_end(all_database_end),
-.o_end_all_classifier(end_all_classifier),
-.o_end_single_classifier(end_single_classifier),
-.o_end_tree(end_tree),
+
+//== End Flag
+.o_end_leafs(end_leafs),
+.o_end_trees(end_trees),
 .o_end_database(end_database)
 );
 
@@ -269,12 +277,10 @@ I2LBS_1
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
-.index_classifier(index_classifier),
-.index_database(index_database),
+.index_leaf(index_leaf),
 .data(data),
-.end_single_classifier(end_single_classifier),
-.end_all_classifier(end_all_classifier),
-.end_tree(end_tree),
+.end_leafs(end_leafs),
+.end_trees(end_trees),
 .end_database(end_database),
 .o_candidate(candidate[0]),
 .o_pixel_request(pixel_request[0]),
@@ -303,12 +309,10 @@ I2LBS_2
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
-.index_classifier(index_classifier),
-.index_database(index_database),
+.index_leaf(index_leaf),
 .data(data),
-.end_single_classifier(end_single_classifier),
-.end_all_classifier(end_all_classifier),
-.end_tree(end_tree),
+.end_leafs(end_leafs),
+.end_trees(end_trees),
 .end_database(end_database),
 .o_candidate(candidate[1]),
 .o_pixel_request(pixel_request[1]),
@@ -337,12 +341,10 @@ I2LBS_3
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
-.index_classifier(index_classifier),
-.index_database(index_database),
+.index_leaf(index_leaf),
 .data(data),
-.end_single_classifier(end_single_classifier),
-.end_all_classifier(end_all_classifier),
-.end_tree(end_tree),
+.end_leafs(end_leafs),
+.end_trees(end_trees),
 .end_database(end_database),
 .o_candidate(candidate[2]),
 .o_pixel_request(pixel_request[2]),
@@ -371,12 +373,10 @@ I2LBS_4
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
-.index_classifier(index_classifier),
-.index_database(index_database),
+.index_leaf(index_leaf),
 .data(data),
-.end_single_classifier(end_single_classifier),
-.end_all_classifier(end_all_classifier),
-.end_tree(end_tree),
+.end_leafs(end_leafs),
+.end_trees(end_trees),
 .end_database(end_database),
 .o_candidate(candidate[3]),
 .o_pixel_request(pixel_request[3]),
@@ -405,12 +405,10 @@ I2LBS_5
 .ori_x(ori_x),
 .ori_y(ori_y),
 .index_tree(index_tree),
-.index_classifier(index_classifier),
-.index_database(index_database),
+.index_leaf(index_leaf),
 .data(data),
-.end_single_classifier(end_single_classifier),
-.end_all_classifier(end_all_classifier),
-.end_tree(end_tree),
+.end_leafs(end_leafs),
+.end_trees(end_trees),
 .end_database(end_database),
 .o_candidate(candidate[4]),
 .o_pixel_request(pixel_request[4]),

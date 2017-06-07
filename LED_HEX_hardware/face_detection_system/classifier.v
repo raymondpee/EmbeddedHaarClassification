@@ -12,14 +12,15 @@ clk,
 reset,
 enable,
 integral_image,
-end_database,
-end_tree,
-end_single_classifier,
-end_all_classifier,
+
+//== Database
 index_tree,
-index_classifier,
-index_database,
+index_leaf,
 data,
+end_database,
+end_leafs,
+end_trees,
+
 o_candidate
 );
 
@@ -33,12 +34,10 @@ input clk;
 input reset;
 input enable;
 input end_database;
-input end_tree;
-input end_single_classifier;
-input end_all_classifier;
+input end_leafs;
+input end_trees;
 input [DATA_WIDTH_12-1:0] index_tree;
-input [DATA_WIDTH_12-1:0] index_classifier;
-input [DATA_WIDTH_12-1:0] index_database;
+input [DATA_WIDTH_12-1:0] index_leaf;
 input [DATA_WIDTH_16-1:0] data;
 input [DATA_WIDTH_16-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 output o_candidate;
@@ -110,8 +109,8 @@ reg [DATA_WIDTH_16-1:0] value;
 *                            Combinational logic                             *
 *****************************************************************************/
 
-assign copy = enable && !end_all_classifier;
-assign calculate = enable && end_single_classifier;
+assign copy = enable && !end_trees;
+assign calculate = enable && end_leafs;
 assign o_candidate = candidate;
 
 
@@ -121,7 +120,7 @@ assign o_candidate = candidate;
 
 always@(posedge clk)
 begin
-	if(end_all_classifier)
+	if(end_trees)
 	begin
 		case(index_stage_threshold)
 		0:r_stage_threshold<= data;
@@ -188,7 +187,7 @@ begin
 	begin
 		if(copy)
 		begin
-			case(index_classifier)
+			case(index_leaf)
 				0:	rect_A_1_index <= data;
 				1:	rect_B_1_index <= data;
 				2:	rect_C_1_index <= data;
@@ -267,7 +266,7 @@ counter_stage_threshold
 (
 .clk(clk),
 .reset(reset),
-.enable(end_all_classifier),
+.enable(end_trees),
 .ctr_out(index_stage_threshold),
 .max_size(MAX_SIZE),
 .end_count(end_count)

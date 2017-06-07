@@ -9,21 +9,26 @@ parameter NUM_PARAM_PER_CLASSIFIER = 18,
 parameter NUM_STAGES = 25
 )
 (
-	clk,
-	reset,
-	enable,
-	o_index_tree,
-	o_index_classifier,
-	o_index_database,
-	o_end_single_classifier,
-	o_end_all_classifier,
-	o_end_tree,
-	o_end_database,
-	o_end,
-	o_data
+clk,
+reset,
+enable,
+
+//== Data
+o_data,
+
+//== Index
+o_index_tree,
+o_index_leaf,
+
+//== End Flag
+o_end_leafs,
+o_end_trees,
+o_end_database	
 );
 
-/*-----------------------------LocalParam-----------------------------------*/
+/*****************************************************************************
+ *                           Parameter Declarations                          *
+ *****************************************************************************/
 localparam FILE_STAGE1 = "ram0.mif";
 localparam FILE_STAGE2 = "ram1.mif";
 localparam FILE_STAGE3 = "ram2.mif";
@@ -75,31 +80,26 @@ localparam NUM_CLASSIFIERS_STAGE22 = 181;
 localparam NUM_CLASSIFIERS_STAGE23 = 199;
 localparam NUM_CLASSIFIERS_STAGE24 = 211;
 localparam NUM_CLASSIFIERS_STAGE25 = 200;
-/*-------------------------------------------------------------------------*/
 
-/*--------------------IO port declaration---------------------------------*/
-input clk;
-input reset;
-input enable;
 
-output o_end;
-output [NUM_STAGES-1:0]o_end_database;
-output [NUM_STAGES-1:0]o_end_tree;
-output [NUM_STAGES-1:0]o_end_single_classifier;
-output [NUM_STAGES-1:0]o_end_all_classifier;
-output [DATA_WIDTH_12-1:0] o_index_tree[NUM_STAGES-1:0];
-output [DATA_WIDTH_12-1:0] o_index_classifier[NUM_STAGES-1:0];
-output [DATA_WIDTH_12-1:0] o_index_database[NUM_STAGES-1:0];
-output [DATA_WIDTH_16-1:0] o_data[NUM_STAGES-1:0];
-/*-----------------------------------------------------------------------*/
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
+input 						clk;
+input 						reset;
+input 						enable;
 
-  
-assign o_end = o_end_database[0] && o_end_database[1] && o_end_database[2] && o_end_database[3] && o_end_database[4]
-				&& o_end_database[5] && o_end_database[6] && o_end_database[7] && o_end_database[8] && o_end_database[9]
-				&& o_end_database[10] && o_end_database[11] && o_end_database[12] && o_end_database[13] && o_end_database[14]
-				&& o_end_database[15] && o_end_database[16] && o_end_database[17] && o_end_database[18] && o_end_database[19]
-				&& o_end_database[20] && o_end_database[21] && o_end_database[22] && o_end_database[23] && o_end_database[24];
-  
+output [NUM_STAGES-1:0]		o_end_database;
+output [NUM_STAGES-1:0]		o_end_trees;
+output [NUM_STAGES-1:0]		o_end_leafs;
+output [DATA_WIDTH_12-1:0] 	o_index_tree[NUM_STAGES-1:0];
+output [DATA_WIDTH_12-1:0] 	o_index_leaf[NUM_STAGES-1:0];
+output [DATA_WIDTH_16-1:0] 	o_data[NUM_STAGES-1:0];
+
+
+ /*****************************************************************************
+ *                                   Modules                                  *
+ *****************************************************************************/ 
 database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
@@ -114,11 +114,9 @@ stage_1
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[0]),
-.o_index_classifier(o_index_classifier[0]),
-.o_index_database(o_index_database[0]),
-.o_end_single_classifier(o_end_single_classifier[0]),
-.o_end_all_classifier(o_end_all_classifier[0]),
-.o_end_tree(o_end_tree[0]),
+.o_index_leaf(o_index_leaf[0]),
+.o_end_leafs(o_end_leafs[0]),
+.o_end_trees(o_end_trees[0]),
 .o_end_database(o_end_database[0]),
 .o_data(o_data[0])
 );
@@ -137,11 +135,9 @@ stage_2
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[1]),
-.o_index_classifier(o_index_classifier[1]),
-.o_index_database(o_index_database[1]),
-.o_end_single_classifier(o_end_single_classifier[1]),
-.o_end_all_classifier(o_end_all_classifier[1]),
-.o_end_tree(o_end_tree[1]),
+.o_index_leaf(o_index_leaf[1]),
+.o_end_leafs(o_end_leafs[1]),
+.o_end_trees(o_end_trees[1]),
 .o_end_database(o_end_database[1]),
 .o_data(o_data[1])
 );
@@ -160,11 +156,9 @@ stage_3
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[2]),
-.o_index_classifier(o_index_classifier[2]),
-.o_index_database(o_index_database[2]),
-.o_end_single_classifier(o_end_single_classifier[2]),
-.o_end_all_classifier(o_end_all_classifier[2]),
-.o_end_tree(o_end_tree[2]),
+.o_index_leaf(o_index_leaf[2]),
+.o_end_leafs(o_end_leafs[2]),
+.o_end_trees(o_end_trees[2]),
 .o_end_database(o_end_database[2]),
 .o_data(o_data[2])
 );
@@ -183,11 +177,9 @@ stage_4
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[3]),
-.o_index_classifier(o_index_classifier[3]),
-.o_index_database(o_index_database[3]),
-.o_end_single_classifier(o_end_single_classifier[3]),
-.o_end_all_classifier(o_end_all_classifier[3]),
-.o_end_tree(o_end_tree[3]),
+.o_index_leaf(o_index_leaf[3]),
+.o_end_leafs(o_end_leafs[3]),
+.o_end_trees(o_end_trees[3]),
 .o_end_database(o_end_database[3]),
 .o_data(o_data[3])
 );
@@ -206,11 +198,9 @@ stage_5
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[4]),
-.o_index_classifier(o_index_classifier[4]),
-.o_index_database(o_index_database[4]),
-.o_end_single_classifier(o_end_single_classifier[4]),
-.o_end_all_classifier(o_end_all_classifier[4]),
-.o_end_tree(o_end_tree[4]),
+.o_index_leaf(o_index_leaf[4]),
+.o_end_leafs(o_end_leafs[4]),
+.o_end_trees(o_end_trees[4]),
 .o_end_database(o_end_database[4]),
 .o_data(o_data[4])
 );
@@ -229,11 +219,9 @@ stage_6
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[5]),
-.o_index_classifier(o_index_classifier[5]),
-.o_index_database(o_index_database[5]),
-.o_end_single_classifier(o_end_single_classifier[5]),
-.o_end_all_classifier(o_end_all_classifier[5]),
-.o_end_tree(o_end_tree[5]),
+.o_index_leaf(o_index_leaf[5]),
+.o_end_leafs(o_end_leafs[5]),
+.o_end_trees(o_end_trees[5]),
 .o_end_database(o_end_database[5]),
 .o_data(o_data[5])
 );
@@ -252,11 +240,9 @@ stage_7
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[6]),
-.o_index_classifier(o_index_classifier[6]),
-.o_index_database(o_index_database[6]),
-.o_end_single_classifier(o_end_single_classifier[6]),
-.o_end_all_classifier(o_end_all_classifier[6]),
-.o_end_tree(o_end_tree[6]),
+.o_index_leaf(o_index_leaf[6]),
+.o_end_leafs(o_end_leafs[6]),
+.o_end_trees(o_end_trees[6]),
 .o_end_database(o_end_database[6]),
 .o_data(o_data[6])
 );
@@ -275,11 +261,9 @@ stage_8
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[7]),
-.o_index_classifier(o_index_classifier[7]),
-.o_index_database(o_index_database[7]),
-.o_end_single_classifier(o_end_single_classifier[7]),
-.o_end_all_classifier(o_end_all_classifier[7]),
-.o_end_tree(o_end_tree[7]),
+.o_index_leaf(o_index_leaf[7]),
+.o_end_leafs(o_end_leafs[7]),
+.o_end_trees(o_end_trees[7]),
 .o_end_database(o_end_database[7]),
 .o_data(o_data[7])
 );
@@ -298,11 +282,9 @@ stage_9
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[8]),
-.o_index_classifier(o_index_classifier[8]),
-.o_index_database(o_index_database[8]),
-.o_end_single_classifier(o_end_single_classifier[8]),
-.o_end_all_classifier(o_end_all_classifier[8]),
-.o_end_tree(o_end_tree[8]),
+.o_index_leaf(o_index_leaf[8]),
+.o_end_leafs(o_end_leafs[8]),
+.o_end_trees(o_end_trees[8]),
 .o_end_database(o_end_database[8]),
 .o_data(o_data[8])
 );
@@ -321,11 +303,9 @@ stage_10
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[9]),
-.o_index_classifier(o_index_classifier[9]),
-.o_index_database(o_index_database[9]),
-.o_end_single_classifier(o_end_single_classifier[9]),
-.o_end_all_classifier(o_end_all_classifier[9]),
-.o_end_tree(o_end_tree[9]),
+.o_index_leaf(o_index_leaf[9]),
+.o_end_leafs(o_end_leafs[9]),
+.o_end_trees(o_end_trees[9]),
 .o_end_database(o_end_database[9]),
 .o_data(o_data[9])
 );
@@ -344,11 +324,9 @@ stage_11
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[10]),
-.o_index_classifier(o_index_classifier[10]),
-.o_index_database(o_index_database[10]),
-.o_end_single_classifier(o_end_single_classifier[10]),
-.o_end_all_classifier(o_end_all_classifier[10]),
-.o_end_tree(o_end_tree[10]),
+.o_index_leaf(o_index_leaf[10]),
+.o_end_leafs(o_end_leafs[10]),
+.o_end_trees(o_end_trees[10]),
 .o_end_database(o_end_database[10]),
 .o_data(o_data[10])
 );
@@ -367,11 +345,9 @@ stage_12
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[11]),
-.o_index_classifier(o_index_classifier[11]),
-.o_index_database(o_index_database[11]),
-.o_end_single_classifier(o_end_single_classifier[11]),
-.o_end_all_classifier(o_end_all_classifier[11]),
-.o_end_tree(o_end_tree[11]),
+.o_index_leaf(o_index_leaf[11]),
+.o_end_leafs(o_end_leafs[11]),
+.o_end_trees(o_end_trees[11]),
 .o_end_database(o_end_database[11]),
 .o_data(o_data[11])
 );
@@ -390,11 +366,9 @@ stage_13
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[12]),
-.o_index_classifier(o_index_classifier[12]),
-.o_index_database(o_index_database[12]),
-.o_end_single_classifier(o_end_single_classifier[12]),
-.o_end_all_classifier(o_end_all_classifier[12]),
-.o_end_tree(o_end_tree[12]),
+.o_index_leaf(o_index_leaf[12]),
+.o_end_leafs(o_end_leafs[12]),
+.o_end_trees(o_end_trees[12]),
 .o_end_database(o_end_database[12]),
 .o_data(o_data[12])
 );
@@ -413,11 +387,9 @@ stage_14
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[13]),
-.o_index_classifier(o_index_classifier[13]),
-.o_index_database(o_index_database[13]),
-.o_end_single_classifier(o_end_single_classifier[13]),
-.o_end_all_classifier(o_end_all_classifier[13]),
-.o_end_tree(o_end_tree[13]),
+.o_index_leaf(o_index_leaf[13]),
+.o_end_leafs(o_end_leafs[13]),
+.o_end_trees(o_end_trees[13]),
 .o_end_database(o_end_database[13]),
 .o_data(o_data[13])
 );
@@ -436,11 +408,9 @@ stage_15
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[14]),
-.o_index_classifier(o_index_classifier[14]),
-.o_index_database(o_index_database[14]),
-.o_end_single_classifier(o_end_single_classifier[14]),
-.o_end_all_classifier(o_end_all_classifier[14]),
-.o_end_tree(o_end_tree[14]),
+.o_index_leaf(o_index_leaf[14]),
+.o_end_leafs(o_end_leafs[14]),
+.o_end_trees(o_end_trees[14]),
 .o_end_database(o_end_database[14]),
 .o_data(o_data[14])
 );
@@ -459,11 +429,9 @@ stage_16
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[15]),
-.o_index_classifier(o_index_classifier[15]),
-.o_index_database(o_index_database[15]),
-.o_end_single_classifier(o_end_single_classifier[15]),
-.o_end_all_classifier(o_end_all_classifier[15]),
-.o_end_tree(o_end_tree[15]),
+.o_index_leaf(o_index_leaf[15]),
+.o_end_leafs(o_end_leafs[15]),
+.o_end_trees(o_end_trees[15]),
 .o_end_database(o_end_database[15]),
 .o_data(o_data[15])
 );
@@ -482,11 +450,9 @@ stage_17
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[16]),
-.o_index_classifier(o_index_classifier[16]),
-.o_index_database(o_index_database[16]),
-.o_end_single_classifier(o_end_single_classifier[16]),
-.o_end_all_classifier(o_end_all_classifier[16]),
-.o_end_tree(o_end_tree[16]),
+.o_index_leaf(o_index_leaf[16]),
+.o_end_leafs(o_end_leafs[16]),
+.o_end_trees(o_end_trees[16]),
 .o_end_database(o_end_database[16]),
 .o_data(o_data[16])
 );
@@ -505,11 +471,9 @@ stage_18
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[17]),
-.o_index_classifier(o_index_classifier[17]),
-.o_index_database(o_index_database[17]),
-.o_end_single_classifier(o_end_single_classifier[17]),
-.o_end_all_classifier(o_end_all_classifier[17]),
-.o_end_tree(o_end_tree[17]),
+.o_index_leaf(o_index_leaf[17]),
+.o_end_leafs(o_end_leafs[17]),
+.o_end_trees(o_end_trees[17]),
 .o_end_database(o_end_database[17]),
 .o_data(o_data[17])
 );
@@ -528,11 +492,9 @@ stage_19
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[18]),
-.o_index_classifier(o_index_classifier[18]),
-.o_index_database(o_index_database[18]),
-.o_end_single_classifier(o_end_single_classifier[18]),
-.o_end_all_classifier(o_end_all_classifier[18]),
-.o_end_tree(o_end_tree[18]),
+.o_index_leaf(o_index_leaf[18]),
+.o_end_leafs(o_end_leafs[18]),
+.o_end_trees(o_end_trees[18]),
 .o_end_database(o_end_database[18]),
 .o_data(o_data[18])
 );
@@ -551,11 +513,9 @@ stage_20
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[19]),
-.o_index_classifier(o_index_classifier[19]),
-.o_index_database(o_index_database[19]),
-.o_end_single_classifier(o_end_single_classifier[19]),
-.o_end_all_classifier(o_end_all_classifier[19]),
-.o_end_tree(o_end_tree[19]),
+.o_index_leaf(o_index_leaf[19]),
+.o_end_leafs(o_end_leafs[19]),
+.o_end_trees(o_end_trees[19]),
 .o_end_database(o_end_database[19]),
 .o_data(o_data[19])
 );
@@ -574,11 +534,9 @@ stage_21
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[20]),
-.o_index_classifier(o_index_classifier[20]),
-.o_index_database(o_index_database[20]),
-.o_end_single_classifier(o_end_single_classifier[20]),
-.o_end_all_classifier(o_end_all_classifier[20]),
-.o_end_tree(o_end_tree[20]),
+.o_index_leaf(o_index_leaf[20]),
+.o_end_leafs(o_end_leafs[20]),
+.o_end_trees(o_end_trees[20]),
 .o_end_database(o_end_database[20]),
 .o_data(o_data[20])
 );
@@ -597,11 +555,9 @@ stage_22
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[21]),
-.o_index_classifier(o_index_classifier[21]),
-.o_index_database(o_index_database[21]),
-.o_end_single_classifier(o_end_single_classifier[21]),
-.o_end_all_classifier(o_end_all_classifier[21]),
-.o_end_tree(o_end_tree[21]),
+.o_index_leaf(o_index_leaf[21]),
+.o_end_leafs(o_end_leafs[21]),
+.o_end_trees(o_end_trees[21]),
 .o_end_database(o_end_database[21]),
 .o_data(o_data[21])
 );
@@ -620,11 +576,9 @@ stage_23
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[22]),
-.o_index_classifier(o_index_classifier[22]),
-.o_index_database(o_index_database[22]),
-.o_end_single_classifier(o_end_single_classifier[22]),
-.o_end_all_classifier(o_end_all_classifier[22]),
-.o_end_tree(o_end_tree[22]),
+.o_index_leaf(o_index_leaf[22]),
+.o_end_leafs(o_end_leafs[22]),
+.o_end_trees(o_end_trees[22]),
 .o_end_database(o_end_database[22]),
 .o_data(o_data[22])
 );
@@ -643,11 +597,9 @@ stage_24
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[23]),
-.o_index_classifier(o_index_classifier[23]),
-.o_index_database(o_index_database[23]),
-.o_end_single_classifier(o_end_single_classifier[23]),
-.o_end_all_classifier(o_end_all_classifier[23]),
-.o_end_tree(o_end_tree[23]),
+.o_index_leaf(o_index_leaf[23]),
+.o_end_leafs(o_end_leafs[23]),
+.o_end_trees(o_end_trees[23]),
 .o_end_database(o_end_database[23]),
 .o_data(o_data[23])
 );
@@ -666,11 +618,9 @@ stage_25
 .reset(reset),
 .enable(enable),
 .o_index_tree(o_index_tree[24]),
-.o_index_classifier(o_index_classifier[24]),
-.o_index_database(o_index_database[24]),
-.o_end_single_classifier(o_end_single_classifier[24]),
-.o_end_all_classifier(o_end_all_classifier[24]),
-.o_end_tree(o_end_tree[24]),
+.o_index_leaf(o_index_leaf[24]),
+.o_end_leafs(o_end_leafs[24]),
+.o_end_trees(o_end_trees[24]),
 .o_end_database(o_end_database[24]),
 .o_data(o_data[24])
 );

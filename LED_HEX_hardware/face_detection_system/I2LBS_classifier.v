@@ -13,12 +13,10 @@ reset,
 enable,
 integral_image,
 end_database,
-end_tree,
-end_single_classifier,
-end_all_classifier,
+end_trees,
+end_leafs,
 index_tree,
-index_classifier,
-index_database,
+index_leaf,
 data,
 o_candidate,
 o_inspect_done
@@ -30,17 +28,21 @@ o_inspect_done
 input  clk;
 input  reset;
 input  enable;
-input  [DATA_WIDTH_16-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
-input  [NUM_STAGE-1:0]end_database;
-input  [NUM_STAGE-1:0]end_tree;
-input  [NUM_STAGE-1:0]end_single_classifier;
-input  [NUM_STAGE-1:0]end_all_classifier;
-input  [DATA_WIDTH_12-1:0] index_tree[NUM_STAGE-1:0];
-input  [DATA_WIDTH_12-1:0] index_classifier [NUM_STAGE-1:0];
-input  [DATA_WIDTH_12-1:0] index_database [NUM_STAGE-1:0];
-input  [DATA_WIDTH_16-1:0] data [NUM_STAGE-1:0];
-output o_inspect_done;
-output o_candidate;
+input  [DATA_WIDTH_16-1:0] 	integral_image	[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+
+//== End Flag
+input  [NUM_STAGE-1:0]		end_database;
+input  [NUM_STAGE-1:0]		end_trees;
+input  [NUM_STAGE-1:0]		end_leafs;
+
+//== Index Flag
+input  [DATA_WIDTH_12-1:0] 	index_tree		[NUM_STAGE-1:0];
+input  [DATA_WIDTH_12-1:0] 	index_leaf 		[NUM_STAGE-1:0];
+input  [DATA_WIDTH_16-1:0] 	data 			[NUM_STAGE-1:0];
+
+//== Output
+output 						o_inspect_done;
+output 						o_candidate;
 
 
 /*****************************************************************************
@@ -124,12 +126,10 @@ begin
 	.enable(enable),
 	.integral_image(integral_image),
 	.end_database(end_database[index]),
-	.end_tree(end_tree[index]),
-	.end_single_classifier(end_single_classifier[index]),
-	.end_all_classifier(end_all_classifier[index]),
+	.end_trees(end_trees[index]),
+	.end_leafs(end_leafs[index]),
 	.index_tree(index_tree[index]),
-	.index_classifier(index_classifier[index]),
-	.index_database(index_database[index]),
+	.index_leaf(index_leaf[index]),
 	.data(data[index]),
 	.o_candidate(candidate[index])
 	);
