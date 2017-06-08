@@ -23,7 +23,8 @@ o_fpga_ready_send_result
  *****************************************************************************/
 localparam NUM_STAGES 						= 25;
 localparam INTEGRAL_LENGTH 					= 24;
-localparam NUM_RESIZE 						= 5;
+//localparam NUM_RESIZE 						= 5;  //[RESIZE]
+localparam NUM_RESIZE 						= 1;
 localparam FRAME_ORIGINAL_CAMERA_WIDTH 		= 800;
 localparam FRAME_ORIGINAL_CAMERA_HEIGHT		= 600;
 localparam FRAME_RESIZE_CAMERA_WIDTH_1 		= 1*FRAME_ORIGINAL_CAMERA_WIDTH/NUM_RESIZE;
@@ -126,7 +127,8 @@ assign o_fpga_ready_send_result = fpga_ready_send_result&& !result_empty;
 assign o_frame_end = end_coordinate;
 
 assign fpga_request_database = database_request>0;
-assign fpga_request_pixel = pixel_request == 5'b11111;
+//assign fpga_request_pixel = pixel_request == 5'b11111; [RESIZE]
+assign fpga_request_pixel = pixel_request >0;
 assign fpga_got_candidate = candidate>0; 
 assign enable_recieve_pixel = recieve_coordinate;
 assign reset_database = fpga_request_pixel || reset;
@@ -257,6 +259,42 @@ database
 );
 
 
+
+I2LBS
+#(
+.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
+.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT),
+.NUM_STAGES(NUM_STAGES),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
+.FRAME_ORIGINAL_CAMERA_HEIGHT(FRAME_ORIGINAL_CAMERA_HEIGHT),
+.FRAME_RESIZE_CAMERA_WIDTH(FRAME_RESIZE_CAMERA_WIDTH_5),
+.FRAME_RESIZE_CAMERA_HEIGHT(FRAME_RESIZE_CAMERA_HEIGHT_5)
+)
+I2LBS_5
+(
+.clk(clk),
+.reset(reset),
+.pixel(pixel),
+.enable_recieve_pixel(enable_recieve_pixel),
+.ori_x(ori_x),
+.ori_y(ori_y),
+.index_tree(index_tree),
+.index_leaf(index_leaf),
+.data(data),
+.end_leafs(end_leafs),
+.end_trees(end_trees),
+.end_database(end_database),
+.o_candidate(candidate[0]),
+.o_pixel_request(pixel_request[0]),
+.o_database_request(database_request[0]),
+.o_inspect_done(inspect_done[0]),
+.o_integral_image_ready(integral_image_ready[0])
+);
+
+
+//[RESIZE]
+/*
 I2LBS
 #(
 .INTEGRAL_WIDTH(INTEGRAL_WIDTH),
@@ -416,7 +454,7 @@ I2LBS_5
 .o_inspect_done(inspect_done[4]),
 .o_integral_image_ready(integral_image_ready[4])
 );
-
+*/
 
 
 
