@@ -62,6 +62,7 @@ wire 	[DATA_WIDTH_12-1:0] 	index_database;
 wire 	[DATA_WIDTH_12-1:0] 	index_leaf;
 wire 	[DATA_WIDTH_12-1:0] 	index_tree;
 
+reg								renable;
 reg 							trig_count_tree;
 reg 							count_leaf;
 reg 	[DATA_WIDTH_16-1:0] 	data;
@@ -80,21 +81,35 @@ assign o_end_database 		= end_database;
 /*****************************************************************************
  *                            Sequence logic                                 *
  *****************************************************************************/ 
+
+always@(posedge enable)
+begin
+	renable <=1;	
+end
+ 
 always@(posedge reset)
 begin
-	count_leaf<=0;
+	renable <= 0;
+	count_leaf <= 0;
 end
 
 always@(posedge end_leafs)
 begin
 	if(!end_trees)
+	begin
 		trig_count_tree <= 1;
+	end
 end
 
 always@(posedge clk)
 begin
 	trig_count_tree<=0;	
+	if(end_database)
+	begin
+		renable<=0;
+	end
 end
+
 
 always@(data)
 begin
@@ -171,8 +186,8 @@ database_stage_memory
 (
 .clk(clk),
 .reset(reset),
-.ren_database_index(enable),
-.ren_database(enable),
+.ren_database_index(renable),
+.ren_database(renable),
 .o_data(data)
 );
 
