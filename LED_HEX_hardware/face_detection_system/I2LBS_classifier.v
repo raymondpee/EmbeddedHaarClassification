@@ -113,7 +113,7 @@ end
 generate
 genvar index;
 for(index = 0; index<NUM_STAGE; index = index +1)
-begin
+begin :gen_classifier
 	classifier
 	#(
 	.INTEGRAL_WIDTH(INTEGRAL_WIDTH),

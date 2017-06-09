@@ -51,7 +51,7 @@ assign o_fill = fifo_rdreq;
 generate
 	genvar index_integral;
 	for(index_integral = 0; index_integral<INTEGRAL_WIDTH; index_integral = index_integral +1)
-	begin
+	begin : gen_row_integral
 		assign o_row_integral[index_integral] = row_integral[index_integral];
 	end
 endgenerate
@@ -77,7 +77,7 @@ end
 generate
 	genvar index;
 	for(index = 1; index<INTEGRAL_WIDTH; index = index +1)
-	begin
+	begin : gen_row_cal
 		always @(posedge clk)
 		begin			
 			if(reset)

@@ -70,7 +70,7 @@ assign fifo_reduction_sum[INTEGRAL_HEIGHT-1] = 0;
 generate
 	genvar index_reduction;	
 	for(index_reduction = 0;index_reduction <INTEGRAL_HEIGHT-1;index_reduction= index_reduction +1)
-	begin				
+	begin	: gen_fifo_cal			
 		assign fifo_reduction_sum[index_reduction] = fifo_reduction_sum[index_reduction+1] +fifo_data_out[index_reduction+1];
 	end
 endgenerate
@@ -80,10 +80,10 @@ endgenerate
 generate
 	genvar index_integral_y;	
 	for(index_integral_y = 0;index_integral_y <INTEGRAL_HEIGHT;index_integral_y= index_integral_y +1)
-	begin	
+	begin	:gen_integral_y
 		genvar index_integral_x;	
 		for(index_integral_x = 0;index_integral_x <INTEGRAL_WIDTH;index_integral_x= index_integral_x +1)
-		begin
+		begin :gen_integral_x
 			assign o_integral_image[index_integral_x+INTEGRAL_WIDTH*index_integral_y] = row_integral[index_integral_y][index_integral_x];
 		end
 	end
@@ -184,9 +184,9 @@ haar_row_0
 generate
 	genvar index;	
 	for(index = 1;index <INTEGRAL_HEIGHT;index= index +1)
-	begin	
+	begin	:gen_haar_row
 		always@(posedge fill[index])
-		begin
+		begin :gen_haar_row
 			r_fill[index] = 1;
 		end
 
