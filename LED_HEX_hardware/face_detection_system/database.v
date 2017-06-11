@@ -10,8 +10,13 @@ parameter NUM_STAGES = 25
 )
 (
 clk,
-reset,
+reset_system,
+reset_database,
 enable,
+
+//== First Stage Database
+o_load_done,
+o_memory_first_stage,
 
 //== Data
 o_data,
@@ -86,21 +91,45 @@ localparam NUM_CLASSIFIERS_STAGE25 = 200;
  *                             Port Declarations                             *
  *****************************************************************************/
 input 						clk;
-input 						reset;
+input 						reset_system;
+input						reset_database;
 input 						enable;
 
+output						o_load_done;
 output [NUM_STAGES-1:0]		o_end_database;
 output [NUM_STAGES-1:0]		o_end_trees;
 output [NUM_STAGES-1:0]		o_end_leafs;
-output [DATA_WIDTH_12-1:0] 	o_index_tree[NUM_STAGES-1:0];
-output [DATA_WIDTH_12-1:0] 	o_index_leaf[NUM_STAGES-1:0];
-output [DATA_WIDTH_16-1:0] 	o_data[NUM_STAGES-1:0];
+output [DATA_WIDTH_12-1:0] 	o_index_tree				[NUM_STAGES-1:0];
+output [DATA_WIDTH_12-1:0] 	o_index_leaf				[NUM_STAGES-1:0];
+output [DATA_WIDTH_16-1:0] 	o_data						[NUM_STAGES-1:0];
+output [DATA_WIDTH_16-1:0] 	o_memory_first_stage		[TOTAL_SIZE-1:0];
 
 
  /*****************************************************************************
  *                                   Modules                                  *
  *****************************************************************************/ 
-database_stage
+database_embedded
+#(
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
+.NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
+.FILE_STAGE_FILE_1(FILE_STAGE1),
+.FILE_STAGE_FILE_2(FILE_STAGE2),
+.FILE_STAGE_FILE_3(FILE_STAGE3),
+.NUM_CLASSIFIERS_STAGE_1(NUM_CLASSIFIERS_STAGE1),
+.NUM_CLASSIFIERS_STAGE_2(NUM_CLASSIFIERS_STAGE2),
+.NUM_CLASSIFIERS_STAGE_3(NUM_CLASSIFIERS_STAGE3)
+)
+database_embedded
+(
+clk(clk),
+reset(reset_system),
+o_load_done(o_load_done),
+o_memory(o_memory_first_stage)
+)
+ 
+ 
+ 
+ database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
 .NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE1),
@@ -111,7 +140,7 @@ database_stage
 stage_1
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[0]),
 .o_index_leaf(o_index_leaf[0]),
@@ -132,7 +161,7 @@ database_stage
 stage_2
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[1]),
 .o_index_leaf(o_index_leaf[1]),
@@ -153,7 +182,7 @@ database_stage
 stage_3
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[2]),
 .o_index_leaf(o_index_leaf[2]),
@@ -174,7 +203,7 @@ database_stage
 stage_4
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[3]),
 .o_index_leaf(o_index_leaf[3]),
@@ -195,7 +224,7 @@ database_stage
 stage_5
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[4]),
 .o_index_leaf(o_index_leaf[4]),
@@ -216,7 +245,7 @@ database_stage
 stage_6
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[5]),
 .o_index_leaf(o_index_leaf[5]),
@@ -237,7 +266,7 @@ database_stage
 stage_7
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[6]),
 .o_index_leaf(o_index_leaf[6]),
@@ -258,7 +287,7 @@ database_stage
 stage_8
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[7]),
 .o_index_leaf(o_index_leaf[7]),
@@ -279,7 +308,7 @@ database_stage
 stage_9
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[8]),
 .o_index_leaf(o_index_leaf[8]),
@@ -300,7 +329,7 @@ database_stage
 stage_10
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[9]),
 .o_index_leaf(o_index_leaf[9]),
@@ -321,7 +350,7 @@ database_stage
 stage_11
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[10]),
 .o_index_leaf(o_index_leaf[10]),
@@ -342,7 +371,7 @@ database_stage
 stage_12
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[11]),
 .o_index_leaf(o_index_leaf[11]),
@@ -363,7 +392,7 @@ database_stage
 stage_13
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[12]),
 .o_index_leaf(o_index_leaf[12]),
@@ -384,7 +413,7 @@ database_stage
 stage_14
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[13]),
 .o_index_leaf(o_index_leaf[13]),
@@ -405,7 +434,7 @@ database_stage
 stage_15
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[14]),
 .o_index_leaf(o_index_leaf[14]),
@@ -426,7 +455,7 @@ database_stage
 stage_16
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[15]),
 .o_index_leaf(o_index_leaf[15]),
@@ -447,7 +476,7 @@ database_stage
 stage_17
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[16]),
 .o_index_leaf(o_index_leaf[16]),
@@ -468,7 +497,7 @@ database_stage
 stage_18
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[17]),
 .o_index_leaf(o_index_leaf[17]),
@@ -489,7 +518,7 @@ database_stage
 stage_19
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[18]),
 .o_index_leaf(o_index_leaf[18]),
@@ -510,7 +539,7 @@ database_stage
 stage_20
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[19]),
 .o_index_leaf(o_index_leaf[19]),
@@ -531,7 +560,7 @@ database_stage
 stage_21
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[20]),
 .o_index_leaf(o_index_leaf[20]),
@@ -552,7 +581,7 @@ database_stage
 stage_22
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[21]),
 .o_index_leaf(o_index_leaf[21]),
@@ -573,7 +602,7 @@ database_stage
 stage_23
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[22]),
 .o_index_leaf(o_index_leaf[22]),
@@ -594,7 +623,7 @@ database_stage
 stage_24
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[23]),
 .o_index_leaf(o_index_leaf[23]),
@@ -615,7 +644,7 @@ database_stage
 stage_25
 (
 .clk(clk),
-.reset(reset),
+.reset(reset_database),
 .enable(enable),
 .o_index_tree(o_index_tree[24]),
 .o_index_leaf(o_index_leaf[24]),

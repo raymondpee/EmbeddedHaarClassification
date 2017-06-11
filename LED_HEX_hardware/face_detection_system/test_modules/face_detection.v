@@ -99,15 +99,17 @@ wire 	[DATA_WIDTH_12-1:0] 	data_out;
 reg 							write_result;
 
 //== Database
+wire							database_load_done;
 wire 							fpga_request_database;
 wire 							reset_database;
 wire 	[NUM_RESIZE-1:0] 		database_request;
 wire 	[NUM_STAGES-1:0] 		end_leafs;
 wire 	[NUM_STAGES-1:0] 		end_trees;
 wire 	[NUM_STAGES-1:0] 		end_database;
-wire 	[DATA_WIDTH_16-1:0] 	data					[NUM_STAGES-1:0]; 
-wire 	[DATA_WIDTH_12-1:0] 	index_tree				[NUM_STAGES-1:0];
-wire 	[DATA_WIDTH_12-1:0] 	index_leaf				[NUM_STAGES-1:0];
+wire 	[DATA_WIDTH_16-1:0] 	data						[NUM_STAGES-1:0]; 
+wire 	[DATA_WIDTH_12-1:0] 	index_tree					[NUM_STAGES-1:0];
+wire 	[DATA_WIDTH_12-1:0] 	index_leaf					[NUM_STAGES-1:0];
+wire 	[DATA_WIDTH_16-1:0] 	database_first_stage		[TOTAL_SIZE-1:0];
 
 //== Candidate
 wire 							fpga_got_candidate;
@@ -120,7 +122,7 @@ wire 	[NUM_RESIZE-1:0] 		inspect_done;
  *****************************************************************************/
 
 assign o_recieve_pixel_end = enable_recieve_pixel;
-assign o_fpga_ready_recieve_pixel = fpga_ready_recieve_pixel;
+assign o_fpga_ready_recieve_pixel = fpga_ready_recieve_pixel && database_load_done;
 assign o_result_end = result_empty;
 assign o_result_data = data_out;
 assign o_fpga_ready_send_result = fpga_ready_send_result&& !result_empty;
@@ -242,8 +244,14 @@ database
 database
 (
 .clk(clk),
-.reset(reset_database),
+.reset_system 	(reset),
+.reset_database	(reset_database),
 .enable(fpga_request_database),
+
+
+//== First Stage Database
+o_load_done(database_load_done),
+o_memory_first_stage(database_first_stage),
 
 //== Index
 .o_index_leaf(index_leaf),
