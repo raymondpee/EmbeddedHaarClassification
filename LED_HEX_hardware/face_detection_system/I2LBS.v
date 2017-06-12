@@ -11,7 +11,8 @@ parameter NUM_PARAM_PER_CLASSIFIER = 18,
 parameter FRAME_ORIGINAL_CAMERA_WIDTH = 10,
 parameter FRAME_ORIGINAL_CAMERA_HEIGHT = 10,
 parameter FRAME_RESIZE_CAMERA_WIDTH = 10,
-parameter FRAME_RESIZE_CAMERA_HEIGHT = 10
+parameter FRAME_RESIZE_CAMERA_HEIGHT = 10,
+parameter FIRST_STAGE_MEM_SIZE = 100
 )
 (
 clk,
@@ -20,6 +21,9 @@ pixel,
 ori_x,
 ori_y,
 enable_recieve_pixel,
+
+database_first_stage,
+
 index_tree,
 index_leaf,
 data,
@@ -28,6 +32,7 @@ end_trees,
 end_database,
 o_pixel_request,
 o_database_request,
+o_pass_first_stage,
 o_inspect_done,
 o_integral_image_ready,
 o_candidate
@@ -52,6 +57,8 @@ input [DATA_WIDTH_16-1:0] 	pixel;
 input [DATA_WIDTH_12-1:0] 	ori_x;
 input [DATA_WIDTH_12-1:0] 	ori_y;
 
+input [DATA_WIDTH_16-1:0] 	database_first_stage		[FIRST_STAGE_MEM_SIZE-1:0];
+
 //== End Flag
 input [NUM_STAGES-1:0] 		end_database;
 input [NUM_STAGES-1:0] 		end_trees;
@@ -64,6 +71,7 @@ input [DATA_WIDTH_12-1:0] 	index_leaf	[NUM_STAGES-1:0];
 input [DATA_WIDTH_16-1:0] 	data		[NUM_STAGES-1:0]; 
 
 
+output 						o_pass_first_stage;
 output 						o_candidate;
 output 						o_pixel_request;
 output 						o_database_request;
@@ -76,6 +84,7 @@ output 						o_integral_image_ready;
  *****************************************************************************/
 wire reach;
 wire w_candidate;
+wire pass_first_stage;
 wire integral_image_ready;
 wire inspect_done;
 wire [DATA_WIDTH_12-1:0] resize_x;
@@ -98,7 +107,7 @@ assign o_pixel_request = pixel_request;
 assign o_database_request = database_request;
 assign o_inspect_done = inspect_done;
 assign o_integral_image_ready = integral_image_ready;
-
+assign o_pass_first_stage = pass_first_stage;
 
 /*****************************************************************************
  *                            Sequence logic                                 *

@@ -46,6 +46,16 @@ localparam INTEGRAL_WIDTH 			= INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT 			= INTEGRAL_LENGTH;
 
 
+
+localparam NUM_CLASSIFIERS_STAGE1 = 9;
+localparam NUM_CLASSIFIERS_STAGE2 = 16;
+localparam NUM_CLASSIFIERS_STAGE3 = 27;
+
+localparam SIZE_STAGE_1 = NUM_CLASSIFIERS_STAGE1*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
+localparam SIZE_STAGE_2 = NUM_CLASSIFIERS_STAGE2*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
+localparam SIZE_STAGE_3 = NUM_CLASSIFIERS_STAGE3*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
+localparam FIRST_STAGE_MEM_SIZE = SIZE_STAGE_1 + SIZE_STAGE_2 + SIZE_STAGE_3;
+
 /*****************************************************************************
  *                             Port Declarations                             *
  *****************************************************************************/
@@ -99,17 +109,19 @@ wire 	[DATA_WIDTH_12-1:0] 	data_out;
 reg 							write_result;
 
 //== Database
+wire							pass_first_stage;
 wire							database_load_done;
 wire 							fpga_request_database;
 wire 							reset_database;
 wire 	[NUM_RESIZE-1:0] 		database_request;
+wire 	[NUM_RESIZE-1:0]		pass_first_stages;
 wire 	[NUM_STAGES-1:0] 		end_leafs;
 wire 	[NUM_STAGES-1:0] 		end_trees;
 wire 	[NUM_STAGES-1:0] 		end_database;
 wire 	[DATA_WIDTH_16-1:0] 	data						[NUM_STAGES-1:0]; 
 wire 	[DATA_WIDTH_12-1:0] 	index_tree					[NUM_STAGES-1:0];
 wire 	[DATA_WIDTH_12-1:0] 	index_leaf					[NUM_STAGES-1:0];
-wire 	[DATA_WIDTH_16-1:0] 	database_first_stage		[TOTAL_SIZE-1:0];
+wire 	[DATA_WIDTH_16-1:0] 	database_first_stage		[FIRST_STAGE_MEM_SIZE-1:0];
 
 //== Candidate
 wire 							fpga_got_candidate;
@@ -134,7 +146,7 @@ assign fpga_request_pixel = pixel_request >0;
 assign fpga_got_candidate = candidate>0; 
 assign enable_recieve_pixel = recieve_coordinate;
 assign reset_database = fpga_request_pixel || reset;
-
+assign pass_first_stage = pass_first_stages>0;
 
 /*****************************************************************************
  *                            Sequence logic                                 *
@@ -250,6 +262,7 @@ database
 
 
 //== First Stage Database
+pass_first_stage(pass_first_stage),
 o_load_done(database_load_done),
 o_memory_first_stage(database_first_stage),
 
@@ -277,7 +290,8 @@ I2LBS
 .FRAME_ORIGINAL_CAMERA_WIDTH(FRAME_ORIGINAL_CAMERA_WIDTH),
 .FRAME_ORIGINAL_CAMERA_HEIGHT(FRAME_ORIGINAL_CAMERA_HEIGHT),
 .FRAME_RESIZE_CAMERA_WIDTH(FRAME_RESIZE_CAMERA_WIDTH_5),
-.FRAME_RESIZE_CAMERA_HEIGHT(FRAME_RESIZE_CAMERA_HEIGHT_5)
+.FRAME_RESIZE_CAMERA_HEIGHT(FRAME_RESIZE_CAMERA_HEIGHT_5),
+.FIRST_STAGE_MEM_SIZE(FIRST_STAGE_MEM_SIZE)
 )
 I2LBS_5
 (
@@ -287,12 +301,14 @@ I2LBS_5
 .enable_recieve_pixel(enable_recieve_pixel),
 .ori_x(ori_x),
 .ori_y(ori_y),
+.database_first_stage(database_first_stage),
 .index_tree(index_tree),
 .index_leaf(index_leaf),
 .data(data),
 .end_leafs(end_leafs),
 .end_trees(end_trees),
 .end_database(end_database),
+.o_pass_first_stage(pass_first_stages[0]),
 .o_candidate(candidate[0]),
 .o_pixel_request(pixel_request[0]),
 .o_database_request(database_request[0]),
