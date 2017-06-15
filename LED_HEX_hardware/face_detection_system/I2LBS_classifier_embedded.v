@@ -9,7 +9,8 @@ parameter INTEGRAL_HEIGHT = 10,
 parameter NUM_CLASSIFIERS_STAGE_1 = 9,
 parameter NUM_CLASSIFIERS_STAGE_2 = 16,
 parameter NUM_CLASSIFIERS_STAGE_3 = 27,
-parameter FIRST_STAGE_MEM_SIZE = 100
+parameter FIRST_STAGE_MEM_SIZE = 100,
+parameter NUM_PARAM_PER_CLASSIFIER = 18
 )
 (
 clk,
@@ -19,29 +20,144 @@ integral_image,
 database
 );
 
-localparam NUM_STAGES = 3;
-localparam NUM_CLASSIFIER = NUM_CLASSIFIERS_STAGE_1* NUM_CLASSIFIERS_STAGE_2* NUM_CLASSIFIERS_STAGE_3;
+localparam NUM_STAGES 		= 3;
+localparam NUM_CLASSIFIER 	= NUM_CLASSIFIERS_STAGE_1* NUM_CLASSIFIERS_STAGE_2* NUM_CLASSIFIERS_STAGE_3;
 
+input 						clk;
+input 						enable;
+input 						reset;
 input [DATA_WIDTH_16-1:0] 	integral_image	[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0]; 
 input [DATA_WIDTH_16-1:0] 	database		[FIRST_STAGE_MEM_SIZE-1:0];
 
 
-wire [DATA_WIDTH_16-1:0] threshold 		[NUM_STAGES-1:0];
-wire [DATA_WIDTH_16-1:0] left_value 	[NUM_STAGES-1:0];
-wire [DATA_WIDTH_16-1:0] right_value 	[NUM_STAGES-1:0];
+wire 	[DATA_WIDTH_16-1:0] haar [NUM_CLASSIFIER-1:0];
+reg 	[DATA_WIDTH_16-1:0] leafs [NUM_CLASSIFIER -1:0];
 
-
-reg [DATA_WIDTH_16-1:0] leafs [NUM_CLASSIFIER -1:0];
-
-assign threshold[index] = database[];
-assign left_value[index] = database[];
-assign right_value[index] = database[];
-
+integer index;
 always@(posedge clk)
 begin
 	if(reset)
-	
-
+	begin
+		index = 0;
+		for(index = 0; index<NUM_CLASSIFIER; index = index +1)
+		begin
+			leafs = 0;
+		end
+	end
 end
+
+generate
+	genvar index_leaf_stage_1;
+	for(index_leaf_stage_1 = 0; index_leaf_stage_1<NUM_CLASSIFIERS_STAGE_1; index_leaf_stage_1 = index_leaf_stage_1 +1)
+	begin
+		classifier_embedded
+		#(
+		.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
+		.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
+		)
+		classifier_embedded
+		(
+		.clk(clk),
+		.reset(reset),
+		.calculate(calculate),
+		.integral_image(integral_image),
+		.rect_A_1_index(database[index_leaf_stage_1 + 0]),
+		.rect_B_1_index(database[index_leaf_stage_1 + 1]),
+		.rect_C_1_index(database[index_leaf_stage_1 + 2]),
+		.rect_D_1_index(database[index_leaf_stage_1 + 3]),
+		.weight_1(database[index_leaf_stage_1 + 4]),
+		.rect_A_2_index(database[index_leaf_stage_1 + 5]),
+		.rect_B_2_index(database[index_leaf_stage_1 + 6]),
+		.rect_C_2_index(database[index_leaf_stage_1 + 7]),
+		.rect_D_2_index(database[index_leaf_stage_1 + 8]),
+		.weight_2(database[index_leaf_stage_1 + 9]),
+		.rect_A_3_index(database[index_leaf_stage_1 + 10]),
+		.rect_B_3_index(database[index_leaf_stage_1 + 11]),
+		.rect_C_3_index(database[index_leaf_stage_1 + 12]),
+		.rect_D_3_index(database[index_leaf_stage_1 + 13]),
+		.weight_3(database[index_leaf_stage_1 + 14]),
+		.threshold(database[index_leaf_stage_1 + 16]),
+		.left_value(database[index_leaf_stage_1 + 17]),
+		.right_value(database[index_leaf_stage_1 + 18]),
+		.o_haar(haar[index_leaf_stage_1])
+		);
+	end
+endgenerate
+
+generate
+	genvar index_leaf_stage_2;
+	for(index_leaf_stage_2 = NUM_CLASSIFIERS_STAGE_1; index_leaf_stage_2<NUM_CLASSIFIERS_STAGE_2; index_leaf_stage_2 = index_leaf_stage_2 +1)
+	begin
+		classifier_embedded
+		#(
+		.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
+		.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
+		)
+		classifier_embedded
+		(
+		.clk(clk),
+		.reset(reset),
+		.calculate(calculate),
+		.integral_image(integral_image),
+		.rect_A_1_index(database[index_leaf_stage_2 + 0]),
+		.rect_B_1_index(database[index_leaf_stage_2 + 1]),
+		.rect_C_1_index(database[index_leaf_stage_2 + 2]),
+		.rect_D_1_index(database[index_leaf_stage_2 + 3]),
+		.weight_1(database[index_leaf_stage_2 + 4]),
+		.rect_A_2_index(database[index_leaf_stage_2 + 5]),
+		.rect_B_2_index(database[index_leaf_stage_2 + 6]),
+		.rect_C_2_index(database[index_leaf_stage_2 + 7]),
+		.rect_D_2_index(database[index_leaf_stage_2 + 8]),
+		.weight_2(database[index_leaf_stage_2 + 9]),
+		.rect_A_3_index(database[index_leaf_stage_2 + 10]),
+		.rect_B_3_index(database[index_leaf_stage_2 + 11]),
+		.rect_C_3_index(database[index_leaf_stage_2 + 12]),
+		.rect_D_3_index(database[index_leaf_stage_2 + 13]),
+		.weight_3(database[index_leaf_stage_2 + 14]),
+		.threshold(database[index_leaf_stage_2 + 16]),
+		.left_value(database[index_leaf_stage_2 + 17]),
+		.right_value(database[index_leaf_stage_2 + 18]),
+		.o_haar(haar[index_leaf_stage_2])
+		);
+	end
+endgenerate
+
+generate
+	genvar index_leaf_stage_3;
+	for(index_leaf_stage_3 = NUM_CLASSIFIERS_STAGE_2; index_leaf_stage_3<NUM_CLASSIFIERS_STAGE_3; index_leaf_stage_3 = index_leaf_stage_3 +1)
+	begin
+		classifier_embedded
+		#(
+		.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
+		.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT)
+		)
+		classifier_embedded
+		(
+		.clk(clk),
+		.reset(reset),
+		.calculate(calculate),
+		.integral_image(integral_image),
+		.rect_A_1_index(database[index_leaf_stage_3 + 0]),
+		.rect_B_1_index(database[index_leaf_stage_3 + 1]),
+		.rect_C_1_index(database[index_leaf_stage_3 + 2]),
+		.rect_D_1_index(database[index_leaf_stage_3 + 3]),
+		.weight_1(database[index_leaf_stage_3 + 4]),
+		.rect_A_2_index(database[index_leaf_stage_3 + 5]),
+		.rect_B_2_index(database[index_leaf_stage_3 + 6]),
+		.rect_C_2_index(database[index_leaf_stage_3 + 7]),
+		.rect_D_2_index(database[index_leaf_stage_3 + 8]),
+		.weight_2(database[index_leaf_stage_3 + 9]),
+		.rect_A_3_index(database[index_leaf_stage_3 + 10]),
+		.rect_B_3_index(database[index_leaf_stage_3 + 11]),
+		.rect_C_3_index(database[index_leaf_stage_3 + 12]),
+		.rect_D_3_index(database[index_leaf_stage_3 + 13]),
+		.weight_3(database[index_leaf_stage_3 + 14]),
+		.threshold(database[index_leaf_stage_3 + 16]),
+		.left_value(database[index_leaf_stage_3 + 17]),
+		.right_value(database[index_leaf_stage_3 + 18]),
+		.o_haar(haar[index_leaf_stage_3])
+		);
+	end
+endgenerate
 
 endmodule
