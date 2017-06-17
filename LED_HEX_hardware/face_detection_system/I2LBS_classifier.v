@@ -5,7 +5,12 @@ parameter DATA_WIDTH_12 = 12,
 parameter DATA_WIDTH_16 = 16,
 parameter NUM_STAGE = 10,
 parameter INTEGRAL_WIDTH = 10,
-parameter INTEGRAL_HEIGHT = 10
+parameter INTEGRAL_HEIGHT = 10,
+parameter NUM_CLASSIFIERS_STAGE_1 = 9,
+parameter NUM_CLASSIFIERS_STAGE_2 = 16,
+parameter NUM_CLASSIFIERS_STAGE_3 = 27,
+parameter SIZE_DATABASE_EMBEDDED = 100,
+parameter NUM_PARAM_PER_CLASSIFIER = 18
 )
 (
 clk,
@@ -49,16 +54,21 @@ output 						o_candidate;
  *                             Internal Wire/Register                        *
  *****************************************************************************/
 
-wire pass;
-wire [NUM_STAGE-1:0] candidate;
-reg  reset_classifier;
-reg  inspect_done;
-reg  [DATA_WIDTH_12-1:0] count_stage;
+wire 							enable_stage_1;
+wire 							enable_stage_2;
+wire 							pass;
+wire 	[NUM_STAGE-1:0] 		candidate;
+reg  							reset_classifier;
+reg  							inspect_done;
+reg  	[DATA_WIDTH_12-1:0] 	count_stage;
 
 
 /*****************************************************************************
 *                            Combinational logic                             *
 *****************************************************************************/
+
+assign enable_stage_1 = enable;
+assign enable_stage_2 = pass_stage_1;
 
 assign o_inspect_done = inspect_done;
 assign o_candidate = pass;
@@ -110,6 +120,28 @@ end
  *                                   Modules                                  *
  *****************************************************************************/ 
 
+I2LBS_classifier_embedded
+#(
+.NUM_STAGE(NUM_STAGE),
+.INTEGRAL_WIDTH(INTEGRAL_WIDTH),
+.INTEGRAL_HEIGHT(INTEGRAL_HEIGHT) ,
+.NUM_CLASSIFIERS_STAGE_1(NUM_CLASSIFIERS_STAGE_1),
+.NUM_CLASSIFIERS_STAGE_2(NUM_CLASSIFIERS_STAGE_2),
+.NUM_CLASSIFIERS_STAGE_3(NUM_CLASSIFIERS_STAGE_3),
+.SIZE_DATABASE_EMBEDDED(SIZE_DATABASE_EMBEDDED),
+.NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER)
+)
+I2LBS_classifier_embedded
+(
+clk(clk),
+reset(reset),
+enable(enable_stage_1)
+integral_image(integral_image),
+database(database),
+o_pass(pass_stage_1)
+);
+ 
+ 
 generate
 genvar index;
 for(index = 0; index<NUM_STAGE; index = index +1)
@@ -123,7 +155,7 @@ begin :gen_classifier
 	(
 	.clk(clk),
 	.reset(reset_classifier),
-	.enable(enable),
+	.enable(enable_stage_2),
 	.integral_image(integral_image),
 	.end_database(end_database[index]),
 	.end_trees(end_trees[index]),
