@@ -78,9 +78,24 @@ assign o_end_trees 			= end_trees;
 assign o_end_leafs 			= end_leafs;
 assign o_end_database 		= end_database;
 
-/*****************************************************************************
- *                            Sequence logic                                 *
- *****************************************************************************/ 
+always@(data)
+begin
+	if(data == DEFAULT_VALUE)
+	begin
+		count_leaf<=0;
+	end
+	else
+	begin
+		if(end_database)
+		begin
+			count_leaf<=0;
+		end
+		else
+		begin
+			count_leaf<=1;
+		end
+	end
+end
 
 always@(posedge enable)
 begin
@@ -101,32 +116,16 @@ begin
 	end
 end
 
+
+/*****************************************************************************
+ *                            Sequence logic                                 *
+ *****************************************************************************/ 
 always@(posedge clk)
 begin
 	trig_count_tree<=0;	
 	if(end_database)
 	begin
 		renable<=0;
-	end
-end
-
-
-always@(data)
-begin
-	if(data == DEFAULT_VALUE)
-	begin
-		count_leaf<=0;
-	end
-	else
-	begin
-		if(end_database)
-		begin
-			count_leaf<=0;
-		end
-		else
-		begin
-			count_leaf<=1;
-		end
 	end
 end
 

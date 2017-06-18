@@ -32,7 +32,9 @@ right_word,
 o_haar
 );
 
-
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
 input 	clk;
 input 	reset;
 input 	calculate;
@@ -52,6 +54,11 @@ input 	[DATA_WIDTH_12-1:0] rect_C_3_index;
 input 	[DATA_WIDTH_12-1:0] rect_D_3_index;
 
 output 	[DATA_WIDTH_16-1:0] o_haar;
+
+
+/*****************************************************************************
+ *                             Internal Wire/Register                        *
+ *****************************************************************************/
 
 reg [DATA_WIDTH_16-1:0] rect_A_1;
 reg [DATA_WIDTH_16-1:0] rect_B_1;
@@ -84,8 +91,10 @@ reg [DATA_WIDTH_16-1:0] value;
 
 reg [DATA_WIDTH_16-1:0] haar;
 
+/*****************************************************************************
+*                            Combinational logic                             *
+*****************************************************************************/
 assign o_haar = haar;
-
 always@(posedge calculate)
 begin
 	rect_A_1 = integral_image[rect_A_1_index];

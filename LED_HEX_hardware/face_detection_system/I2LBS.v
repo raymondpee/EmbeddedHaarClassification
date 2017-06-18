@@ -25,7 +25,9 @@ ori_x,
 ori_y,
 enable_recieve_pixel,
 
-database_first_stage,
+database_stage_1,
+database_stage_2,
+database_stage_3,
 
 index_tree,
 index_leaf,
@@ -60,7 +62,9 @@ input [DATA_WIDTH_16-1:0] 	pixel;
 input [DATA_WIDTH_12-1:0] 	ori_x;
 input [DATA_WIDTH_12-1:0] 	ori_y;
 
-input [DATA_WIDTH_16-1:0] 	database_first_stage		[FIRST_STAGE_MEM_SIZE-1:0];
+input [DATA_WIDTH_16-1:0] 	database_stage_1 [NUM_CLASSIFIERS_STAGE_1-1:0];
+input [DATA_WIDTH_16-1:0] 	database_stage_2 [NUM_CLASSIFIERS_STAGE_2-1:0];
+input [DATA_WIDTH_16-1:0] 	database_stage_3 [NUM_CLASSIFIERS_STAGE_3-1:0];
 
 //== End Flag
 input [NUM_STAGES-1:0] 		end_database;
@@ -112,6 +116,19 @@ assign o_inspect_done = inspect_done;
 assign o_integral_image_ready = integral_image_ready;
 assign o_pass_first_stage = pass_first_stage;
 
+always@(posedge enable_recieve_pixel)
+begin
+	if(reach && state!=INSPECT)
+	begin
+		enable_memory<=1;
+	end
+	else
+	begin
+		enable_memory<=0;
+	end
+end
+
+
 /*****************************************************************************
  *                            Sequence logic                                 *
  *****************************************************************************/ 
@@ -127,19 +144,6 @@ begin
 		database_request	<= 0;
 		state				<= IDLE;
 		next_state 			<= IDLE;
-	end
-end
-
-
-always@(posedge enable_recieve_pixel)
-begin
-	if(reach && state!=INSPECT)
-	begin
-		enable_memory<=1;
-	end
-	else
-	begin
-		enable_memory<=0;
 	end
 end
 
@@ -229,6 +233,9 @@ I2LBS_classifier
 .reset(reset),
 .enable(enable),
 .integral_image(integral_image),
+.database_stage_1(database_stage_1),
+.database_stage_2(database_stage_2),
+.database_stage_3(database_stage_3),
 .end_database(end_database),
 .end_trees(end_trees),
 .end_leafs(end_leafs),

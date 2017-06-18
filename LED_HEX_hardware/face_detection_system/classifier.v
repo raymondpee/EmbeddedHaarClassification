@@ -25,11 +25,15 @@ o_candidate
 );
 
 
+/*****************************************************************************
+ *                           Parameter Declarations                          *
+ *****************************************************************************/
+localparam DEFAULT_VALUE = 1010;
+localparam MAX_SIZE = 3;
 
 /*****************************************************************************
  *                             Port Declarations                             *
  *****************************************************************************/
-localparam DEFAULT_VALUE = 1010;
 input clk;
 input reset;
 input enable;
@@ -113,6 +117,46 @@ assign copy = enable && !end_trees;
 assign calculate = enable && end_leafs;
 assign o_candidate = candidate;
 
+always@(posedge calculate)
+begin
+	rect_A_1 = integral_image[rect_A_1_index];
+	rect_B_1 = integral_image[rect_B_1_index];
+	rect_C_1 = integral_image[rect_C_1_index];
+	rect_D_1 = integral_image[rect_D_1_index];
+	rect_A_2 = integral_image[rect_A_2_index];
+	rect_B_2 = integral_image[rect_B_2_index];
+	rect_C_2 = integral_image[rect_C_2_index];
+	rect_D_2 = integral_image[rect_D_2_index];
+	rect_A_3 = integral_image[rect_A_3_index];
+	rect_B_3 = integral_image[rect_B_3_index];
+	rect_C_3 = integral_image[rect_C_3_index];
+	rect_D_3 = integral_image[rect_D_3_index];
+	
+	rect_minus_A_1 = rect_A_1 + rect_D_1;
+	rect_minus_B_1 = rect_B_1 + rect_C_1;
+	rect_1 = weight_1*(rect_minus_A_1 - rect_minus_B_1);
+		
+	//rect 2
+	rect_minus_A_2 = rect_A_2 + rect_D_2;
+	rect_minus_B_2 = rect_B_2 + rect_C_2;
+	rect_2 = weight_2*(rect_minus_A_2 - rect_minus_B_2);
+		
+	//rect 3
+	rect_minus_A_3 = rect_A_3 - rect_D_3;
+	rect_minus_B_3 = rect_B_3 - rect_C_3;
+	rect_3 = weight_3*(rect_minus_A_3 - rect_minus_B_3);
+
+	//value
+	value = rect_1 + rect_3 + rect_2;
+	haar =(value > threshold)? right_word:left_word;	
+	sum_haar = sum_haar + haar;
+end
+
+
+always@(posedge end_database)
+begin
+	candidate = sum_haar>r_stage_threshold;
+end
 
 /*****************************************************************************
  *                            Sequence logic                                 *
@@ -211,52 +255,11 @@ begin
 	end
 end
 
-always@(posedge calculate)
-begin
-	rect_A_1 = integral_image[rect_A_1_index];
-	rect_B_1 = integral_image[rect_B_1_index];
-	rect_C_1 = integral_image[rect_C_1_index];
-	rect_D_1 = integral_image[rect_D_1_index];
-	rect_A_2 = integral_image[rect_A_2_index];
-	rect_B_2 = integral_image[rect_B_2_index];
-	rect_C_2 = integral_image[rect_C_2_index];
-	rect_D_2 = integral_image[rect_D_2_index];
-	rect_A_3 = integral_image[rect_A_3_index];
-	rect_B_3 = integral_image[rect_B_3_index];
-	rect_C_3 = integral_image[rect_C_3_index];
-	rect_D_3 = integral_image[rect_D_3_index];
-	
-	rect_minus_A_1 = rect_A_1 + rect_D_1;
-	rect_minus_B_1 = rect_B_1 + rect_C_1;
-	rect_1 = weight_1*(rect_minus_A_1 - rect_minus_B_1);
-		
-	//rect 2
-	rect_minus_A_2 = rect_A_2 + rect_D_2;
-	rect_minus_B_2 = rect_B_2 + rect_C_2;
-	rect_2 = weight_2*(rect_minus_A_2 - rect_minus_B_2);
-		
-	//rect 3
-	rect_minus_A_3 = rect_A_3 - rect_D_3;
-	rect_minus_B_3 = rect_B_3 - rect_C_3;
-	rect_3 = weight_3*(rect_minus_A_3 - rect_minus_B_3);
-
-	//value
-	value = rect_1 + rect_3 + rect_2;
-	haar =(value > threshold)? right_word:left_word;	
-	sum_haar = sum_haar + haar;
-end
-
-
-always@(posedge end_database)
-begin
-	candidate = sum_haar>r_stage_threshold;
-end
-
 
 /*****************************************************************************
 *                                   Modules                                  *
 *****************************************************************************/ 
-localparam MAX_SIZE = 3;
+
 
 counter
 #(

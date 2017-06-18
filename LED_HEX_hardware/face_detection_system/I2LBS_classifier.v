@@ -17,6 +17,9 @@ clk,
 reset,
 enable,
 integral_image,
+database_stage_1,
+database_stage_2,
+database_stage_3,
 end_database,
 end_trees,
 end_leafs,
@@ -34,6 +37,11 @@ input  clk;
 input  reset;
 input  enable;
 input  [DATA_WIDTH_16-1:0] 	integral_image	[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
+
+
+input [DATA_WIDTH_16-1:0] 	database_stage_1 [NUM_CLASSIFIERS_STAGE_1-1:0];
+input [DATA_WIDTH_16-1:0] 	database_stage_2 [NUM_CLASSIFIERS_STAGE_2-1:0];
+input [DATA_WIDTH_16-1:0] 	database_stage_3 [NUM_CLASSIFIERS_STAGE_3-1:0];
 
 //== End Flag
 input  [NUM_STAGE-1:0]		end_database;
@@ -133,12 +141,14 @@ I2LBS_classifier_embedded
 )
 I2LBS_classifier_embedded
 (
-clk(clk),
-reset(reset),
-enable(enable_stage_1)
-integral_image(integral_image),
-database(database),
-o_pass(pass_stage_1)
+.clk(clk),
+.reset(reset),
+.enable(enable_stage_1)
+.integral_image(integral_image),
+.database_stage_1(database_stage_1),
+.database_stage_2(database_stage_2),
+.database_stage_3(database_stage_3),
+.o_pass(pass_stage_1)
 );
  
  

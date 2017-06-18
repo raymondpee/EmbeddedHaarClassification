@@ -11,13 +11,16 @@ parameter FILE_STAGE_FILE_2 = "memory2.mif",
 parameter FILE_STAGE_FILE_3 = "memory3.mif",
 parameter NUM_CLASSIFIERS_STAGE_1 = 10,
 parameter NUM_CLASSIFIERS_STAGE_2 = 10,
-parameter NUM_CLASSIFIERS_STAGE_3 = 10
+parameter NUM_CLASSIFIERS_STAGE_3 = 10,
+parameter SIZE_DATABASE_EMBEDDED = 100
 )
 (
 clk,
 reset,
 o_load_done,
-o_memory
+o_database_stage_1,
+o_database_stage_2,
+o_database_stage_3
 )
 
 /*****************************************************************************
@@ -26,33 +29,37 @@ o_memory
 input clk;
 input reset;
 output o_load_done;
-output [DATA_WIDTH_16-1:0] o_memory[TOTAL_SIZE-1:0];
-
-/*****************************************************************************
- *                           Parameter Declarations                          *
- *****************************************************************************/
-localparam SIZE_STAGE_1 = NUM_CLASSIFIERS_STAGE_1*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
-localparam SIZE_STAGE_2 = NUM_CLASSIFIERS_STAGE_2*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
-localparam SIZE_STAGE_3 = NUM_CLASSIFIERS_STAGE_3*NUM_PARAM_PER_CLASSIFIER + NUM_STAGE_THRESHOLD;
-localparam TOTAL_SIZE = SIZE_STAGE_1 + SIZE_STAGE_2 + SIZE_STAGE_3;
-
+output [DATA_WIDTH_16-1:0] o_database_stage_1 [NUM_CLASSIFIERS_STAGE_1-1:0];
+output [DATA_WIDTH_16-1:0] o_database_stage_2 [NUM_CLASSIFIERS_STAGE_2-1:0];
+output [DATA_WIDTH_16-1:0] o_database_stage_3 [NUM_CLASSIFIERS_STAGE_3-1:0];
 
 
  /*****************************************************************************
  *                            Combinational logic                             *
  *****************************************************************************/
 assign o_load_done 	= load_done;
-assign o_memory 	= memory;
+assign o_database_stage_1 	= database_stage_1;
+assign o_database_stage_2 	= database_stage_2;
+assign o_database_stage_3 	= database_stage_3;
+
+assign load_done    = !(load_data_stage_1 || load_data_stage_2 || load_data_stage_3);
 
 /*****************************************************************************
  *                             Internal Wire/Register                        *
  *****************************************************************************/
-
+wire  						load_done;
+wire [DATA_WIDTH_16-1:0]	data_stage_1;
+wire [DATA_WIDTH_16-1:0]	data_stage_2;
+wire [DATA_WIDTH_16-1:0]	data_stage_3;
+						
 reg 						load_data;
-reg 						load_done;
 reg [DATA_WIDTH_12-1:0]		load_count;
-reg [DATA_WIDTH_12-1:0] 	index_memory;
-reg	[DATA_WIDTH_16-1:0] 	memory		[TOTAL_SIZE-1:0];
+reg [DATA_WIDTH_12-1:0] 	index_memory_stage_1;
+reg [DATA_WIDTH_12-1:0] 	index_memory_stage_2;
+reg [DATA_WIDTH_12-1:0] 	index_memory_stage_3;
+reg [DATA_WIDTH_16-1:0] 	database_stage_1 [NUM_CLASSIFIERS_STAGE_1-1:0];
+reg [DATA_WIDTH_16-1:0] 	database_stage_2 [NUM_CLASSIFIERS_STAGE_2-1:0];
+reg [DATA_WIDTH_16-1:0] 	database_stage_3 [NUM_CLASSIFIERS_STAGE_3-1:0];
 
 /*****************************************************************************
  *                            Sequence logic                                 *
@@ -61,29 +68,66 @@ reg	[DATA_WIDTH_16-1:0] 	memory		[TOTAL_SIZE-1:0];
 always@(posedge clk)
 begin
 	if(reset)
-	begin
-		index_memory 	= 0;
-		load_done 		= 0;
-		load_count 		= 0;
-		load_data 		= 1;
-		for(index_memory = 0; index_memory<TOTAL_SIZE; index_memory = index_memory +1)
+	begin		
+		load_done 				= 0;
+		load_count_stage_1 		= 0;
+		load_count_stage_2		= 0;
+		load_count_stage_3		= 0;
+		load_data_stage_1 		= 1;
+		load_data_stage_2 		= 1;
+		load_data_stage_3 		= 1;
+		
+		index_memory_stage_1 	= 0;
+		for(index_memory_stage_1 = 0; index_memory_stage_1<NUM_CLASSIFIERS_STAGE_1; index_memory_stage_1 = index_memory_stage_1 +1)
 		begin
-			memory[index_memory] =0;
+			database_stage_1[index_memory_stage_1] =0;
+		end
+		
+		index_memory_stage_2 	= 0;
+		for(index_memory_stage_2 = 0; index_memory_stage_2<NUM_CLASSIFIERS_STAGE_2; index_memory_stage_2 = index_memory_stage_2 +1)
+		begin
+			database_stage_2[index_memory_stage_2] =0;
+		end
+		
+		index_memory_stage_3 	= 0;
+		for(index_memory_stage_3 = 0; index_memory_stage_3<NUM_CLASSIFIERS_STAGE_3; index_memory_stage_3 = index_memory_stage_3 +1)
+		begin
+			database_stage_3[index_memory_stage_3] =0;
 		end
 	end
 end
 
-always@(data)
+always@(data_stage_1)
 begin
-	memory[load_count] = data;
-	load_count = load_count +1;	
-	if(load_count == TOTAL_SIZE)
+	database_stage_1[load_count_stage_1] = data;	
+	load_count_stage_1 = load_count_stage_1 +1;	
+	if(load_count_stage_1 == NUM_CLASSIFIERS_STAGE_1)
 	begin
-		load_data = 0;
-		load_done = 1;
+		load_data_stage_1 = 0;
 	end
 end
 
+
+always@(data_stage_2)
+begin
+	database_stage_2[load_count_stage_2] = data;	
+	load_count_stage_2 = load_count_stage_2 +1;	
+	if(load_count_stage_2 == NUM_CLASSIFIERS_STAGE_2)
+	begin
+		load_data_stage_2 = 0;
+	end
+end
+
+
+always@(data_stage_3)
+begin
+	database_stage_3[load_count_stage_3] = data;	
+	load_count_stage_3 = load_count_stage_3 +1;	
+	if(load_count_stage_3 == NUM_CLASSIFIERS_STAGE_3)
+	begin
+		load_data_stage_3 = 0;
+	end
+end
 
 
 /*****************************************************************************
@@ -93,16 +137,46 @@ end
 database_stage_memory
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
-.FILE_STAGE_MEM(FILE_STAGE_MEM),
-.SIZE_STAGE(SIZE_STAGE)
+.FILE_STAGE_MEM(FILE_STAGE_FILE_1),
+.SIZE_STAGE(NUM_CLASSIFIERS_STAGE_1)
 )
-database_stage_memory
+database_stage_memory_stage_1
 (
 .clk(clk),
 .reset(reset),
 .ren_database_index(load_data),
 .ren_database(load_data),
-.o_data(data)
+.o_data(data_stage_1)
+);
+
+database_stage_memory
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.FILE_STAGE_MEM(FILE_STAGE_FILE_2),
+.SIZE_STAGE(NUM_CLASSIFIERS_STAGE_2)
+)
+database_stage_memory_stage_2
+(
+.clk(clk),
+.reset(reset),
+.ren_database_index(load_data),
+.ren_database(load_data),
+.o_data(data_stage_2)
+);
+
+database_stage_memory
+#(
+.ADDR_WIDTH(ADDR_WIDTH),
+.FILE_STAGE_MEM(FILE_STAGE_FILE_3),
+.SIZE_STAGE(NUM_CLASSIFIERS_STAGE_3)
+)
+database_stage_memory_stage_3
+(
+.clk(clk),
+.reset(reset),
+.ren_database_index(load_data),
+.ren_database(load_data),
+.o_data(data_stage_3)
 );
 
 endmodule
