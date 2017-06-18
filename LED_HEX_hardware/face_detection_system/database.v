@@ -128,7 +128,7 @@ assign load_second_stage = enable_second_stage && enable;
  *****************************************************************************/ 
 always@(posedge clk)
 begin
-	if(reset)
+	if(reset_database)
 	begin
 		enable_second_stage <=0;
 	end
@@ -156,13 +156,13 @@ database_embedded
 )
 database_embedded
 (
-clk(clk),
-reset(reset_system),
-o_load_done(o_load_done),
-o_database_stage_1(o_database_stage_1),
-o_database_stage_2(o_database_stage_2),
-o_database_stage_3(o_database_stage_3)
-)
+.clk(clk),
+.reset(reset_system),
+.o_load_done(o_load_done),
+.o_database_stage_1(o_database_stage_1),
+.o_database_stage_2(o_database_stage_2),
+.o_database_stage_3(o_database_stage_3)
+);
  
  
 database_stage
@@ -420,7 +420,7 @@ stage_15
 database_stage
 #(
 .ADDR_WIDTH(ADDR_WIDTH),
-.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE16),
+.NUM_CLASSIFIERS_STAGE(NUM_CLASSIFIERS_STAGE_16),
 .NUM_PARAM_PER_CLASSIFIER(NUM_PARAM_PER_CLASSIFIER),
 .NUM_STAGE_THRESHOLD(NUM_STAGE_THRESHOLD),
 .FILE_STAGE_MEM(FILE_STAGE16)

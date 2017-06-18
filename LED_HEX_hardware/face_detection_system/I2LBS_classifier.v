@@ -61,7 +61,7 @@ output 						o_candidate;
 /*****************************************************************************
  *                             Internal Wire/Register                        *
  *****************************************************************************/
-
+wire							pass_stage_1;
 wire 							enable_stage_1;
 wire 							enable_stage_2;
 wire 							pass;
@@ -143,7 +143,7 @@ I2LBS_classifier_embedded
 (
 .clk(clk),
 .reset(reset),
-.enable(enable_stage_1)
+.enable(enable_stage_1),
 .integral_image(integral_image),
 .database_stage_1(database_stage_1),
 .database_stage_2(database_stage_2),

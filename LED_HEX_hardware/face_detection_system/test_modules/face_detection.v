@@ -42,6 +42,7 @@ localparam DATA_WIDTH_8 			= 8;
 localparam DATA_WIDTH_12 			= 12; 
 localparam DATA_WIDTH_16 			= 16; 
 localparam NUM_PARAM_PER_CLASSIFIER = 19;
+localparam NUM_STAGE_THRESHOLD		= 3;
 localparam INTEGRAL_WIDTH 			= INTEGRAL_LENGTH;
 localparam INTEGRAL_HEIGHT 			= INTEGRAL_LENGTH;
 
@@ -336,7 +337,7 @@ database
 .FILE_STAGE4(FILE_STAGE4),
 .FILE_STAGE5(FILE_STAGE5),
 .FILE_STAGE6(FILE_STAGE6),
-.FILE_STAGE7(FILE_STAGE7,
+.FILE_STAGE7(FILE_STAGE7),
 .FILE_STAGE8(FILE_STAGE8),
 .FILE_STAGE9(FILE_STAGE9),
 .FILE_STAGE10(FILE_STAGE10),
@@ -365,11 +366,11 @@ database
 
 
 //== First Stage Database
-pass_first_stage(pass_first_stage),
-o_load_done(database_load_done),
-o_database_stage_1(database_stage_1),
-o_database_stage_2(database_stage_2),
-o_database_stage_3(database_stage_3),
+.pass_first_stage(pass_first_stage),
+.o_load_done(database_load_done),
+.o_database_stage_1(database_stage_1),
+.o_database_stage_2(database_stage_2),
+.o_database_stage_3(database_stage_3),
 
 //== Index
 .o_index_leaf(index_leaf),

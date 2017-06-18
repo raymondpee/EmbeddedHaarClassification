@@ -21,7 +21,7 @@ o_load_done,
 o_database_stage_1,
 o_database_stage_2,
 o_database_stage_3
-)
+);
 
 /*****************************************************************************
  *                             Port Declarations                             *
@@ -34,16 +34,6 @@ output [DATA_WIDTH_16-1:0] o_database_stage_2 [NUM_CLASSIFIERS_STAGE_2-1:0];
 output [DATA_WIDTH_16-1:0] o_database_stage_3 [NUM_CLASSIFIERS_STAGE_3-1:0];
 
 
- /*****************************************************************************
- *                            Combinational logic                             *
- *****************************************************************************/
-assign o_load_done 	= load_done;
-assign o_database_stage_1 	= database_stage_1;
-assign o_database_stage_2 	= database_stage_2;
-assign o_database_stage_3 	= database_stage_3;
-
-assign load_done    = !(load_data_stage_1 || load_data_stage_2 || load_data_stage_3);
-
 /*****************************************************************************
  *                             Internal Wire/Register                        *
  *****************************************************************************/
@@ -51,8 +41,14 @@ wire  						load_done;
 wire [DATA_WIDTH_16-1:0]	data_stage_1;
 wire [DATA_WIDTH_16-1:0]	data_stage_2;
 wire [DATA_WIDTH_16-1:0]	data_stage_3;
-						
-reg 						load_data;
+
+
+reg 						load_count_stage_1;
+reg 						load_count_stage_2;
+reg 						load_count_stage_3;						
+reg							load_data_stage_1;
+reg							load_data_stage_2;
+reg							load_data_stage_3;
 reg [DATA_WIDTH_12-1:0]		load_count;
 reg [DATA_WIDTH_12-1:0] 	index_memory_stage_1;
 reg [DATA_WIDTH_12-1:0] 	index_memory_stage_2;
@@ -60,6 +56,49 @@ reg [DATA_WIDTH_12-1:0] 	index_memory_stage_3;
 reg [DATA_WIDTH_16-1:0] 	database_stage_1 [NUM_CLASSIFIERS_STAGE_1-1:0];
 reg [DATA_WIDTH_16-1:0] 	database_stage_2 [NUM_CLASSIFIERS_STAGE_2-1:0];
 reg [DATA_WIDTH_16-1:0] 	database_stage_3 [NUM_CLASSIFIERS_STAGE_3-1:0];
+
+
+/*****************************************************************************
+ *                            Combinational logic                             *
+ *****************************************************************************/
+assign o_load_done 	= load_done;
+assign o_database_stage_1 	= database_stage_1;
+assign o_database_stage_2 	= database_stage_2;
+assign o_database_stage_3 	= database_stage_3;
+assign load_done    = !(load_data_stage_1 || load_data_stage_2 || load_data_stage_3);
+
+
+always@(data_stage_1)
+begin
+	database_stage_1[load_count_stage_1] = data_stage_1;	
+	load_count_stage_1 = load_count_stage_1 +1;	
+	if(load_count_stage_1 == NUM_CLASSIFIERS_STAGE_1)
+	begin
+		load_data_stage_1 = 0;
+	end
+end
+
+
+always@(data_stage_2)
+begin
+	database_stage_2[load_count_stage_2] = data_stage_2;	
+	load_count_stage_2 = load_count_stage_2 +1;	
+	if(load_count_stage_2 == NUM_CLASSIFIERS_STAGE_2)
+	begin
+		load_data_stage_2 = 0;
+	end
+end
+
+
+always@(data_stage_3)
+begin
+	database_stage_3[load_count_stage_3] = data_stage_3;	
+	load_count_stage_3 = load_count_stage_3 +1;	
+	if(load_count_stage_3 == NUM_CLASSIFIERS_STAGE_3)
+	begin
+		load_data_stage_3 = 0;
+	end
+end
 
 /*****************************************************************************
  *                            Sequence logic                                 *
@@ -69,7 +108,6 @@ always@(posedge clk)
 begin
 	if(reset)
 	begin		
-		load_done 				= 0;
 		load_count_stage_1 		= 0;
 		load_count_stage_2		= 0;
 		load_count_stage_3		= 0;
@@ -97,37 +135,7 @@ begin
 	end
 end
 
-always@(data_stage_1)
-begin
-	database_stage_1[load_count_stage_1] = data;	
-	load_count_stage_1 = load_count_stage_1 +1;	
-	if(load_count_stage_1 == NUM_CLASSIFIERS_STAGE_1)
-	begin
-		load_data_stage_1 = 0;
-	end
-end
 
-
-always@(data_stage_2)
-begin
-	database_stage_2[load_count_stage_2] = data;	
-	load_count_stage_2 = load_count_stage_2 +1;	
-	if(load_count_stage_2 == NUM_CLASSIFIERS_STAGE_2)
-	begin
-		load_data_stage_2 = 0;
-	end
-end
-
-
-always@(data_stage_3)
-begin
-	database_stage_3[load_count_stage_3] = data;	
-	load_count_stage_3 = load_count_stage_3 +1;	
-	if(load_count_stage_3 == NUM_CLASSIFIERS_STAGE_3)
-	begin
-		load_data_stage_3 = 0;
-	end
-end
 
 
 /*****************************************************************************

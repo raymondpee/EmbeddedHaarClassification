@@ -9,7 +9,7 @@ parameter INTEGRAL_HEIGHT = 10
 (
 clk,
 reset,
-calculate
+calculate,
 integral_image,
 rect_A_1_index,
 rect_B_1_index,
@@ -52,14 +52,18 @@ input 	[DATA_WIDTH_12-1:0] rect_A_3_index;
 input 	[DATA_WIDTH_12-1:0] rect_B_3_index;
 input 	[DATA_WIDTH_12-1:0] rect_C_3_index;
 input 	[DATA_WIDTH_12-1:0] rect_D_3_index;
-
+input 	[DATA_WIDTH_12-1:0] weight_1;
+input 	[DATA_WIDTH_12-1:0] weight_2;
+input 	[DATA_WIDTH_12-1:0] weight_3;
+input 	[DATA_WIDTH_12-1:0]	threshold;
+input 	[DATA_WIDTH_12-1:0]	right_word;
+input 	[DATA_WIDTH_12-1:0]	left_word;
 output 	[DATA_WIDTH_16-1:0] o_haar;
 
 
 /*****************************************************************************
  *                             Internal Wire/Register                        *
  *****************************************************************************/
-
 reg [DATA_WIDTH_16-1:0] rect_A_1;
 reg [DATA_WIDTH_16-1:0] rect_B_1;
 reg [DATA_WIDTH_16-1:0] rect_C_1;

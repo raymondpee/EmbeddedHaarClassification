@@ -35,12 +35,13 @@ input [DATA_WIDTH_16-1:0] 	integral_image	[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
 input [DATA_WIDTH_16-1:0] 	database_stage_1 [NUM_CLASSIFIERS_STAGE_1-1:0];
 input [DATA_WIDTH_16-1:0] 	database_stage_2 [NUM_CLASSIFIERS_STAGE_2-1:0];
 input [DATA_WIDTH_16-1:0] 	database_stage_3 [NUM_CLASSIFIERS_STAGE_3-1:0];
+output 						o_pass;
 
 /*****************************************************************************
  *                             Internal Wire/Register                        *
  *****************************************************************************/
 
- wire 	pass_stage_1;
+wire 	pass_stage_1;
 wire 	pass_stage_2;
 wire 	pass_stage_3;
  
@@ -63,6 +64,11 @@ reg 	[DATA_WIDTH_16-1:0] haar_stage_1 [NUM_CLASSIFIERS_STAGE_1 -1:0];
 reg 	[DATA_WIDTH_16-1:0] haar_stage_2 [NUM_CLASSIFIERS_STAGE_1 -1:0];
 reg 	[DATA_WIDTH_16-1:0] haar_stage_3 [NUM_CLASSIFIERS_STAGE_1 -1:0];
 
+
+/*****************************************************************************
+*                            Combinational logic                             *
+*****************************************************************************/
+
 assign sum_haar_1 = cumulative_haar_stage_1[NUM_CLASSIFIERS_STAGE_1-1]; 
 assign sum_haar_2 = cumulative_haar_stage_2[NUM_CLASSIFIERS_STAGE_2-1];
 assign sum_haar_3 = cumulative_haar_stage_3[NUM_CLASSIFIERS_STAGE_3-1];
@@ -78,47 +84,38 @@ assign pass_stage_3 = sum_haar_3 > stage_threshold_stage_3;
 assign pass 	= pass_stage_1 && pass_stage_2 && pass_stage_3;
 assign o_pass 	= pass;
 
-/*****************************************************************************
- *                            Sequence logic                                 *
- *****************************************************************************/ 
 
-integer index;
-always@(posedge clk)
-begin
-	if(reset)
+generate
+	genvar index_haar_stage_1;
+	assign cumulative_haar_stage_1[0] =  haar_stage_1[0];	
+	for(index_haar_stage_1 = 1; index_haar_stage_1<NUM_CLASSIFIERS_STAGE_1; index_haar_stage_1 = index_haar_stage_1 +1)
 	begin
-		index_1 = 0;
-		for(index_1 = 0; index_1<NUM_CLASSIFIERS_STAGE_1; index_1 = index_1 +1)
-		begin
-			cumulative_haar_stage_1[index_1] = 0;
-		end
-		
-		index_2 = 0;
-		for(index_2 = 0; index_2<NUM_CLASSIFIERS_STAGE_2; index_2 = index_2 +1)
-		begin
-			cumulative_haar_stage_2[index_2] = 0;
-		end
-		
-		index_3 = 0;
-		for(index_3 = 0; index_3<NUM_CLASSIFIERS_STAGE_3; index_3 = index_3 +1)
-		begin
-			cumulative_haar_stage_3[index_3] = 0;
-		end
+		assign cumulative_haar_stage_1[index_haar_stage_1] = cumulative_haar_stage_1[index_haar_stage_1-1] + haar_stage_1[index_haar_stage_1];
 	end
-end
+
+	genvar index_haar_stage_2;
+	assign cumulative_haar_stage_2[0] =  haar_stage_2[0];	
+	for(index_haar_stage_2 = 1; index_haar_stage_2<NUM_CLASSIFIERS_STAGE_2; index_haar_stage_2 = index_haar_stage_2 +1)
+	begin
+		assign cumulative_haar_stage_2[index_haar_stage_2] = cumulative_haar_stage_2[index_haar_stage_2-1] + haar_stage_2[index_haar_stage_2];
+	end
+	
+	
+	genvar index_haar_stage_3;
+	assign cumulative_haar_stage_3[0] =  haar_stage_3[0];	
+	for(index_haar_stage_3 = 1; index_haar_stage_3<NUM_CLASSIFIERS_STAGE_3; index_haar_stage_3 = index_haar_stage_3 +1)
+	begin
+		assign cumulative_haar_stage_3[index_haar_stage_3] = cumulative_haar_stage_3[index_haar_stage_3-1] + haar_stage_3[index_haar_stage_3];
+	end
+	
+endgenerate
+
 
 /*****************************************************************************
 *                                   Modules                                  *
 *****************************************************************************/ 
-generate
-	genvar index_haar_stage_1;
-	cumulative_haar_stage_1[0] =  haar_stage_1[0];	
-	for(index_haar_stage_1 = 1; index_haar_stage_1<NUM_CLASSIFIERS_STAGE_1; index_haar_stage_1 = index_haar_stage_1 +1)
-	begin
-		assign cumulative_haar_stage_1[index_haar_stage_1] = cumulative_haar_stage_1[index_haar_stage_1-1] + haar[index_haar_stage_1];
-	end
-	
-	genvar index_leaf_stage_1
+generate	
+	genvar index_leaf_stage_1;
 	for(index_leaf_stage_1 = 0; index_leaf_stage_1<NUM_CLASSIFIERS_STAGE_1; index_leaf_stage_1 = index_leaf_stage_1 +1)
 	begin 
 		classifier_embedded
@@ -153,15 +150,7 @@ generate
 		.o_haar(haar_stage_1[index_leaf_stage_1])
 		);
 	end
-endgenerate
 
-generate
-	genvar index_haar_stage_2;
-	cumulative_haar_stage_2[0] =  haar_stage_2[0];	
-	for(index_haar_stage_2 = 1; index_haar_stage_2<NUM_CLASSIFIERS_STAGE_2; index_haar_stage_2 = index_haar_stage_2 +1)
-	begin
-		assign cumulative_haar_stage_2[index_haar_stage_2] = cumulative_haar_stage_2[index_haar_stage_2-1] + haar[index_haar_stage_2];
-	end
 
 	genvar index_leaf_stage_2;
 	for(index_leaf_stage_2 = 0; index_leaf_stage_2<NUM_CLASSIFIERS_STAGE_2; index_leaf_stage_2 = index_leaf_stage_2 +1)
@@ -197,15 +186,6 @@ generate
 		.right_value(database_stage_2[index_leaf_stage_2 + 18]),
 		.o_haar(haar_stage_2[index_leaf_stage_2])
 		);
-	end
-endgenerate
-
-generate
-	genvar index_haar_stage_3;
-	cumulative_haar_stage_3[0] =  haar_stage_3[0];	
-	for(index_haar_stage_3 = 1; index_haar_stage_3<NUM_CLASSIFIERS_STAGE_3; index_haar_stage_3 = index_haar_stage_3 +1)
-	begin
-		assign cumulative_haar_stage_3[index_haar_stage_3] = cumulative_haar_stage_3[index_haar_stage_3-1] + haar[index_haar_stage_3];
 	end
 
 	genvar index_leaf_stage_3;
