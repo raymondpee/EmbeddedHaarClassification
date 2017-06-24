@@ -27,8 +27,8 @@ rect_C_3_index,
 rect_D_3_index,
 weight_3,
 threshold,
-left_word,
-right_word,
+left_value,
+right_value,
 o_haar
 );
 
@@ -39,25 +39,25 @@ input 	clk;
 input 	reset;
 input 	calculate;
 input 	[DATA_WIDTH_16-1:0] integral_image[INTEGRAL_WIDTH*INTEGRAL_HEIGHT-1:0];
-input 	[DATA_WIDTH_12-1:0] rect_A_1_index;
-input 	[DATA_WIDTH_12-1:0] rect_B_1_index;
-input 	[DATA_WIDTH_12-1:0] rect_C_1_index;
-input 	[DATA_WIDTH_12-1:0] rect_D_1_index;
-input 	[DATA_WIDTH_12-1:0] rect_A_2_index;
-input 	[DATA_WIDTH_12-1:0] rect_B_2_index;
-input 	[DATA_WIDTH_12-1:0] rect_C_2_index;
-input 	[DATA_WIDTH_12-1:0] rect_D_2_index;
-input 	[DATA_WIDTH_12-1:0] rect_D_1_index;
-input 	[DATA_WIDTH_12-1:0] rect_A_3_index;
-input 	[DATA_WIDTH_12-1:0] rect_B_3_index;
-input 	[DATA_WIDTH_12-1:0] rect_C_3_index;
-input 	[DATA_WIDTH_12-1:0] rect_D_3_index;
-input 	[DATA_WIDTH_12-1:0] weight_1;
-input 	[DATA_WIDTH_12-1:0] weight_2;
-input 	[DATA_WIDTH_12-1:0] weight_3;
-input 	[DATA_WIDTH_12-1:0]	threshold;
-input 	[DATA_WIDTH_12-1:0]	right_word;
-input 	[DATA_WIDTH_12-1:0]	left_word;
+input 	[DATA_WIDTH_16-1:0] rect_A_1_index;
+input 	[DATA_WIDTH_16-1:0] rect_B_1_index;
+input 	[DATA_WIDTH_16-1:0] rect_C_1_index;
+input 	[DATA_WIDTH_16-1:0] rect_D_1_index;
+input 	[DATA_WIDTH_16-1:0] rect_A_2_index;
+input 	[DATA_WIDTH_16-1:0] rect_B_2_index;
+input 	[DATA_WIDTH_16-1:0] rect_C_2_index;
+input 	[DATA_WIDTH_16-1:0] rect_D_2_index;
+input 	[DATA_WIDTH_16-1:0] rect_D_1_index;
+input 	[DATA_WIDTH_16-1:0] rect_A_3_index;
+input 	[DATA_WIDTH_16-1:0] rect_B_3_index;
+input 	[DATA_WIDTH_16-1:0] rect_C_3_index;
+input 	[DATA_WIDTH_16-1:0] rect_D_3_index;
+input 	[DATA_WIDTH_16-1:0] weight_1;
+input 	[DATA_WIDTH_16-1:0] weight_2;
+input 	[DATA_WIDTH_16-1:0] weight_3;
+input 	[DATA_WIDTH_16-1:0]	threshold;
+input 	[DATA_WIDTH_16-1:0]	right_value;
+input 	[DATA_WIDTH_16-1:0]	left_value;
 output 	[DATA_WIDTH_16-1:0] o_haar;
 
 
@@ -130,7 +130,7 @@ begin
 
 	//value
 	value = rect_1 + rect_3 + rect_2;
-	haar =(value > threshold)? right_word:left_word;	
+	haar =(value > threshold)? right_value:left_value;	
 end
 
 endmodule

@@ -413,7 +413,6 @@ I2LBS_5
 .database_stage_3(database_stage_3),
 .ori_x(ori_x),
 .ori_y(ori_y),
-.database_first_stage(database_first_stage),
 .index_tree(index_tree),
 .index_leaf(index_leaf),
 .data(data),
