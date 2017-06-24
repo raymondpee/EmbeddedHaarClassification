@@ -43,9 +43,9 @@ wire [DATA_WIDTH_16-1:0]	data_stage_2;
 wire [DATA_WIDTH_16-1:0]	data_stage_3;
 
 
-reg 						load_count_stage_1;
-reg 						load_count_stage_2;
-reg 						load_count_stage_3;						
+reg [DATA_WIDTH_12-1:0] 	load_count_stage_1;
+reg [DATA_WIDTH_12-1:0] 	load_count_stage_2;
+reg [DATA_WIDTH_12-1:0] 	load_count_stage_3;						
 reg							load_data_stage_1;
 reg							load_data_stage_2;
 reg							load_data_stage_3;
@@ -152,8 +152,8 @@ database_stage_memory_stage_1
 (
 .clk(clk),
 .reset(reset),
-.ren_database_index(load_data),
-.ren_database(load_data),
+.ren_database_index(load_data_stage_1),
+.ren_database(load_data_stage_1),
 .o_data(data_stage_1)
 );
 
@@ -167,8 +167,8 @@ database_stage_memory_stage_2
 (
 .clk(clk),
 .reset(reset),
-.ren_database_index(load_data),
-.ren_database(load_data),
+.ren_database_index(load_data_stage_2),
+.ren_database(load_data_stage_2),
 .o_data(data_stage_2)
 );
 
@@ -182,8 +182,8 @@ database_stage_memory_stage_3
 (
 .clk(clk),
 .reset(reset),
-.ren_database_index(load_data),
-.ren_database(load_data),
+.ren_database_index(load_data_stage_3),
+.ren_database(load_data_stage_3),
 .o_data(data_stage_3)
 );
 
